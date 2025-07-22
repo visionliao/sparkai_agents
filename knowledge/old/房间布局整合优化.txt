@@ -1,0 +1,377 @@
+{
+  "building_data": {
+    "N/S-39": {
+      "model_name": "N/S-39户型",
+      "applicable_rooms": [
+        "A201", "A202", "A203", "A206", "A207", "A208", "A209", "A210", "A213", "A215", "A216", "A217", "A218", "A220",
+        "A301", "A302", "A303", "A306", "A307", "A308", "A309", "A310", "A311", "A312", "A313", "A315", "A316", "A317", "A320", "A321", "A322", "A323", "A325", "A326", "A327", "A328", "A329", "A330", "A331", "A332", "A333", "A336", "A337",
+        "A501", "A502", "A503", "A506", "A507", "A508", "A509", "A510", "A511", "A512", "A513", "A515", "A516", "A517", "A520", "A521", "A522", "A523", "A525", "A526", "A527", "A528", "A529", "A530", "A531", "A532", "A533", "A536", "A537",
+        "A601", "A602", "A603", "A606", "A607", "A608", "A609", "A610", "A611", "A612", "A613", "A615", "A616", "A617", "A620", "A621", "A622", "A623", "A625", "A626", "A627", "A628", "A629", "A630", "A631", "A632", "A633", "A636", "A637",
+        "A813", "A913", "A1013", "A1113", "A1213", "A1513", "A1613", "A1713", "A1813", "A1913", "A2013", "A2113", "A2213"
+      ],
+      "specifications": {
+        "layout_analysis": {
+          "by_area": {
+            "foyer": {
+              "name": "玄关",
+              "furnishings": "入口左侧设有一个顶天立地的鞋柜 (SHOES)。",
+              "analysis": "功能为换鞋、置物和情绪转换。动线清晰，可直接走向卫生间或客餐厅。鞋柜设置实用。"
+            },
+            "bathroom_utility": {
+              "name": "卫生间及家政区",
+              "layout_type": "三分离布局 (Three-part separation)",
+              "furnishings": "外部洗漱区(洗手台盆、洗衣机WM、真空吸尘器收纳位)、内部独立马桶间(TOILET)、独立淋浴房(SHOWER)。",
+              "analysis": "高效、现代化和人性化的设计，允许多人同时使用不同功能。实现了彻底的干湿分离，保持外部干燥洁净。"
+            },
+            "kitchen_dining": {
+              "name": "厨房 & 餐厅",
+              "layout_type": "开放式 '一'字型布局 (Open I-shaped layout)",
+              "furnishings": "厨房包含水槽、操作台、灶台。餐厅紧邻厨房，设圆形餐桌和两把餐椅。",
+              "analysis": "LDK一体化设计，放大空间感。'洗、切、炒'操作动线与用餐动线流畅高效。"
+            },
+            "living_room": {
+              "name": "客厅",
+              "furnishings": "三人位沙发、两张圆形小茶几、预留电视/投影墙。",
+              "analysis": "家庭核心活动区，布局简洁开放。沙发不靠墙，留出环绕式动线，更显灵活。"
+            },
+            "bedroom": {
+              "name": "卧室",
+              "furnishings": "1800x2000mm双人床、两个床头柜、一整面墙的衣柜 (CLOSET)，连接阳台/窗台。",
+              "analysis": "功能分区明确（睡眠区、储物区）。床位合理，采光通风良好。整面墙衣柜实现储物最大化。"
+            }
+          },
+          "overall_analysis": {
+            "zoning": "动静分区清晰合理。静区(卧室)在最内侧，保证私密宁静。动区(玄关、客、餐、厨、卫)整合在前半部分。",
+            "circulation": "动线高效流畅，无面积浪费。主客、家务、居住动线均设计自然，无交叉迂回。"
+          }
+        },
+        "electrical_points": {
+          "summary": "全屋开关高度多为1300mm，普通插座350mm，特殊位置根据场景调整。设计包含USB、HDMI、智能马桶等现代点位，并采用双控开关、24h不断电冰箱插座等，考虑周全且人性化。",
+          "points": [
+            {"area": "玄关", "function": "一楼总开关", "location": "入户门旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "玄关", "function": "可视电话", "location": "入户门旁墙面", "height_mm": 1500, "notes": ""},
+            {"area": "玄关", "function": "弱电箱", "location": "玄关柜内部", "height_mm": null, "notes": "高度未标"},
+            {"area": "玄关", "function": "客厅筒灯开关 (双控)", "location": "入户门旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "玄关", "function": "玄关筒灯/鞋柜灯带开关 (双控)", "location": "入户门旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "玄关", "function": "鞋柜灯带预留电源", "location": "鞋柜上方墙面", "height_mm": 1200, "notes": "由玄关双控开关控制"},
+            {"area": "玄关", "function": "电暖器插座", "location": "鞋柜区域墙面", "height_mm": 1200, "notes": ""},
+            {"area": "厨房", "function": "冰箱插座", "location": "冰箱后方墙面", "height_mm": 350, "notes": "24小时不断电，带独立开关"},
+            {"area": "厨房", "function": "洗烘一体机插座", "location": "洗衣机位墙面", "height_mm": 1050, "notes": ""},
+            {"area": "厨房", "function": "抽油烟机插座", "location": "灶台正上方墙面", "height_mm": 2100, "notes": ""},
+            {"area": "厨房", "function": "电磁炉插座", "location": "灶台下方墙面", "height_mm": 650, "notes": ""},
+            {"area": "厨房", "function": "微波炉插座", "location": "橱柜内或台面下方墙面", "height_mm": 650, "notes": ""},
+*           {"area": "厨房", "function": "备用插座", "location": "厨房台面上方墙面", "height_mm": 450, "notes": ""},
+            {"area": "厨房", "function": "备用插座 (x2)", "location": "厨房区域墙面", "height_mm": 350, "notes": ""},
+            {"area": "卫生间", "function": "智能马桶插座", "location": "马桶后方墙面", "height_mm": 350, "notes": "防水插座"},
+            {"area": "卫生间", "function": "剃须刀插座", "location": "洗手台旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "卫生间", "function": "风暖机/换气扇开关", "location": "卫生间门边墙面", "height_mm": 1300, "notes": ""},
+            {"area": "卫生间", "function": "镜前灯开关", "location": "洗手台旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "卫生间", "function": "镜前灯接线盒", "location": "洗手台镜子后方墙面", "height_mm": 1800, "notes": ""},
+            {"area": "卫生间", "function": "防雾镜接线盒", "location": "洗手台镜子后方墙面", "height_mm": 1800, "notes": ""},
+            {"area": "客厅/餐厅", "function": "备用插座", "location": "餐厅区域墙面", "height_mm": 350, "notes": ""},
+            {"area": "客厅/餐厅", "function": "电视信号插座 (一分三)", "location": "电视背景墙", "height_mm": 750, "notes": ""},
+            {"area": "客厅/餐厅", "function": "备用插座 (x3)", "location": "电视背景墙", "height_mm": 750, "notes": "其中一个为台灯插座"},
+            {"area": "客厅/餐厅", "function": "客厅筒灯开关 (双控)", "location": "沙发旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "客厅/餐厅", "function": "客厅灯带开关", "location": "沙发旁墙面", "height_mm": 1300, "notes": ""},
+            {"area": "客厅/餐厅", "function": "备用插座 (x2)", "location": "沙发旁墙面", "height_mm": 350, "notes": "五孔插座"},
+            {"area": "客厅/餐厅", "function": "HDMI输出插座", "location": "沙发旁墙面", "height_mm": 350, "notes": ""},
+            {"area": "客厅/餐厅", "function": "光纤入户面板", "location": "沙发旁墙面", "height_mm": 350, "notes": ""},
+            {"area": "客厅/餐厅", "function": "投影仪电源插座", "location": "沙发后方矮墙", "height_mm": null, "notes": "高度未标"},
+            {"area": "客厅/餐厅", "function": "HDMI信号输出插座", "location": "沙发后方矮墙", "height_mm": null, "notes": "双面预留，高度未标"},
+            {"area": "客厅/餐厅", "function": "橱柜灯带预留电源", "location": "沙发后方矮墙顶部", "height_mm": null, "notes": "顶面预留"},
+            {"area": "客厅/餐厅", "function": "灯光调节器接线盒", "location": "客厅吊顶内", "height_mm": null, "notes": ""},
+            {"area": "卧室", "function": "卧室灯光组合开关", "location": "床头左侧墙面", "height_mm": 750, "notes": "控制筒灯和灯带"},
+            {"area": "卧室", "function": "床头壁灯开关 (单控)", "location": "床头左侧墙面", "height_mm": 750, "notes": ""},
+            {"area": "卧室", "function": "USB充电面板", "location": "床头左侧墙面", "height_mm": 750, "notes": ""},
+            {"area": "卧室", "function": "备用插座", "location": "床头左侧墙面", "height_mm": 750, "notes": ""},
+            {"area": "卧室", "function": "床头壁灯开关 (单控)", "location": "床头右侧墙面", "height_mm": 750, "notes": ""},
+            {"area": "卧室", "function": "备用插座 (x2)", "location": "床头右侧墙面", "height_mm": 750, "notes": "其中一个为台灯串联"},
+            {"area": "卧室", "function": "备用插座 (x2)", "location": "睡床对面墙面", "height_mm": 1050, "notes": "五孔插座"}
+          ]
+        },
+        "flooring_materials": {
+          "materials": [
+            {"area": "门厅 (Foyer)", "material_code": "ST 01", "material_type": "石材 (Stone)", "notes": "提升入口耐用性和高级感"},
+            {"area": "卫生间 (Bathroom)", "material_code": "CT 01", "material_type": "瓷砖 (Tiles)", "notes": "确保防水、防滑和易清洁"},
+            {"area": "客餐厅和卧室 (Living, Dining, Bedroom)", "material_code": "WF 01", "material_type": "LVT地板 (LVT Finish)", "notes": "提供舒适脚感和统一视觉效果"},
+            {"area": "厨房区 (Kitchen Area)", "material_code": null, "material_type": "水泥砂浆找平", "notes": "可能为微水泥等无缝地坪工艺"},
+            {"area": "阳台 (Balcony)", "material_code": null, "material_type": "水泥砂浆找平", "notes": "结实耐用"},
+            {"area": "客厅至阳台踏步 (Step to Balcony)", "material_code": null, "material_type": "竹木地板 (Bamboo Wood Flooring)", "notes": "作为室内外空间的温馨连接"}
+          ]
+        },
+        "ceiling_design": {
+          "by_area": {
+            "foyer": {"name": "门厅", "height_mm": 2400, "finish": "PT 03 白色乳胶漆", "lighting": ["2x R05 嵌入式灯带"], "equipment": ["送风口", "回风口", "消防喷淋头"]},
+            "bathroom_utility": {"name": "卫生间/家政区", "height_mm": 2350, "finish": "PT 04 防水乳胶漆", "lighting": ["1x R01 嵌入式可调筒灯(洗漱区)", "1x R02 嵌入式防水筒灯(淋浴区)", "1x R03 嵌入式防水筒灯(推断,如厕区)"], "equipment": ["排风口", "消防喷淋头", "检修口"]},
+            "kitchen_dining": {"name": "厨房/餐厅", "height_mm": 2400, "finish": "PT 03 白色乳胶漆", "lighting": ["1x R05 嵌入式灯带(厨房)", "1x 装饰吊灯(餐厅)", "2x R01 嵌入式可调筒灯(餐厅)"], "equipment": ["消防喷淋头", "烟感探测器"]},
+            "living_room": {"name": "客厅", "height_mm": 2600, "finish": "PT 03 白色乳胶漆", "lighting": ["4x R01 嵌入式可调筒灯", "2x R04 嵌入式防水灯带(洗墙)", "CLS 暗藏连续性灯带(间接照明)"], "equipment": ["送风口", "2x 消防喷淋头", "窗帘盒", "检修口"]},
+            "bedroom": {"name": "卧室", "height_mm": 2600, "finish": "PT 03 白色乳胶漆", "lighting": ["2x LDWL 明装壁灯", "2x R01 嵌入式可调筒灯", "2x R02 嵌入式防水筒灯(衣柜)", "CLS 暗藏连续性灯带"], "equipment": ["送风口", "回风口", "2x 消防喷淋头", "窗帘盒"]}
+          }
+        },
+        "lighting_distribution": {
+          "by_area": {
+            "foyer": {
+              "name": "门厅",
+              "layout": ["1x R01 嵌入式可调筒灯", "1x R05 明装壁灯", "三联单控开关", "可视电话", "扩音器", "回风口"],
+              "control_logic": "入口三联开关：1-门厅筒灯, 2-入口壁灯, 3-客厅引路灯(2盏R02)。实现一键欢迎场景和动线照明。"
+            },
+            "bathroom": {
+              "name": "卫生间",
+              "layout": ["1x R02 嵌入式防水筒灯(马桶区)", "1x R01 嵌入式可调筒灯(洗漱区)", "1x R06 暗藏灯带(镜柜)", "双联单控开关", "暖风机", "排风口"],
+              "control_logic": "门外双联开关：1-主照明(R01+R02), 2-氛围照明(R06)。提供功能与氛围两种模式。"
+            },
+            "living_dining": {
+              "name": "客餐厅",
+              "layout": ["4x R01/R02 嵌入式可调筒灯", "R04 嵌入式成品灯", "R06 暗藏连续性灯带", "沙发旁双联单控开关", "扩音器", "烟感探测器"],
+              "control_logic": "照明控制分散在入口和沙发旁。沙发旁开关：1-沙发区筒灯, 2-餐厅区筒灯。实现分区精准照明。"
+            },
+            "bedroom": {
+              "name": "卧室",
+              "layout": ["2x R01 嵌入式可调筒灯", "2x LDWL 暗藏灯带", "R05 明装壁灯", "入口三联单控开关", "扩音器"],
+              "control_logic": "入口三联开关集中控制：1-床头筒灯(阅读/夜起), 2-床头背景灯带(氛围), 3-窗帘盒灯带+壁灯(层次)。"
+            }
+          }
+        },
+        "plumbing_system": {
+          "system_type": "轴测图 (Axonometric Drawing)",
+          "systems": [
+            {
+              "name": "排水系统 (Drainage)",
+              "pipe_specs": ["De75", "De110"],
+              "components": ["存水弯 (P-Trap)"],
+              "notes": "收集废水并通过管道排走。系统编号示例: B-WL-8, B-FL-8。"
+            },
+            {
+              "name": "给水系统 (Water Supply)",
+              "pipe_specs": ["DN25", "DN32", "DN40", "DN50"],
+              "components": ["管道终止/源头符号"],
+              "notes": "分配和输送水源。标高示例: FF+2.75, EL+2.55。"
+            }
+          ]
+        },
+        "elevation_views": {
+          "views": [
+            {
+              "id": "立面一 (厨房)",
+              "description": "厨房橱柜系统立面。",
+              "components": [
+                {"element": "吊柜", "material_code": "WD 01", "material_type": "浅灰色饰面板"},
+                {"element": "台面", "material_code": "ST 02", "material_type": "人造石"},
+                {"element": "后挡板", "material_code": "CT 05", "material_type": "瓷砖"},
+                {"element": "地柜", "material_code": "WD 01", "material_type": "浅灰色饰面板"},
+                {"element": "高柜/墙板", "material_code": "WD 01", "material_type": "浅灰色饰面板"},
+                {"element": "顶部收边", "material_code": "MT 02", "material_type": "L型金属收边条"},
+                {"element": "踢脚线", "material_code": "WD 05", "material_type": "成品踢脚线"}
+              ]
+            },
+            {
+              "id": "立面二 (卫生间外墙与衣柜)",
+              "description": "展示卫生间隐藏门和主卧/起居室的定制衣柜墙。",
+              "components": [
+                {"element": "隐藏门/木饰面", "material_code": "WD 01", "material_type": "浅灰色饰面板", "notes": "对应卫生间门D03"},
+                {"element": "衣柜/储物柜", "material_code": "WD 01", "material_type": "浅灰色饰面板", "notes": "V型槽勾勒菱形图案"},
+                {"element": "分隔条", "material_code": "MT 01", "material_type": "黑色金属条"}
+              ]
+            },
+            {
+              "id": "立面三 (客厅/书房隔断)",
+              "description": "展示宽2500mm的双开玻璃门及其两侧的窗帘。",
+              "components": [
+                {"element": "双开门", "material_type": "玻璃", "notes": "分隔空间但不隔断视线"},
+                {"element": "窗帘", "material_type": "布艺", "notes": "从暗藏式窗帘盒垂下"},
+                {"element": "踢脚线", "material_code": "WD 05", "material_type": "成品踢脚线"}
+              ]
+            },
+            {
+              "id": "立面四 (多功能背景墙)",
+              "description": "一场材质、颜色与光影的交响乐，整合了卧室、客厅和储物柜区。",
+              "components": [
+                {"element": "主背景", "material_code": "PT 01", "material_type": "浅灰色乳胶漆"},
+                {"element": "床下底座", "material_code": "MT 01", "material_type": "黑色哑光金属"},
+                {"element": "客厅墙基", "material_code": "ST 01", "material_type": "人造石"},
+                {"element": "储物柜", "material_codes": ["WD 01", "WD 03", "PT 01(黑)", "CT 05", "GL 03"], "notes": "多种材质拼贴"}
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "N/S-35": {
+      "model_name": "N/S-35房型",
+      "applicable_rooms": [
+        "A619", "A801", "A803", "A805", "A806", "A807", "A808", "A809", "A816", "A817", "A818", "A819", "A820", "A821",
+        "A901", "A903", "A905", "A906", "A907", "A908", "A909", "A916", "A917", "A918", "A919", "A920", "A921",
+        "A1001", "A1003", "A1005", "A1006", "A1007", "A1008", "A1009", "A1016", "A1017", "A1018", "A1019", "A1020", "A1021",
+        "A1101", "A1103", "A1105", "A1106", "A1107", "A1108", "A1109", "A1116", "A1117", "A1118", "A1119", "A1120", "A1121",
+        "A1201", "A1203", "A1205", "A1206", "A1207", "A1208", "A1209", "A1216", "A1217", "A1218", "A1219", "A1220", "A1221",
+        "A1501", "A1503", "A1505", "A1506", "A1507", "A1508", "A1509", "A1516", "A1517", "A1518", "A1519", "A1520", "A1521",
+        "A1601", "A1603", "A1605", "A1606", "A1607", "A1608", "A1609", "A1616", "A1617", "A1618", "A1619", "A1620", "A1621",
+        "A1701", "A1703", "A1705", "A1706", "A1707", "A1708", "A1709", "A1716", "A1717", "A1718", "A1719", "A1720", "A1721",
+        "A1801", "A1803", "A1805", "A1806", "A1807", "A1808", "A1809", "A1816", "A1817", "A1818", "A1819", "A1820", "A1821",
+        "A1901", "A1903", "A1905", "A1906", "A1907", "A1908", "A1909", "A1916", "A1917", "A1918", "A1919", "A1920", "A1921",
+        "A2001", "A2003", "A2005", "A2006", "A2007", "A2008", "A2009", "A2016", "A2017", "A2018", "A2019", "A2020", "A2021",
+        "A2101", "A2103", "A2105", "A2106", "A2107", "A2108", "A2109", "A2116", "A2117", "A2118", "A2119", "A2120", "A2121",
+        "A2201", "A2203", "A2205", "A2206", "A2207", "A2208", "A2209", "A2215", "A2216", "A2217", "A2218",
+        "A2301", "A2303", "A2305", "A2306", "A2307", "A2308", "A2309", "A2313", "A2315", "A2316", "A2317", "A2318",
+        "A2501", "A2503", "A2505", "A2506", "A2507", "A2508", "A2509", "A2513", "A2515", "A2516", "A2517", "A2518",
+        "B707", "B813", "B913", "B1013", "B1113", "B1213", "B1513", "B1613", "B1710", "B1810"
+      ],
+      "specifications": {
+        "layout_analysis": {
+          "by_area": {
+            "foyer": {"name": "玄关", "furnishings": "入口左侧设W=820mm鞋柜 (SHOES CABINET)。", "analysis": "设计简洁，动线直接导向内部空间。"},
+            "kitchen": {"name": "厨房", "layout_type": "开放式 '一'字型布局", "furnishings": "一字型橱柜、水槽、集成衣柜(CLOSET)。", "analysis": "LDK布局，增强空间感。集成衣柜做法高效利用空间。"},
+            "living_room": {"name": "起居室", "furnishings": "双人沙发(SOFA)、冰箱(Fridge)和洗烘一体机(WASHER DRYER COMBO)嵌入凹槽。", "analysis": "户型中心枢纽，布局紧凑。家电外置节省厨房台面空间。"},
+            "bedroom": {"name": "卧室", "layout_type": "大开间/Studio布局", "furnishings": "1500x2000mm双人床、床头柜、衣柜(CLOSET)。", "analysis": "与客厅无实体墙分隔，最大化通透感和采光，但牺牲了私密性。"},
+            "bathroom_system": {"name": "卫生间系统", "layout_type": "干湿分离", "furnishings": "外部独立洗手台(VANITY)，内部合并马桶(TOILET)和淋浴(SHOWER)。", "analysis": "提升使用效率，保持外部干燥卫生。"}
+          },
+          "overall_analysis": {
+            "zoning": "动静分区模糊，动区与静区融为一体，换取空间感和灵活性。",
+            "circulation": "动线流畅，无走廊面积浪费，但存在轻微交叉（厨房到冰箱需穿过客厅）。",
+            "advantages": "极致的空间整合与收纳规划；开放式布局带来超大空间感。"
+          }
+        },
+        "electrical_points": {
+          "summary": "现代化住宅电气布局，涵盖常规、智能、影音及特定电器需求。",
+          "points_by_area": {
+            "foyer_kitchen": [
+              {"function": "可视对讲机", "location": "入户门旁墙面", "height_mm": 1300, "notes": ""},
+              {"function": "一键总开", "location": "对讲机旁", "height_mm": 1300, "notes": "集中控制"},
+              {"function": "多区灯光开关", "location": "总开旁", "height_mm": 1300, "notes": "控制筒灯及插座灯"},
+              {"function": "抽油烟机插座", "location": "灶台上方墙内/吊柜内", "height_mm": 2100, "notes": ""},
+              {"function": "备用插座 (x3)", "location": "操作台墙面", "height_mm": 1050, "notes": "五孔插座"},
+              {"function": "电饭煲插座", "location": "操作台墙面", "height_mm": 1200, "notes": ""},
+              {"function": "电磁炉插座", "location": "地柜内", "height_mm": 600, "notes": ""},
+              {"function": "嵌入式洗碗机插座", "location": "水槽下方地柜内", "height_mm": 550, "notes": ""}
+            ],
+            "living_multifunction": [
+              {"function": "冰箱电源插座", "location": "FMJ0620多功能柜内", "height_mm": 350, "notes": "24h不断电，带独立开关"},
+              {"function": "一体机水吧台插座", "location": "多功能柜台面", "height_mm": 1050, "notes": ""},
+              {"function": "沙发旁地面插座", "location": "边几下方", "height_mm": 0, "notes": "地插"},
+              {"function": "电视墙备用电源插座", "location": "电视墙区域", "height_mm": 350, "notes": "五孔插座"},
+              {"function": "HDMI信号插座", "location": "电视墙区域", "height_mm": 350, "notes": ""},
+              {"function": "网络面板 (光纤入户)", "location": "电视墙区域", "height_mm": 350, "notes": "DATA"},
+              {"function": "紧急报警按钮", "location": "电视墙区域", "height_mm": 900, "notes": ""}
+            ],
+            "bedroom": [
+              {"function": "台灯/充电插座", "location": "床头右侧墙面", "height_mm": 750, "notes": "五孔插座"},
+              {"function": "卧室灯光开关", "location": "床头左侧墙面", "height_mm": 750, "notes": "控制筒灯和氛围灯"},
+              {"function": "客厅灯光双控开关", "location": "床头左侧墙面", "height_mm": 750, "notes": ""},
+              {"function": "USB充电插座", "location": "床头左侧墙面", "height_mm": 750, "notes": ""},
+              {"function": "投影仪电源插座", "location": "床尾对面墙", "height_mm": "距顶面400", "notes": ""},
+              {"function": "投影幕布电源", "location": "吊顶内", "height_mm": null, "notes": "顶面预留"}
+            ],
+            "bathroom": [
+              {"function": "智能马桶插座", "location": "马桶后侧方墙面", "height_mm": 350, "notes": "防水插座 WP"},
+              {"function": "剃须刀电源插座", "location": "洗手台盆旁墙面", "height_mm": 1300, "notes": ""},
+              {"function": "电吹风专用插座", "location": "洗手台盆旁墙面", "height_mm": 1300, "notes": "五孔插座"}
+            ]
+          }
+        },
+        "flooring_materials": {
+          "materials": [
+            {"area": "门厅 (Foyer)", "material_code": "ST 04", "material_type": "石材 (Stone)"},
+            {"area": "卫生间 (Bathroom)", "material_code": "CT 01", "material_type": "地砖 (Ceramic Tile)"},
+            {"area": "客厅/餐厅/卧室/厨房活动区", "material_code": "SP 01", "material_type": "LVT木纹地胶 (LVT Finish)"},
+            {"area": "窗边区域 (Window Edge)", "material_code": "ST 05", "material_type": "石材 (Stone)", "notes": "可能作窗台石或门槛石"},
+            {"area": "厨房柜下/设备区", "material_code": null, "material_type": "水泥砂浆抹平"}
+          ]
+        },
+        "ceiling_design": {
+          "by_area": {
+            "foyer_kitchen": {"name": "门厅/厨房", "height_mm": 2400, "finish": "PT 03 白色乳胶漆", "equipment": ["消防喷淋头"], "structure": "橱柜上方有造型跌级吊顶"},
+            "bathroom": {"name": "卫生间", "height_mm_main": 2390, "height_mm_toilet": 2540, "finish": "PT 04 防水乳胶漆", "equipment": ["T01排气扇", "检修口", "消防喷淋头"]},
+            "living_room": {"name": "客厅", "height_mm_main": 2600, "height_mm_curtain_box": 2180, "finish": "PT 03 白色乳胶漆", "equipment": ["暗藏式风管机", "送风口", "3x 消防喷淋头"], "structure": "通长窗帘盒"},
+            "bedroom": {"name": "卧室", "height_mm_main": 2600, "height_mm_curtain_box": 2180, "finish": "PT 03 白色乳胶漆", "equipment": ["2x 消防喷淋头"], "structure": "通长窗帘盒"}
+          }
+        },
+        "lighting_distribution": {
+          "summary": "采用筒灯、射灯和灯带组合，进行分组控制，实现重点、任务、氛围和安全照明。控制线路设计人性化，如入口总控和卧室床头独立控制。",
+          "lights_by_area": {
+            "foyer": [
+              {"type": "R02 - 嵌入式防水筒灯", "quantity": 2},
+              {"type": "R06 - 暗藏连续性灯带", "quantity": 1, "notes": "推断为R05同类"}
+            ],
+            "kitchen": [
+              {"type": "R02 - 嵌入式防水筒灯", "quantity": 2},
+              {"type": "R05 - 暗藏连续性灯带", "quantity": 1}
+            ],
+            "living_room": [
+              {"type": "R01 - 嵌入式可调筒灯", "quantity": 2},
+              {"type": "R04 - 嵌入式成品灯", "quantity": 2}
+            ],
+            "bedroom": [
+              {"type": "R04 - 嵌入式成品灯", "quantity": 1},
+              {"type": "R05 - 暗藏连续性灯带", "quantity": 1},
+              {"type": "R01 - 嵌入式可调筒灯", "quantity": 2, "notes": "床头独立控制"}
+            ],
+            "bathroom": [
+              {"type": "R01 - 嵌入式可调筒灯", "quantity": 3},
+              {"type": "R03 - 嵌入式防水筒灯", "quantity": 1, "notes": "淋浴间专用"},
+              {"type": "R05 - 暗藏连续性灯带", "quantity": 1}
+            ]
+          }
+        },
+        "plumbing_system": {
+          "system_type": "轴测图 (Axonometric Drawing)",
+          "systems": [
+            {
+              "name": "给水系统 (Water Supply)",
+              "system_ids": ["A-J3L-4 (冷水推断)", "A-R1L-4 (热水推断)"],
+              "pipe_specs": ["De32", "De25", "De20"],
+              "components": ["阀门", "柔性接头 (RJ)"],
+              "served_equipment": ["淋浴器", "洗涤盆", "未指定设备"]
+            },
+            {
+              "name": "排水系统 (Drainage)",
+              "system_ids": ["A-WL-4", "A-FL-4", "A-CFL-4"],
+              "pipe_specs": ["De110", "De75", "De50"],
+              "components": ["存水弯 (P-trap)", "清扫口", "通气管 (至屋面)"]
+            },
+            {
+              "name": "消防喷淋系统 (Fire Sprinkler)",
+              "source": "引自消火栓系统",
+              "pipe_specs": ["DN50", "DN40", "DN32", "DN25"],
+              "components": ["自动喷淋头"],
+              "installation_heights": ["DN50 @ F.F.L+2.35m", "DN40/32 @ F.F.L+2.75m"]
+            }
+          ]
+        },
+        "elevation_views": {
+          "views": [
+            {
+              "id": "立面一 (客厅主墙)",
+              "description": "面向客厅沙发和卧室方向所看到的完整墙面。",
+              "components": [
+                {"area": "右侧", "element": "折叠门 (Folding Door)", "material": "Laminate Finish", "notes": "作为卧室与客厅的灵活隔断"},
+                {"area": "中间", "element": "沙发背景墙", "material": "PT 01 浅灰色乳胶漆", "notes": "上方有艺术品挂画区"},
+                {"area": "左侧", "element": "装饰组合区", "material": "浅灰色饰面板、镜子、矮柜", "notes": "客厅功能的延伸和视觉平衡"}
+              ]
+            },
+            {
+              "id": "立面二 (客厅-卫生间隔断)",
+              "description": "客厅主背景墙，以玻璃隔断为主体。",
+              "dimensions": {"width_mm": 4060, "height_mm": 2600},
+              "components": [
+                {"element": "主隔断", "material": "黑色哑光金属框架 + 压花玻璃 + 透明玻璃"},
+                {"element": "右侧边柜", "material": "浅灰色饰面板 + 人造石台面"},
+                {"element": "踢脚线", "material": "成品木质踢脚线"}
+              ]
+            },
+            {
+              "id": "立面三 (多功能墙)",
+              "description": "整合了盥洗区、饰面墙和平台区，通过材质、颜色和尺寸控制达到平衡。",
+              "dimensions": {"width_mm": 4060, "height_mm": 2600},
+              "components": [
+                {"area": "左侧", "element": "盥洗区", "material": "WD 01 浅灰色饰面板柜体 + PT 03 白色乳胶漆墙面"},
+                {"area": "中间", "element": "饰面墙", "material": "PT 01 浅灰色乳胶漆 + WD 01 浅灰色饰面板"},
+                {"area": "右侧", "element": "留白/平台区", "material": "PT 01 浅灰色乳胶漆"},
+                {"area": "底部", "element": "踢脚线", "material": "WD 05 成品木踢脚线"}
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
