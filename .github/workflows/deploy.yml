@@ -1,0 +1,38 @@
+# .github/workflows/deploy.yml
+
+name: Deploy to Mac mini via SSH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy sparkai_agents to Mac mini
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key and known hosts
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.MAC_SPARKAI_WEB_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.MAC_SPARKAI_WEB_KNOWN_HOSTS }}
+
+      - name: Deploy to Mac mini Server
+        run: |
+          ssh -p 6000 ayr@47.117.144.223 <<EOF
+            set -e
+            echo "Navigate to project directory"
+            cd /Users/ayr/sparkai/sparkai_agents/
+
+            echo "Pull latest code from GitHub"
+            git pull origin main
+
+            echo "Other Step"
+
+            echo "Deployment completed sparkai_web successfully"
+          EOF
