@@ -101,7 +101,6 @@ async def entrypoint(ctx: agents.JobContext):
         "活动内容.txt",
         "公寓访问统计.txt",
         "班车预订清单.txt",
-        "租售报价.txt",
         "水电费.txt",
         "年收入确认表.txt",
         "合同清单.txt",
