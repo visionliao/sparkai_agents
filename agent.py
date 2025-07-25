@@ -82,6 +82,7 @@ async def entrypoint(ctx: agents.JobContext):
         "SPARK 欢迎信.txt",
         "综合公寓信息报告.txt",
         "停车守则.txt",
+        "公寓数据二级指标分析报告.txt",
         "公寓建筑概览.txt",
         "公寓综合设施介绍.txt",
         "房间布局.txt",
