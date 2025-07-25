@@ -2,20 +2,10 @@
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 import os
-import asyncio
-import concurrent.futures
-from livekit import api
-from livekit.protocol import room as room_proto
-from livekit.protocol.models import DataPacket
-import json
 from pathlib import Path
-from functools import wraps
 from dotenv import load_dotenv
-import aiohttp
 
 from datetime import datetime
-import mysql.connector
-from mysql.connector import Error
 import csv
 from pathlib import Path
 
@@ -34,93 +24,6 @@ def get_current_time() -> str:
     """
     return datetime.now().isoformat()
 
-
-def _execute_mysql_query(query: str, params: tuple = None):
-    """
-    一个内部辅助函数，用于连接MySQL并执行查询。
-    它处理连接、游标管理和错误处理。
-    """
-    try:
-        # 从环境变量中获取数据库连接信息
-        connection = mysql.connector.connect(
-            host=os.getenv('MYSQL_HOST'),
-            port=os.getenv('MYSQL_PORT', 3306),
-            database=os.getenv('MYSQL_DATABASE'),
-            user=os.getenv('MYSQL_USER'),
-            password=os.getenv('MYSQL_PASSWORD')
-        )
-
-        if connection.is_connected():
-            cursor = connection.cursor(dictionary=True)  # dictionary=True 使结果以字典形式返回
-            cursor.execute(query, params or ())
-
-            # 如果是查询语句 (如 SELECT)，则获取结果
-            if cursor.with_rows:
-                result = cursor.fetchall()
-            else:
-                # 如果是 INSERT, UPDATE, DELETE 等，则提交事务并返回受影响的行数
-                connection.commit()
-                result = {"affected_rows": cursor.rowcount}
-
-            return {"success": True, "data": result}
-
-    except Error as e:
-        print(f"MySQL Error: {e}")
-        # 返回一个包含错误信息的字典
-        return {"success": False, "error": str(e)}
-
-    finally:
-        # 确保连接和游标在使用后被关闭
-        if 'connection' in locals() and connection.is_connected():
-            cursor.close()
-            connection.close()
-
-
-@mcp.tool()
-def execute_query(query: str) -> dict:
-    """
-    执行一条SQL查询语句。
-    对于SELECT语句，返回查询结果。
-    对于INSERT, UPDATE, DELETE语句，返回受影响的行数。
-    强烈建议使用权限受限的数据库用户。
-
-    Args:
-        query: 要执行的SQL查询语句。
-
-    Returns:
-        一个包含查询结果或状态的字典。
-        成功时: {"success": True, "data": [...]}
-        失败时: {"success": False, "error": "..."}
-    """
-    # 注意：为了安全，生产环境中应避免直接执行任意查询。
-    # 更安全的做法是创建多个工具，每个工具执行一个固定的、带参数的查询。
-    # 但为了模拟 mysql_mcp_server 的功能，这里我们允许执行任意查询。
-    return _execute_mysql_query(query)
-
-@mcp.tool()
-def list_tables() -> dict:
-    """
-    查询并列出当前数据库中所有可用的表。
-
-    Returns:
-        一个包含表名列表的字典。
-        成功时: {"success": True, "tables": ["table1", "table2", ...]}
-        失败时: {"success": False, "error": "..."}
-    """
-    result = _execute_mysql_query("SHOW TABLES;")
-
-    if not result.get("success"):
-        return result # 如果查询失败，直接返回错误信息
-
-    # 查询成功，处理返回的数据
-    # SHOW TABLES 的结果是 [{...: 'table1'}, {...: 'table2'}] 的形式
-    # 我们需要将其转换成一个简单的列表 ['table1', 'table2']
-    try:
-        # 提取每个字典里的第一个值（也就是表名）
-        table_list = [list(row.values())[0] for row in result["data"]]
-        return {"success": True, "tables": table_list}
-    except (IndexError, TypeError) as e:
-        return {"success": False, "error": f"Failed to parse table list: {e}"}
 
 @mcp.tool()
 def add_ticket(
