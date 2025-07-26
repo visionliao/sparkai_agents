@@ -1,117 +1,217 @@
 # server.py
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
+import pandas as pd
 import os
-from pathlib import Path
-from dotenv import load_dotenv
-
+import json
 from datetime import datetime
-import csv
-from pathlib import Path
 
+# --- 1. 初始化和数据加载 ---
+
+# 从 .env 文件加载环境变量
 load_dotenv()
-CSV_FILE_PATH = os.getenv("CSV_FILE_PATH", "工单列表.csv")
 
-mcp = FastMCP("LiveKit MCP")
+# 初始化 MCP 服务
+mcp = FastMCP("Hotel Data Intelligence Service")
+
+# --- 全局数据加载 ---
+CSV_FILENAME = 'master_connect_processed.csv'
+DATE_COLUMNS = [
+    'biz_date', 'arr_date', 'dep_date', 'expected_dep_date',
+    'make_ready_date', 'lease_start_date', 'lease_end_date', 'birth',
+    'id_begin', 'id_end', 'create_datetime', 'modify_datetime'
+]
+# 定义一个更全面的列子集用于查询结果展示
+COLUMNS_TO_DISPLAY = [
+    'id', 'name', 'nation', 'sex', 'arr_date', 'dep_date', 'rmtype',
+    'rmno', 'real_rate_long', 'deposit_amount', 'market', 'remark'
+]
+
+hotel_df = None
+
+
+def load_data(filename):
+    """加载并预处理酒店CSV数据。"""
+    if not os.path.exists(filename):
+        print(f"--- 致命错误：数据文件 '{filename}' 未找到。服务器无法启动。 ---")
+        return None
+    try:
+        print(f"--- 正在从 '{filename}' 加载数据... ---")
+        df = pd.read_csv(filename, dtype={'id_no': 'str', 'mobile': 'str'}, low_memory=False)
+        for col in DATE_COLUMNS:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+        print("--- 数据加载并预处理完成。 ---")
+        return df
+    except Exception as e:
+        print(f"--- 致命错误：加载数据时失败: {e} ---")
+        return None
+
+
+# 在服务器启动时执行数据加载
+hotel_df = load_data(CSV_FILENAME)
+
+
+# --- 2. 定义 MCP 工具 (LLM 优化版) ---
 
 @mcp.tool()
-def get_current_time() -> str:
+def get_table_info() -> str:
     """
-    获取当前的服务器时间。
+    获取关于酒店数据表的概览信息。在进行复杂查询前，首先使用此工具来了解数据结构。
 
     返回:
-        一个 ISO 8601 格式的字符串，表示服务器当前的日期和时间。
+        一个 JSON 格式的字符串，包含:
+        - 'total_records': 表中的记录总数。
+        - 'column_names': 所有列名的列表。
+        - 'column_data_types': 一个字典，键是列名，值是该列的数据类型 (如 'object' 表示文本, 'int64' 表示整数, 'float64' 表示小数, 'datetime64[ns]' 表示日期)。
+        - 'data_sample': 表中前3条记录的样本数据，以展示数据格式。
     """
-    return datetime.now().isoformat()
+    if hotel_df is None:
+        return "错误: 数据未加载。"
+
+    info = {
+        "total_records": len(hotel_df),
+        "column_names": hotel_df.columns.tolist(),
+        "column_data_types": hotel_df.dtypes.astype(str).to_dict(),
+        "data_sample": json.loads(hotel_df.head(3).to_json(orient='records', force_ascii=False))
+    }
+    # 使用 json.dumps 进行格式化输出
+    return json.dumps(info, indent=2, ensure_ascii=False)
 
 
 @mcp.tool()
-def add_ticket(
-    source: str,
-    ticket_id: str,
-    ticket_type: str,
-    project: str,
-    applicant: str,
-    contact: str,
-    apartment: str,
-    room_number: str = "",
-    area: str = "",
-    location: str = "",
-    visit_date: str = "",
-    visit_time: str = "",
-    pms_id: str = ""
-) -> dict:
+def query_by_text(column: str, value: str) -> str:
     """
-    向工单CSV文件中添加一条新的工单记录。
+    在指定的文本列中进行模糊搜索。适用于查找姓名、国籍、房型等。
 
     Args:
-        source (str): 数据来源 (例如, '小程序', 'PMS', 'AI助理').
-        ticket_id (str): 工单编号 (随机生成，例如, 'GD202507160001').
-        ticket_type (str): 工单类型 (例如, '维修').
-        project (str): 服务项目 (例如, '空调不制冷').
-        applicant (str): 申请人姓名.
-        contact (str): 申请人联系方式.
-        apartment (str): 公寓名称 (固定为'驻在星耀').
-        room_number (str, optional): 房间号. Defaults to "".
-        area (str, optional): 区域 (例如, '客房'). Defaults to "".
-        location (str, optional): 具体位置 (例如, '卧室'). Defaults to "".
-        visit_date (str, optional): 预计上门日期 (格式: YYYY/M/D). Defaults to "".
-        visit_time (str, optional): 预计上门时间 (格式: HH:MM-HH:MM). Defaults to "".
-        pms_id (str, optional): PMS单号. Defaults to "".
+        column (str): 要进行查询的列名。必须是文本类型的列。例如: 'name', 'nation', 'rmtype', 'remark'。
+        value (str): 要搜索的文本关键词。此为模糊匹配，不区分大小写。例如: 搜索 '王' 可以找到 '王**'。
 
-    Returns:
-        一个包含操作结果的字典。
-        成功时: {"success": True, "message": "工单已成功添加。"}
-        失败时: {"success": False, "error": "错误信息..."}
+    返回:
+        一个 JSON 格式的字符串，其中包含一个匹配记录的列表。若无结果，则列表为空。
     """
+    if hotel_df is None:
+        return "错误: 数据未加载。"
+    if column not in hotel_df.columns:
+        return f"错误: 列名 '{column}' 不存在。"
+
     try:
-        # 检查CSV文件是否存在，如果不存在，则创建并写入表头
-        csv_path = Path(CSV_FILE_PATH)
-        if not csv_path.exists():
-            with open(csv_path, 'w', newline='', encoding='utf-8-sig') as f:
-                writer = csv.writer(f)
-                header = [
-                    '数据来源', '工单编号', '工单类型', '区域', '位置', '服务项目', '公寓',
-                    '房间号', '申请人', '联系方式', '预计上门日期', '预计上门时间',
-                    'PMS单号', '状态', '创建人', '创建时间', '更新人', '更新时间'
-                ]
-                writer.writerow(header)
-
-        # 准备要写入的新行数据
-        # 注意：这里的顺序必须和CSV文件的列头完全一致
-        current_time = datetime.now().strftime('%Y/%m/%d %H:%M')
-        new_row = [
-            source,
-            ticket_id,
-            ticket_type,
-            area,
-            location,
-            project,
-            apartment,
-            room_number,
-            applicant,
-            contact,
-            visit_date,
-            visit_time,
-            pms_id,
-            '待处理',  # 状态 (Status) - 新工单默认为“待处理”
-            applicant, # 创建人 (Creator) - 默认为申请人
-            current_time,  # 创建时间 (Created Time)
-            applicant, # 更新人 (Updater) - 初始时与创建人相同
-            current_time,  # 更新时间 (Updated Time)
-        ]
-
-        # 以追加模式 ('a') 打开文件，并写入新行
-        # newline='' 是为了防止在Windows下写入多余的空行
-        with open(csv_path, 'a', newline='', encoding='utf-8-sig') as f:
-            writer = csv.writer(f)
-            writer.writerow(new_row)
-
-        return {"success": True, "message": f"工单 {ticket_id} 已成功添加到 {CSV_FILE_PATH}。"}
-
+        results_df = hotel_df[hotel_df[column].astype(str).str.contains(value, case=False, na=False)]
+        return results_df[COLUMNS_TO_DISPLAY].to_json(orient='records', indent=2, force_ascii=False)
     except Exception as e:
-        print(f"Error writing to CSV: {e}")
-        return {"success": False, "error": f"写入CSV文件时发生错误: {str(e)}"}
+        return f"查询过程中发生错误: {e}"
+
+
+@mcp.tool()
+def query_by_date_range(date_column: str, start_date: str, end_date: str) -> str:
+    """
+    在指定的日期列中，根据一个时间范围进行精确查询。
+
+    Args:
+        date_column (str): 要进行查询的日期列名。例如: 'arr_date', 'dep_date', 'create_datetime'。
+        start_date (str): 范围的开始日期，必须是 'YYYY-MM-DD' 格式。
+        end_date (str): 范围的结束日期，必须是 'YYYY-MM-DD' 格式。
+
+    返回:
+        一个 JSON 格式的字符串，其中包含一个匹配记录的列表。若无结果，则列表为空。
+    """
+    if hotel_df is None:
+        return "错误: 数据未加载。"
+    if date_column not in hotel_df.columns:
+        return f"错误: 列名 '{date_column}' 不存在。"
+    if not pd.api.types.is_datetime64_any_dtype(hotel_df[date_column]):
+        return f"错误: 列 '{date_column}' 不是有效的日期类型。"
+
+    try:
+        s_date = pd.to_datetime(start_date)
+        e_date = pd.to_datetime(end_date)
+        mask = (hotel_df[date_column] >= s_date) & (hotel_df[date_column] <= e_date)
+        results_df = hotel_df.loc[mask]
+        return results_df[COLUMNS_TO_DISPLAY].to_json(orient='records', indent=2, force_ascii=False)
+    except Exception as e:
+        return f"查询过程中发生错误: {e}"
+
+
+@mcp.tool()
+def query_by_numerical_range(column: str, min_value: float | None = None, max_value: float | None = None) -> str:
+    """
+    在指定的数值列中，根据一个范围进行查询。可以只提供最小值或最大值。
+
+    Args:
+        column (str): 要进行查询的数值列名。例如: 'real_rate_long', 'deposit_amount', 'id'。
+        min_value (float, optional): 范围的下限（大于或等于此值）。如果省略，则无下限。
+        max_value (float, optional): 范围的上限（小于或等于此值）。如果省略，则无上限。
+
+    返回:
+        一个 JSON 格式的字符串，其中包含一个匹配记录的列表。若无结果，则列表为空。
+    """
+    if hotel_df is None:
+        return "错误: 数据未加载。"
+    if column not in hotel_df.columns:
+        return f"错误: 列名 '{column}' 不存在。"
+    if not pd.api.types.is_numeric_dtype(hotel_df[column]):
+        return f"错误: 列 '{column}' 不是有效的数值类型。"
+    if min_value is None and max_value is None:
+        return "错误: 必须提供 min_value 或 max_value 中的至少一个。"
+
+    try:
+        mask = pd.Series(True, index=hotel_df.index)
+        if min_value is not None:
+            mask &= (hotel_df[column] >= min_value)
+        if max_value is not None:
+            mask &= (hotel_df[column] <= max_value)
+        results_df = hotel_df.loc[mask]
+        return results_df[COLUMNS_TO_DISPLAY].to_json(orient='records', indent=2, force_ascii=False)
+    except Exception as e:
+        return f"查询过程中发生错误: {e}"
+
+
+@mcp.tool()
+def get_statistics(column: str, group_by_column: str | None = None, aggregation: str = 'mean') -> str:
+    """
+    对数据进行统计分析。此工具有两种模式：
+    1. 单列分析: 只提供 `column` 参数时，对该列进行统计。数值列返回描述性统计（均值、方差等），分类列返回频数统计。
+    2. 分组聚合: 同时提供 `column` 和 `group_by_column` 时，按 `group_by_column` 对 `column` 进行聚合计算。
+
+    Args:
+        column (str): 需要分析或计算的列名。例如 'real_rate_long', 'nation'。
+        group_by_column (str, optional): 用于分组的分类列名。例如: 'rmtype', 'sex'。
+        aggregation (str, optional): 分组时使用的聚合函数。可选值: 'mean', 'sum', 'count', 'median', 'max', 'min'。默认为 'mean'。
+
+    返回:
+        一个 JSON 格式的字符串，包含统计结果。
+    """
+    if hotel_df is None:
+        return "错误: 数据未加载。"
+    if column not in hotel_df.columns:
+        return f"错误: 列名 '{column}' 不存在。"
+
+    try:
+        # 模式2: 分组聚合分析
+        if group_by_column:
+            if group_by_column not in hotel_df.columns:
+                return f"错误: 分组列 '{group_by_column}' 不存在。"
+            result = hotel_df.groupby(group_by_column)[column].agg(aggregation)
+            return result.to_json(orient='index', force_ascii=False)
+
+        # 模式1: 单列统计分析
+        else:
+            if pd.api.types.is_numeric_dtype(hotel_df[column]):
+                # 数值列的描述性统计
+                return hotel_df[column].describe().to_json(orient='index')
+            else:
+                # 分类列的频数统计
+                return hotel_df[column].value_counts().to_json(orient='index')
+    except Exception as e:
+        return f"分析过程中发生错误: {e}"
+
+
+# --- 3. 启动服务器 ---
 
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    if hotel_df is not None:
+        print("\n--- Hotel Data Intelligence Service (v5.0) 准备就绪，正在启动... ---")
+        mcp.run(transport="sse")
+    else:
+        print("\n--- 服务器启动失败，因为数据未能加载。---")
