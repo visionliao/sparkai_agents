@@ -263,6 +263,107 @@ def advanced_search(
 
 
 @mcp.tool()
+def get_statistical_summary(
+        name: Optional[str] = None,
+        room_number: Optional[str] = None,
+        status: Optional[str] = None,
+        nation: Optional[str] = None,
+        min_age: Optional[int] = None,
+        max_age: Optional[int] = None,
+        min_rent: Optional[float] = None,
+        max_rent: Optional[float] = None,
+        remark_keyword: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    根据筛选条件对住客数据进行统计分析，但不返回具体的住客记录。
+
+    注意：当使用上面的全面查询工具失败后，可尝试使用这个工具再次尝试查询统计结果
+
+    此工具专门用于获取宏观的人口统计学特征。你可以提供一个或多个筛选条件，
+    系统将对所有满足条件的记录进行分析，并返回年龄、国籍和性别的分布情况。
+    这比调用 advanced_search(include_analysis=True) 更高效，因为它不处理和传输
+    单条记录数据。
+
+    例如可以使用这个工具获取到公寓目前的在住的统计信息
+
+    Args:
+        name (Optional[str]): 按住客姓名进行模糊搜索。
+        room_number (Optional[str]): 按房号进行精确匹配。
+        status (Optional[str]): 按住客状态进行精确筛选 ('I', 'R', 'O', 'X')。
+        nation (Optional[str]): 按国籍进行模糊搜索。
+        min_age (Optional[int]): 筛选住客的最小年龄。
+        max_age (Optional[int]): 筛选住客的最大年龄。
+        min_rent (Optional[float]): 筛选月租金的最低值。
+        max_rent (Optional[float]): 筛选月租金的最高值。
+        remark_keyword (Optional[str]): 在备注字段中进行模糊搜索。
+
+    Returns:
+        一个包含统计分析结果的字典对象，其结构如下:
+        {
+          "count": int,  // 符合条件的记录总数
+          "analysis": null | { // 如果有结果，则包含此对象
+              "based_on": str, // 描述分析所基于的独立住客数量
+              "age_distribution": [{"group": str, "count": int, "percentage": str}],
+              "nationality_distribution": [{"nation": str, "count": int, "percentage": str}],
+              "gender_distribution": [{"gender": str, "count": int, "percentage": str}]
+            }
+        }
+    """
+    if main_df is None:
+        return {"error": "数据未加载，分析功能不可用。", "count": 0, "analysis": None}
+
+    # --- 筛选逻辑与 advanced_search 完全相同 ---
+    results_df = main_df.copy()
+    if name:
+        if 'name' in results_df.columns:
+            results_df = results_df[results_df['name'].astype(str).str.contains(name, case=False, na=False)]
+    if nation:
+        if 'nation' in results_df.columns:
+            results_df = results_df[results_df['nation'].astype(str).str.contains(nation, case=False, na=False)]
+    if remark_keyword:
+        if 'remark' in results_df.columns:
+            results_df = results_df[results_df['remark'].astype(str).str.contains(remark_keyword, case=False, na=False)]
+    if room_number:
+        if 'rmno' in results_df.columns:
+            results_df = results_df[results_df['rmno'].astype(str) == room_number]
+    if status and status.upper() in ['R', 'I', 'O', 'X']:
+        if 'sta' in results_df.columns:
+            results_df = results_df[results_df['sta'] == status.upper()]
+    if min_age is not None or max_age is not None:
+        if 'birth' in results_df.columns and pd.api.types.is_datetime64_any_dtype(results_df['birth']):
+            ages = (REFERENCE_DATE - results_df['birth']).dt.days / 365.25
+            results_df = results_df.loc[ages.notna()]
+            ages = ages.dropna()
+            if min_age is not None:
+                results_df = results_df.loc[ages >= min_age]
+            if max_age is not None:
+                results_df = results_df.loc[ages <= max_age]
+    if 'full_rate_long' in results_df.columns:
+        if min_rent is not None:
+            results_df = results_df[results_df['full_rate_long'] >= min_rent]
+        if max_rent is not None:
+            results_df = results_df[results_df['full_rate_long'] <= max_rent]
+
+    # --- 构建仅包含统计信息的返回结构 ---
+    count = len(results_df)
+    analysis_results = None
+
+    if not results_df.empty:
+        unique_results_df = results_df[
+            results_df['profile_id'] != 0] if 'profile_id' in results_df.columns else results_df
+        analysis_results = {
+            "based_on": f"{len(unique_results_df.drop_duplicates(subset=['profile_id'])) if 'profile_id' in unique_results_df.columns else len(unique_results_df)} unique guests from {count} records",
+            "age_distribution": _analyze_age(unique_results_df),
+            "nationality_distribution": _analyze_nationality(unique_results_df),
+            "gender_distribution": _analyze_gender(unique_results_df)
+        }
+
+    return {
+        "count": count,
+        "analysis": analysis_results
+    }
+
+@mcp.tool()
 def find_related_guests_by_id(record_id: int) -> Dict[str, Any]:
     """
     通过单条记录的ID，查找所有关联的住客记录（如同一个预订下的家庭成员）。
