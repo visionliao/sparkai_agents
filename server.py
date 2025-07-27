@@ -1,217 +1,352 @@
 # server.py
-from mcp.server.fastmcp import FastMCP
-from dotenv import load_dotenv
+import numpy as np
 import pandas as pd
 import os
-import json
 from datetime import datetime
+from typing import List, Dict, Optional, Any
 
-# --- 1. 初始化和数据加载 ---
+from mcp.server.fastmcp import FastMCP
+from dotenv import load_dotenv
+import traceback
 
-# 从 .env 文件加载环境变量
+# --- 1. 配置与初始化 (No changes here) ---
+
 load_dotenv()
+CSV_FILE_PATH = 'master_connect_processed.csv'
+mcp = FastMCP("公寓长租数据高级查询服务")
 
-# 初始化 MCP 服务
-mcp = FastMCP("Hotel Data Intelligence Service")
-
-# --- 全局数据加载 ---
-CSV_FILENAME = 'master_connect_processed.csv'
-DATE_COLUMNS = [
-    'biz_date', 'arr_date', 'dep_date', 'expected_dep_date',
-    'make_ready_date', 'lease_start_date', 'lease_end_date', 'birth',
-    'id_begin', 'id_end', 'create_datetime', 'modify_datetime'
-]
-# 定义一个更全面的列子集用于查询结果展示
-COLUMNS_TO_DISPLAY = [
-    'id', 'name', 'nation', 'sex', 'arr_date', 'dep_date', 'rmtype',
-    'rmno', 'real_rate_long', 'deposit_amount', 'market', 'remark'
+main_df: Optional[pd.DataFrame] = None
+REFERENCE_DATE = datetime.now()
+DISPLAY_COLUMNS = [
+    'id', 'master_id', 'sta', 'name', 'age', 'rmno', 'arr_date', 'dep_date',
+    'full_rate_long', 'remark', 'nation', 'sex'
 ]
 
-hotel_df = None
+# --- 2. 核心数据加载与辅助函数 (No changes here) ---
 
-
-def load_data(filename):
-    """加载并预处理酒店CSV数据。"""
-    if not os.path.exists(filename):
-        print(f"--- 致命错误：数据文件 '{filename}' 未找到。服务器无法启动。 ---")
+def load_data(file_path: str) -> Optional[pd.DataFrame]:
+    # ... (与之前相同)
+    if not os.path.exists(file_path):
+        print(f"错误: 数据文件 '{file_path}' 未找到。")
         return None
     try:
-        print(f"--- 正在从 '{filename}' 加载数据... ---")
-        df = pd.read_csv(filename, dtype={'id_no': 'str', 'mobile': 'str'}, low_memory=False)
-        for col in DATE_COLUMNS:
+        df = pd.read_csv(file_path, low_memory=False)
+        date_columns = ['arr_date', 'dep_date', 'lease_start_date', 'lease_end_date', 'birth']
+        for col in date_columns:
             if col in df.columns:
                 df[col] = pd.to_datetime(df[col], errors='coerce')
-        print("--- 数据加载并预处理完成。 ---")
+        print(f"成功加载并预处理数据，共 {len(df)} 条记录。")
         return df
     except Exception as e:
-        print(f"--- 致命错误：加载数据时失败: {e} ---")
+        print(f"加载数据文件时发生严重错误: {e}")
         return None
 
 
-# 在服务器启动时执行数据加载
-hotel_df = load_data(CSV_FILENAME)
-
-
-# --- 2. 定义 MCP 工具 (LLM 优化版) ---
-
-@mcp.tool()
-def get_table_info() -> str:
+# 【新增】一个健壮的类型转换辅助函数
+def convert_to_native_types(obj: Any) -> Any:
     """
-    获取关于酒店数据表的概览信息。在进行复杂查询前，首先使用此工具来了解数据结构。
-
-    返回:
-        一个 JSON 格式的字符串，包含:
-        - 'total_records': 表中的记录总数。
-        - 'column_names': 所有列名的列表。
-        - 'column_data_types': 一个字典，键是列名，值是该列的数据类型 (如 'object' 表示文本, 'int64' 表示整数, 'float64' 表示小数, 'datetime64[ns]' 表示日期)。
-        - 'data_sample': 表中前3条记录的样本数据，以展示数据格式。
+    递归地将对象中的Numpy类型转换为Python原生类型，以确保JSON序列化安全。
     """
-    if hotel_df is None:
-        return "错误: 数据未加载。"
-
-    info = {
-        "total_records": len(hotel_df),
-        "column_names": hotel_df.columns.tolist(),
-        "column_data_types": hotel_df.dtypes.astype(str).to_dict(),
-        "data_sample": json.loads(hotel_df.head(3).to_json(orient='records', force_ascii=False))
-    }
-    # 使用 json.dumps 进行格式化输出
-    return json.dumps(info, indent=2, ensure_ascii=False)
-
-
-@mcp.tool()
-def query_by_text(column: str, value: str) -> str:
-    """
-    在指定的文本列中进行模糊搜索。适用于查找姓名、国籍、房型等。
-
-    Args:
-        column (str): 要进行查询的列名。必须是文本类型的列。例如: 'name', 'nation', 'rmtype', 'remark'。
-        value (str): 要搜索的文本关键词。此为模糊匹配，不区分大小写。例如: 搜索 '王' 可以找到 '王**'。
-
-    返回:
-        一个 JSON 格式的字符串，其中包含一个匹配记录的列表。若无结果，则列表为空。
-    """
-    if hotel_df is None:
-        return "错误: 数据未加载。"
-    if column not in hotel_df.columns:
-        return f"错误: 列名 '{column}' 不存在。"
-
-    try:
-        results_df = hotel_df[hotel_df[column].astype(str).str.contains(value, case=False, na=False)]
-        return results_df[COLUMNS_TO_DISPLAY].to_json(orient='records', indent=2, force_ascii=False)
-    except Exception as e:
-        return f"查询过程中发生错误: {e}"
-
-
-@mcp.tool()
-def query_by_date_range(date_column: str, start_date: str, end_date: str) -> str:
-    """
-    在指定的日期列中，根据一个时间范围进行精确查询。
-
-    Args:
-        date_column (str): 要进行查询的日期列名。例如: 'arr_date', 'dep_date', 'create_datetime'。
-        start_date (str): 范围的开始日期，必须是 'YYYY-MM-DD' 格式。
-        end_date (str): 范围的结束日期，必须是 'YYYY-MM-DD' 格式。
-
-    返回:
-        一个 JSON 格式的字符串，其中包含一个匹配记录的列表。若无结果，则列表为空。
-    """
-    if hotel_df is None:
-        return "错误: 数据未加载。"
-    if date_column not in hotel_df.columns:
-        return f"错误: 列名 '{date_column}' 不存在。"
-    if not pd.api.types.is_datetime64_any_dtype(hotel_df[date_column]):
-        return f"错误: 列 '{date_column}' 不是有效的日期类型。"
-
-    try:
-        s_date = pd.to_datetime(start_date)
-        e_date = pd.to_datetime(end_date)
-        mask = (hotel_df[date_column] >= s_date) & (hotel_df[date_column] <= e_date)
-        results_df = hotel_df.loc[mask]
-        return results_df[COLUMNS_TO_DISPLAY].to_json(orient='records', indent=2, force_ascii=False)
-    except Exception as e:
-        return f"查询过程中发生错误: {e}"
-
-
-@mcp.tool()
-def query_by_numerical_range(column: str, min_value: float | None = None, max_value: float | None = None) -> str:
-    """
-    在指定的数值列中，根据一个范围进行查询。可以只提供最小值或最大值。
-
-    Args:
-        column (str): 要进行查询的数值列名。例如: 'real_rate_long', 'deposit_amount', 'id'。
-        min_value (float, optional): 范围的下限（大于或等于此值）。如果省略，则无下限。
-        max_value (float, optional): 范围的上限（小于或等于此值）。如果省略，则无上限。
-
-    返回:
-        一个 JSON 格式的字符串，其中包含一个匹配记录的列表。若无结果，则列表为空。
-    """
-    if hotel_df is None:
-        return "错误: 数据未加载。"
-    if column not in hotel_df.columns:
-        return f"错误: 列名 '{column}' 不存在。"
-    if not pd.api.types.is_numeric_dtype(hotel_df[column]):
-        return f"错误: 列 '{column}' 不是有效的数值类型。"
-    if min_value is None and max_value is None:
-        return "错误: 必须提供 min_value 或 max_value 中的至少一个。"
-
-    try:
-        mask = pd.Series(True, index=hotel_df.index)
-        if min_value is not None:
-            mask &= (hotel_df[column] >= min_value)
-        if max_value is not None:
-            mask &= (hotel_df[column] <= max_value)
-        results_df = hotel_df.loc[mask]
-        return results_df[COLUMNS_TO_DISPLAY].to_json(orient='records', indent=2, force_ascii=False)
-    except Exception as e:
-        return f"查询过程中发生错误: {e}"
-
-
-@mcp.tool()
-def get_statistics(column: str, group_by_column: str | None = None, aggregation: str = 'mean') -> str:
-    """
-    对数据进行统计分析。此工具有两种模式：
-    1. 单列分析: 只提供 `column` 参数时，对该列进行统计。数值列返回描述性统计（均值、方差等），分类列返回频数统计。
-    2. 分组聚合: 同时提供 `column` 和 `group_by_column` 时，按 `group_by_column` 对 `column` 进行聚合计算。
-
-    Args:
-        column (str): 需要分析或计算的列名。例如 'real_rate_long', 'nation'。
-        group_by_column (str, optional): 用于分组的分类列名。例如: 'rmtype', 'sex'。
-        aggregation (str, optional): 分组时使用的聚合函数。可选值: 'mean', 'sum', 'count', 'median', 'max', 'min'。默认为 'mean'。
-
-    返回:
-        一个 JSON 格式的字符串，包含统计结果。
-    """
-    if hotel_df is None:
-        return "错误: 数据未加载。"
-    if column not in hotel_df.columns:
-        return f"错误: 列名 '{column}' 不存在。"
-
-    try:
-        # 模式2: 分组聚合分析
-        if group_by_column:
-            if group_by_column not in hotel_df.columns:
-                return f"错误: 分组列 '{group_by_column}' 不存在。"
-            result = hotel_df.groupby(group_by_column)[column].agg(aggregation)
-            return result.to_json(orient='index', force_ascii=False)
-
-        # 模式1: 单列统计分析
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, pd.Timestamp):
+        return obj.isoformat()
+    elif isinstance(obj, (dict, list)):
+        if isinstance(obj, dict):
+            return {k: convert_to_native_types(v) for k, v in obj.items()}
         else:
-            if pd.api.types.is_numeric_dtype(hotel_df[column]):
-                # 数值列的描述性统计
-                return hotel_df[column].describe().to_json(orient='index')
-            else:
-                # 分类列的频数统计
-                return hotel_df[column].value_counts().to_json(orient='index')
-    except Exception as e:
-        return f"分析过程中发生错误: {e}"
+            return [convert_to_native_types(i) for i in obj]
+    # 对所有字符串进行清洗，处理空值
+    elif pd.isna(obj):
+        return None  # 使用 None 代表 JSON 中的 null
+    elif isinstance(obj, str):
+        # 强制UTF-8编码，忽略错误字符，这是最稳妥的方式
+        return obj.encode('utf-8', 'ignore').decode('utf-8')
+    return obj
 
 
-# --- 3. 启动服务器 ---
+def format_df_for_output(df: pd.DataFrame) -> List[Dict[str, Any]]:
+    """
+    【最终修复版】
+    将DataFrame格式化为适合API返回的列表。
+    此版本通过一个专门的类型转换步骤来确保数据安全。
+    """
+    if df.empty:
+        return []
 
+    display_df = df.copy()
+
+    # 1. 计算和格式化列 (与之前相同)
+    if 'birth' in display_df.columns and not display_df['birth'].isnull().all():
+        ages = (REFERENCE_DATE - display_df['birth']).dt.days / 365.25
+        display_df['age'] = ages.apply(lambda x: int(x) if pd.notna(x) else None)
+    else:
+        display_df['age'] = None
+    for col in ['arr_date', 'dep_date']:
+        if col in display_df.columns:
+            display_df[col] = display_df[col].dt.strftime('%Y-%m-%d').fillna('')
+
+    # 2. 转换为字典列表
+    final_columns = [col for col in DISPLAY_COLUMNS if col in display_df.columns]
+    records = display_df[final_columns].to_dict('records')
+
+    # 3. 【关键修复】对生成的字典列表进行深度类型转换
+    safe_records = convert_to_native_types(records)
+
+    return safe_records
+
+# --- 3. 内部统计分析辅助函数 (No changes here) ---
+
+def _analyze_age(df: pd.DataFrame) -> List[Dict[str, Any]]:
+    # ... (implementation from previous step)
+    unique_guests_df = df.dropna(subset=['birth']).drop_duplicates(subset=['profile_id'])
+    if unique_guests_df.empty: return []
+    unique_guests_df['age'] = ((REFERENCE_DATE - unique_guests_df['birth']).dt.days / 365.25).astype(int)
+    bins = [0, 18, 25, 35, 45, 55, 65, 120]; labels = ['18岁及以下', '19-25岁', '26-35岁', '36-45岁', '46-55岁', '56-65岁', '65岁以上']
+    unique_guests_df['age_group'] = pd.cut(unique_guests_df['age'], bins=bins, labels=labels, right=False)
+    age_counts = unique_guests_df['age_group'].value_counts().sort_index(); age_percentage = unique_guests_df['age_group'].value_counts(normalize=True).sort_index() * 100
+    return [{"group": group, "count": int(count), "percentage": f"{age_percentage[group]:.2f}%"} for group, count in age_counts.items()]
+
+def _analyze_nationality(df: pd.DataFrame, top_n: int = 15) -> List[Dict[str, Any]]:
+    # ... (implementation from previous step)
+    unique_guests_df = df.drop_duplicates(subset=['profile_id'])
+    if unique_guests_df.empty: return []
+    nation_counts = unique_guests_df['nation'].value_counts(); nation_percentage = unique_guests_df['nation'].value_counts(normalize=True) * 100
+    return [{"nation": nation, "count": int(count), "percentage": f"{nation_percentage[nation]:.2f}%"} for nation, count in nation_counts.head(top_n).items()]
+
+def _analyze_gender(df: pd.DataFrame) -> List[Dict[str, Any]]:
+    # ... (implementation from previous step)
+    valid_gender_df = df[df['sex'].isin(['男性', '女性'])].drop_duplicates(subset=['profile_id'])
+    if valid_gender_df.empty: return []
+    gender_counts = valid_gender_df['sex'].value_counts(); gender_percentage = valid_gender_df['sex'].value_counts(normalize=True) * 100
+    return [{"gender": gender, "count": int(count), "percentage": f"{gender_percentage[gender]:.2f}%"} for gender, count in gender_counts.items()]
+
+
+# --- 4. 【升级】工具函数，包含详细描述 ---
+
+@mcp.tool()
+def advanced_search(
+    name: Optional[str] = None,
+    room_number: Optional[str] = None,
+    status: Optional[str] = None,
+    nation: Optional[str] = None,
+    min_age: Optional[int] = None,
+    max_age: Optional[int] = None,
+    min_rent: Optional[float] = None,
+    max_rent: Optional[float] = None,
+    remark_keyword: Optional[str] = None,
+    include_analysis: bool = False
+) -> Dict[str, Any]:
+    """
+    对住客数据进行全面的多条件组合查询，并可选择性地返回统计分析。
+
+    此工具是系统中最强大的查询功能。你可以提供一个或多个筛选条件，系统会返回所有
+    满足这些条件的记录。所有筛选条件都以"与"(AND)逻辑组合。如果想了解结果集的人口
+    统计学特征，请将 `include_analysis` 设为 True。
+
+    Args:
+        name (Optional[str]): 按住客姓名进行模糊搜索 (不区分大小写)。例如: 'wang'。
+        room_number (Optional[str]): 按房号进行精确匹配。例如: '1508'。
+        status (Optional[str]): 按住客状态进行精确筛选。必须是以下值之一:
+                                'I' (In-House, 在住),
+                                'R' (Reservation, 预订),
+                                'O' (Checked-Out, 已离店),
+                                'X' (Cancelled, 已取消)。
+        nation (Optional[str]): 按国籍进行模糊搜索 (不区分大小写)。例如: '中国'。
+        min_age (Optional[int]): 筛选住客的最小年龄 (包含此年龄)。
+        max_age (Optional[int]): 筛选住客的最大年龄 (包含此年龄)。
+        min_rent (Optional[float]): 筛选月租金的最低值 (包含此值)。
+        max_rent (Optional[float]): 筛选月租金的最高值 (包含此值)。
+        remark_keyword (Optional[str]): 在备注字段中进行模糊搜索 (不区分大小写)。例如: '宠物' 或 'VIP'。
+        include_analysis (bool): 是否返回对查询结果的统计分析。默认为 False 以提高性能。
+                                 设为 True 可获取年龄、国籍和性别分布。
+
+    Returns:
+        一个包含查询结果的字典对象，其结构如下:
+        {
+          "count": int,  // 符合条件的记录总数
+          "results": [   // 包含住客记录的列表
+            {
+              "id": int,
+              "name": str,
+              "age": int,
+              "nation": str,
+              ... // 其他住客信息字段
+            }
+          ],
+          "analysis": null | { // 如果 include_analysis=True 且有结果，则包含此对象
+              "based_on": str, // 描述分析所基于的独立住客数量
+              "age_distribution": [{"group": str, "count": int, "percentage": str}],
+              "nationality_distribution": [{"nation": str, "count": int, "percentage": str}],
+              "gender_distribution": [{"gender": str, "count": int, "percentage": str}]
+            }
+        }
+    """
+    if main_df is None:
+        return {"error": "数据未加载，查询功能不可用。", "count": 0, "results": [], "analysis": None}
+
+    results_df = main_df.copy()
+
+    # --- 【核心修改部分】 ---
+    # 对所有基于字符串的模糊搜索增加健壮性处理
+
+    # 处理 'name' 筛选
+    if name:
+        if 'name' in results_df.columns:
+            # 将该列强制转换为字符串类型，以防其中混有数字等非字符串数据
+            # na=False 会让原始的空值(NaN)不参与匹配，这是安全的。
+            results_df = results_df[results_df['name'].astype(str).str.contains(name, case=False, na=False)]
+
+    # 处理 'nation' 筛选 (解决你当前问题的关键)
+    if nation:
+        # 1. 首先检查 'nation' 列是否存在，防止 KeyError
+        if 'nation' in results_df.columns:
+            # 2. 然后，将列转换为字符串类型，防止 TypeError
+            results_df = results_df[results_df['nation'].astype(str).str.contains(nation, case=False, na=False)]
+
+    # 处理 'remark_keyword' 筛选
+    if remark_keyword:
+        if 'remark' in results_df.columns:
+            results_df = results_df[results_df['remark'].astype(str).str.contains(remark_keyword, case=False, na=False)]
+
+    # --- 其他筛选逻辑保持不变 ---
+
+    if room_number:
+        if 'rmno' in results_df.columns:
+            results_df = results_df[results_df['rmno'].astype(str) == room_number]
+
+    if status and status.upper() in ['R', 'I', 'O', 'X']:
+        if 'sta' in results_df.columns:
+            results_df = results_df[results_df['sta'] == status.upper()]
+
+    # 年龄筛选
+    if min_age is not None or max_age is not None:
+        if 'birth' in results_df.columns and pd.api.types.is_datetime64_any_dtype(results_df['birth']):
+            ages = (REFERENCE_DATE - results_df['birth']).dt.days / 365.25
+            # 使用 .loc 赋值以避免 SettingWithCopyWarning
+            results_df = results_df.loc[ages.notna()]
+            ages = ages.dropna()
+            if min_age is not None:
+                results_df = results_df.loc[ages >= min_age]
+            if max_age is not None:
+                results_df = results_df.loc[ages <= max_age]
+
+    # 租金筛选
+    if 'full_rate_long' in results_df.columns:
+        if min_rent is not None:
+            results_df = results_df[results_df['full_rate_long'] >= min_rent]
+        if max_rent is not None:
+            results_df = results_df[results_df['full_rate_long'] <= max_rent]
+
+    # --- 返回结构保持不变 ---
+    response = {
+        "count": len(results_df),
+        "results": format_df_for_output(results_df),
+        "analysis": None
+    }
+
+    if include_analysis and not results_df.empty:
+        unique_results_df = results_df[
+            results_df['profile_id'] != 0] if 'profile_id' in results_df.columns else results_df
+        response["analysis"] = {
+            "based_on": f"{len(unique_results_df.drop_duplicates(subset=['profile_id'])) if 'profile_id' in unique_results_df.columns else len(unique_results_df)} unique guests from {len(results_df)} records",
+            "age_distribution": _analyze_age(unique_results_df),
+            "nationality_distribution": _analyze_nationality(unique_results_df),
+            "gender_distribution": _analyze_gender(unique_results_df)
+        }
+
+    return response
+
+
+@mcp.tool()
+def find_related_guests_by_id(record_id: int) -> Dict[str, Any]:
+    """
+    通过单条记录的ID，查找所有关联的住客记录（如同一个预订下的家庭成员）。
+
+    此工具用于当你已经知道一个住客的 `id`，并想查找与他/她住在同一个房间或
+    在同一份合约下的所有其他人的情况。它通过匹配 `master_id` 来实现这一功能。
+
+    Args:
+        record_id (int): 数据库中任意一条住客记录的唯一 `id`。
+
+    Returns:
+        一个包含查询结果的字典对象，其结构如下:
+        {
+          "count": int,      // 找到的关联记录总数 (包含原始记录)
+          "results": [       // 包含所有关联住客记录的列表
+            {
+              "id": int,
+              "name": str,
+              ...
+            }
+          ]
+        }
+    """
+    # (Function implementation is the same)
+    if main_df is None: return {"error": "数据未加载。", "count": 0, "results": []}
+    target_master_id_series = main_df.loc[main_df['id'] == record_id, 'master_id']
+    if not target_master_id_series.empty:
+        target_master_id = target_master_id_series.iloc[0]
+        results = main_df[main_df['master_id'] == target_master_id]
+        return {"count": len(results), "results": format_df_for_output(results)}
+    else:
+        return {"count": 0, "results": []}
+
+
+@mcp.tool()
+def find_highest_rent_guest() -> Dict[str, Any]:
+    """
+    找出当前在住(In-House)的、支付月租金最高的住客。
+
+    此工具用于快速定位当前最有价值的客户。它只考虑状态为 'I' (In-House) 的住客，
+    并比较他们的 `full_rate_long` 字段。如果有多位住客支付相同的最高租金，
+    此工具会返回所有这些住客。
+
+    Returns:
+        一个包含查询结果和元数据的字典，其结构如下:
+        {
+          "count": int,        // 找到的租金最高住客的数量
+          "results": [         // 包含这些住客记录的列表
+            {
+              "id": int,
+              "name": str,
+              "full_rate_long": float,
+              ...
+            }
+          ],
+          "metadata": {        // 包含关于查询的额外信息
+            "description": str,
+            "highest_rent": float // 具体的最高租金金额
+          }
+        }
+    """
+    # (Function implementation is the same)
+    if main_df is None: return {"error": "数据未加载。", "count": 0, "results": [], "metadata": None}
+    in_house_df = main_df[main_df['sta'] == 'I']
+    if in_house_df.empty: return {"count": 0, "results": [], "metadata": {"description": "当前无在住客人。"}}
+    max_rent = in_house_df[in_house_df['full_rate_long'] > 0]['full_rate_long'].max()
+    if pd.isna(max_rent): return {"count": 0, "results": [], "metadata": {"description": "在住客中未找到有效租金记录。"}}
+    highest_rent_guests_df = in_house_df[in_house_df['full_rate_long'] == max_rent]
+    return {
+        "count": len(highest_rent_guests_df),
+        "results": format_df_for_output(highest_rent_guests_df),
+        "metadata": {
+            "description": f"查询到 {len(highest_rent_guests_df)} 位住客拥有当前最高的月租金。",
+            "highest_rent": float(max_rent)
+        }
+    }
+
+
+# --- 5. 服务器启动入口 (No changes here) ---
 if __name__ == "__main__":
-    if hotel_df is not None:
-        print("\n--- Hotel Data Intelligence Service (v5.0) 准备就绪，正在启动... ---")
+    main_df = load_data(CSV_FILE_PATH)
+    if main_df is not None:
+        print("数据服务已准备就绪。正在启动 MCP 服务器...")
+        #print(advanced_search(include_analysis=True, nation="日本"))
         mcp.run(transport="sse")
     else:
-        print("\n--- 服务器启动失败，因为数据未能加载。---")
+        print("由于数据加载失败，服务器将不会启动。")

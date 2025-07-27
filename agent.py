@@ -3,7 +3,16 @@ import os
 
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions, mcp, RoomOutputOptions
-from livekit.agents.llm import ChatContext
+from livekit.agents.voice import ModelSettings # 解决了之前的 NameError
+from typing import AsyncIterable
+from dataclasses import asdict
+import json
+from livekit.agents.llm import (
+    FunctionTool,   # 解决了之前的 NameError
+    ChatChunk,      # 解决本次的 NameError: name 'ChatChunk' is not defined
+    ChatContext,    # 这是您原来就有的
+    LLMStream,      # 调试代码需要
+)
 from livekit.plugins import (
     openai,
     deepgram,
@@ -43,6 +52,60 @@ class Assistant(Agent):
 
 
         super().__init__(instructions=base_instructions, chat_ctx=chat_ctx)
+
+    async def llm_node(
+            self,
+            chat_ctx: ChatContext,
+            tools: list[FunctionTool],
+            model_settings: ModelSettings,
+    ) -> AsyncIterable[ChatChunk]:
+        """
+        这个方法覆盖了 Agent 的默认 LLM 节点。
+        我们在这里调用底层的 LLM 插件，然后包装返回的流，
+        以便在不干扰 Agent 运行的情况下打印出所有数据。
+        """
+
+        llm_plugin = self.session.llm
+        if llm_plugin is None:
+            async def empty_stream():
+                if False:
+                    yield
+
+            return empty_stream()
+
+        model_settings_dict = asdict(model_settings)
+
+        # 调用 chat 方法时，使用转换后的字典
+        llm_stream = llm_plugin.chat(
+            chat_ctx=chat_ctx,
+            tools=tools,
+            **model_settings_dict,
+        )
+
+        async def stream_wrapper(original_stream: LLMStream) -> AsyncIterable[ChatChunk]:
+            # ... 这里的 stream_wrapper 代码保持不变 ...
+            print("\n--- [LLM DEBUG] Streaming Chunks ---")
+            async for chunk in original_stream:
+                print(chunk)
+                yield chunk
+
+            print("--- [LLM DEBUG] Streaming Finished ---\n")
+
+            if hasattr(original_stream, 'raw_response') and original_stream.raw_response:
+                print("--- [LLM DEBUG] Complete Raw Response ---")
+                try:
+                    raw_data = original_stream.raw_response
+                    if hasattr(raw_data, "to_dict"):
+                        print(json.dumps(raw_data.to_dict(), indent=2, ensure_ascii=False))
+                    else:
+                        print(raw_data)
+                except Exception as e:
+                    print(f"Could not serialize raw_response: {e}")
+                    print(original_stream.raw_response)
+
+                print("--------------------------------------\n")
+
+        return stream_wrapper(llm_stream)
 
 async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
@@ -93,6 +156,7 @@ async def entrypoint(ctx: agents.JobContext):
         "建筑水装饰总览.txt",
         "活动内容.txt",
         "水电费.txt",
+        #"数据字段注释及实际数据情况.txt"
     ]
 
     script_dir = os.path.join(os.path.dirname(__file__), "knowledge")
