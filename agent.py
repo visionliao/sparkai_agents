@@ -117,7 +117,7 @@ async def entrypoint(ctx: agents.JobContext):
         #   api_key=api_key,
         #   base_url=base_url,
         # ),
-        tts = google.TTS(language="cmn-CN", voice_name="cmn-CN-Chirp3-HD-Zubenelgenubi"),
+        tts = google.TTS(language="cmn-CN", voice_name="cmn-CN-Chirp3-HD-Laomedeia", speaking_rate=1.5),
         # tts=elevenlabs.TTS(),
         # tts=deepgram.TTS(),
         # tts=groq.TTS(model="whisper-large-v3"),
