@@ -161,11 +161,6 @@ async def entrypoint(ctx: agents.JobContext):
                 timeout=10,
                 client_session_timeout_seconds=10,
             ),
-            mcp.MCPServerHTTP(
-                url="https://mcp.api-inference.modelscope.net/6cf9ee6ab2f248/sse",
-                timeout=10,
-                client_session_timeout_seconds=10,
-            ),
         ],
     )
 
