@@ -1,17 +1,19 @@
-from dotenv import load_dotenv
 import os
-
-from livekit import agents
-from livekit.agents import AgentSession, Agent, RoomInputOptions, mcp, RoomOutputOptions
-from livekit.agents.voice import ModelSettings # 解决了之前的 NameError
+import json
+import logging
+from logging.handlers import RotatingFileHandler
 from typing import AsyncIterable
 from dataclasses import asdict
-import json
+
+from dotenv import load_dotenv
+from livekit import agents
+from livekit.agents import AgentSession, Agent, RoomInputOptions, mcp, RoomOutputOptions
+from livekit.agents.voice import ModelSettings
 from livekit.agents.llm import (
-    FunctionTool,   # 解决了之前的 NameError
-    ChatChunk,      # 解决本次的 NameError: name 'ChatChunk' is not defined
-    ChatContext,    # 这是您原来就有的
-    LLMStream,      # 调试代码需要
+    FunctionTool,
+    ChatChunk,
+    ChatContext,
+    LLMStream,
 )
 from livekit.plugins import (
     openai,
@@ -20,9 +22,35 @@ from livekit.plugins import (
     silero,
     elevenlabs,
     groq,
-    google
+    google,
 )
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
+
+# --- 日志配置 START ---
+# 建议将日志配置放在所有其他代码之前，以确保尽早捕获日志
+log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+
+# 创建一个文件处理器，用于写入日志文件，并设置日志轮转
+# 每个日志文件最大 10MB，保留最近 5 个文件
+log_file = 'agent.log'
+file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5, encoding='utf-8')
+file_handler.setFormatter(log_formatter)
+file_handler.setLevel(logging.DEBUG) # 文件中也记录 DEBUG 及以上级别的信息
+
+# 创建一个控制台处理器，以便在终端仍然能看到输出
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(log_formatter)
+console_handler.setLevel(logging.DEBUG) # 控制台可以显示更详细的 DEBUG 信息
+
+# 获取根记录器并添加处理器
+# 这样，所有模块（包括 livekit 库本身）的日志都会被捕获
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.DEBUG)  # 设置根记录器的最低级别
+root_logger.handlers.clear() # 清除可能存在的旧处理器
+root_logger.addHandler(file_handler)
+root_logger.addHandler(console_handler)
+# --- 日志配置 END ---
+
 
 load_dotenv()
 api_key = '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'
@@ -54,7 +82,7 @@ class Assistant(Agent):
 
         super().__init__(instructions=base_instructions, chat_ctx=chat_ctx)
 
-    async def llm_node(
+    '''async def llm_node(
             self,
             chat_ctx: ChatContext,
             tools: list[FunctionTool],
@@ -84,31 +112,36 @@ class Assistant(Agent):
         )
 
         async def stream_wrapper(original_stream: LLMStream) -> AsyncIterable[ChatChunk]:
-            # ... 这里的 stream_wrapper 代码保持不变 ...
-            print("\n--- [LLM DEBUG] Streaming Chunks ---")
+            logging.debug("--- [LLM DEBUG] Streaming Chunks ---")
             async for chunk in original_stream:
-                print(chunk)
+                logging.debug(chunk)
                 yield chunk
-
-            print("--- [LLM DEBUG] Streaming Finished ---\n")
+            logging.debug("--- [LLM DEBUG] Streaming Finished ---")
 
             if hasattr(original_stream, 'raw_response') and original_stream.raw_response:
-                print("--- [LLM DEBUG] Complete Raw Response ---")
+                logging.debug("--- [LLM DEBUG] Complete Raw Response ---")
                 try:
                     raw_data = original_stream.raw_response
                     if hasattr(raw_data, "to_dict"):
-                        print(json.dumps(raw_data.to_dict(), indent=2, ensure_ascii=False))
+                        logging.debug(json.dumps(raw_data.to_dict(), indent=2, ensure_ascii=False))
                     else:
-                        print(raw_data)
-                except Exception as e:
-                    print(f"Could not serialize raw_response: {e}")
-                    print(original_stream.raw_response)
+                        logging.debug(raw_data)
+                except Exception:
+                    logging.exception("序列化 raw_response 时出错")
+                    logging.debug(original_stream.raw_response)
+                logging.debug("--------------------------------------")
 
-                print("--------------------------------------\n")
-
-        return stream_wrapper(llm_stream)
+        return stream_wrapper(llm_stream)'''
 
 async def entrypoint(ctx: agents.JobContext):
+    # 注意：这里的 noise_cancellation 只有在连接 LiveKit Cloud 时才有效。
+    # 如果您使用自托管的 LiveKit，建议移除这个选项或做好错误处理。
+    try:
+        noise_cancellation_plugin = noise_cancellation.BVC()
+    except Exception:
+        logging.warning("无法加载降噪插件，可能不是在 LiveKit Cloud 环境。将禁用降噪。")
+        noise_cancellation_plugin = None
+
     session = AgentSession(
         vad=silero.VAD.load(),
         stt=openai.STT.with_groq(model="whisper-large-v3", language='zh', detect_language=True),
@@ -157,7 +190,6 @@ async def entrypoint(ctx: agents.JobContext):
         "建筑水装饰总览.txt",
         "活动内容.txt",
         "水电费.txt",
-        #"数据字段注释及实际数据情况.txt"
     ]
 
     script_dir = os.path.join(os.path.dirname(__file__), "knowledge")
@@ -170,7 +202,6 @@ async def entrypoint(ctx: agents.JobContext):
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
-                # 将每个文件的完整XML块作为一个字符串，添加到列表中
                 doc_xml = (
                     f'  <document index="{index}">\n'
                     f'    <source>{filename}</source>\n'
@@ -178,19 +209,25 @@ async def entrypoint(ctx: agents.JobContext):
                     f'  </document>'
                 )
                 knowledge_base_content.append(doc_xml)
-            print(f"成功加载知识库文件: {filename}")
+            logging.info(f"成功加载知识库文件: {filename}")
         except FileNotFoundError:
-            print(f"知识库文件未找到: {filename}。将跳过。")
-        except Exception as e:
-            print(f"加载知识库文件 {filename} 时发生错误: {e}")
+            logging.warning(f"知识库文件未找到: {filename}。将跳过。")
+        except Exception:
+            logging.exception(f"加载知识库文件 {filename} 时发生错误")
 
-    if len(knowledge_base_content) > 1:
+    knowledge_base_content.append("</documents>")
+
+    if len(knowledge_base_content) > 2: # 检查是否真的加载了文件
         initial_chat_context.add_message(
             role="system",
             content="\n".join(knowledge_base_content)
         )
 
     agent_instance = Assistant(chat_ctx=initial_chat_context)
+
+    room_input_opts = RoomInputOptions(video_enabled=True)
+    if noise_cancellation_plugin:
+        room_input_opts.noise_cancellation = noise_cancellation_plugin
 
     await session.start(
         room=ctx.room,
@@ -211,6 +248,28 @@ async def entrypoint(ctx: agents.JobContext):
         instructions="您好，我是Spark AI 您的专属AI助理，请问有什么可以帮您？"
     )
 
+    @session.on("conversation_item_added")
+    def on_conversation_item_added(event: agents.ConversationItemAddedEvent):
+        # 检查消息的角色
+        if event.item.role == 'user':
+            # 这是用户的输入
+            logging.info(f"--- [USER INPUT] ---")
+            logging.info(f"User: {event.item.text_content}")
+            logging.info(f"--------------------")
+        elif event.item.role == 'assistant':
+            # 这是 AI 的最终回复
+            # 我们只记录非空的文本回复
+            text_content = event.item.text_content.strip()
+            if text_content:
+                logging.info(f"--- [AI RESPONSE] ---")
+                logging.info(f"AI: {text_content}")
+                logging.info(f"---------------------")
+
 
 if __name__ == "__main__":
-    agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint))
+    logging.info("启动 Agent Worker...")
+    try:
+        agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint))
+    except Exception:
+        logging.critical("Agent Worker 启动失败", exc_info=True)
+        # exc_info=True 会自动附加异常信息，等同于 logging.exception
