@@ -158,8 +158,8 @@ async def entrypoint(ctx: agents.JobContext):
         mcp_servers=[
             mcp.MCPServerHTTP(
                 url="http://localhost:8000/sse",
-                timeout=10,
-                client_session_timeout_seconds=10,
+                timeout=600,
+                client_session_timeout_seconds=600,
             ),
         ],
     )
