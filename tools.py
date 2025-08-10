@@ -68,7 +68,7 @@ def list_knowledge():
 
 # --- 4. 获取CSV文件前N条数据 ---
 @mcp.tool()
-def get_csv_head(file: str, n: int = 10) -> Union[pd.DataFrame, str]:
+def get_csv_head(file: str, n: int = 10) -> str:
     """
     读取指定的.csv文件，并返回其前N条数据
     用于了解.csv文件的字段、内容等基本信息，请你在使用下面的查询工具前先使用这个工具了解文件的基本情况，防止使用查询工具时出现错误
@@ -98,7 +98,7 @@ def get_csv_head(file: str, n: int = 10) -> Union[pd.DataFrame, str]:
 
 # --- 5. 通用.csv文件查询工具 ---
 @mcp.tool()
-def query_csv(file: str, query_string: str) -> Union[pd.DataFrame, str]:
+def query_csv(file: str, query_string: str):
     """
     通过输入查询语句，查询.csv文件并输出符合条件的数据
     查询语法基于Pandas的 `query` 方法
@@ -129,7 +129,7 @@ def query_csv(file: str, query_string: str) -> Union[pd.DataFrame, str]:
 
 # --- 6. 通用.csv文件查询计数工具 ---
 @mcp.tool()
-def count_csv_query(file: str, query_string: str) -> Union[int, str]:
+def count_csv_query(file: str, query_string: str):
     """
     通过输入查询语句，查询.csv文件并输出符合条件的数据的数量
     使用前请先了解所要查询的表的基本结构
