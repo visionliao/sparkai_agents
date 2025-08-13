@@ -9,6 +9,8 @@ from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 import traceback
 
+from financial_analyzer import ProjectFinancials
+
 # --- 1. 配置与初始化 (No changes here) ---
 
 load_dotenv()
@@ -441,10 +443,115 @@ def find_highest_rent_guest() -> Dict[str, Any]:
         }
     }
 
+# --- 1. 查询现在的系统时间 ---
+@mcp.tool()
+def get_current_time(format_str: str = "%Y-%m-%d %H:%M:%S") -> str:
+    """
+    获取当前系统时间，并按指定格式返回
+    """
+    return datetime.now().strftime(format_str)
+
+
+# --- 2. 通用计算工具函数 ---
+@mcp.tool()
+def calculate_expression(expression: str) -> Any:
+    """
+    工具名称 (tool_name): calculate_expression
+    功能描述 (description): 用于执行一个字符串形式的数学计算。适用于需要进行加、减、乘、除、括号等运算的场景。
+    【重要提示】: 此工具仅限于基础数学运算 (+, -, *, /, **) 和几个安全函数 (abs, max, min, pow, round)。它无法执行更复杂的代数或微积分运算。
+    输入参数 (parameters):
+    name: expression
+    type: string
+    description: 需要被计算的数学表达式。例如: "10 * (5 + 3)"。
+    required: true (必需)
+    返回结果 (returns):
+    type: number | string
+    description: 返回计算结果（数字类型）。如果表达式语法错误或计算出错（如除以零），则返回一个描述错误的字符串。
+    """
+    try:
+        # 限制`eval`的上下文，只允许基础的数学计算
+        # 创建一个只包含安全函数的字典
+        allowed_names = {
+            'abs': abs, 'max': max, 'min': min, 'pow': pow, 'round': round,
+            # 可以根据需要添加更多安全的数学函数
+        }
+        result = eval(expression, {"__builtins__": {}}, allowed_names)
+        return result
+    except (SyntaxError, NameError, TypeError, ZeroDivisionError) as e:
+        return f"计算错误: {e}"
+
+@mcp.tool()
+def financial_analyzer(need: str, time: str):
+    """
+    这是一个综合性的运营数据查询工具
+    使用这个工具你需要选择两个参数
+    首先是要查询的数据项，这个必须从下面给出的数据项中选择，每次只能选择一个
+    能查询的数据项有：
+        '入住率'
+        '平均租金'
+        '住宅总租金收入'
+        '总收入'
+        '人力成本'
+        '维修维保费'
+        '营销推广费'
+        '行政及办公费用'
+        '能耗费-公区'
+        '能耗费-客房'
+        '大物业管理费'
+        '经营税金'
+        '保险费'
+        '总运营支出'
+        '净营业收入'
+        'NOI利润率'
+    第二个是要查询的时间，这个同样必须从下面给出的数据项中选择，每次只能选择一个
+    注意：这些时间中'开业首年_1月'指的是2024年10月，请你查询时先确认当前实际月份，经过简单换算后在决定查询时的时间选项
+    选择查询的数据项后，需要选择时间，可选的时间项有：
+        '开业前6个月'
+        '开业前5个月'
+        '开业前4个月'
+        '开业前3个月'
+        '开业前2个月'
+        '开业前1个月'
+        '开业首年_1月'
+        '开业首年_2月'
+        '开业首年_3月'
+        '开业首年_4月'
+        '开业首年_5月'
+        '开业首年_6月'
+        '开业首年_7月'
+        '开业首年_8月'
+        '开业首年_9月'
+        '开业首年_10月'
+        '开业首年_11月'
+        '开业首年_12月'
+        '开业第一年'
+        '开业第二年'
+        '开业第三年'
+        '开业第四年'
+        '开业第五年'
+
+    使用示例：
+        假设我要查询2025年5月的入住率
+        先根据开业首年一月指的是2024年10月确定2025年5月指的是'开业首年_8月'
+        然后执行查询
+        print(financial_analyzer("入住率", "开业首年_8月"))
+        让后就可得到结果：查询结果: '开业首年_8月' 的 '入住率' 为 56.00%
+
+        注意：回复用户时不要使用'开业首年_8月'这样的时间选项作为时间告诉用户，应回复用户所要查询的具体时间如'2025年5月'的入住率为···，回复中不要提到'开业首年_8月'与具体时间的关系
+
+    """
+
+
+    file_path = '北京中天创业园.csv'
+    analyzer = ProjectFinancials(file_path)
+    result = analyzer.get_data(metric=need, time_period=time)
+    return result
+
 
 # --- 5. 服务器启动入口 (No changes here) ---
 if __name__ == "__main__":
     main_df = load_data(CSV_FILE_PATH)
+    print(financial_analyzer("入住率", "开业首年_8月"))
     if main_df is not None:
         print("数据服务已准备就绪。正在启动 MCP 服务器...")
         #print(advanced_search(include_analysis=True, nation="日本"))
