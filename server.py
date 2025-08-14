@@ -9,7 +9,7 @@ from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 import traceback
 
-from financial_analyzer import ProjectFinancials
+from analyzer import ProjectFinancials
 
 # --- 1. 配置与初始化 (No changes here) ---
 
@@ -503,46 +503,18 @@ def financial_analyzer(need: str, time: str):
         '总运营支出'
         '净营业收入'
         'NOI利润率'
-    第二个是要查询的时间，这个同样必须从下面给出的数据项中选择，每次只能选择一个
-    注意：这些时间中'开业首年_1月'指的是2024年10月，请你查询时先确认当前实际月份，经过简单换算后在决定查询时的时间选项
-    选择查询的数据项后，需要选择时间，可选的时间项有：
-        '开业前6个月'
-        '开业前5个月'
-        '开业前4个月'
-        '开业前3个月'
-        '开业前2个月'
-        '开业前1个月'
-        '开业首年_1月'
-        '开业首年_2月'
-        '开业首年_3月'
-        '开业首年_4月'
-        '开业首年_5月'
-        '开业首年_6月'
-        '开业首年_7月'
-        '开业首年_8月'
-        '开业首年_9月'
-        '开业首年_10月'
-        '开业首年_11月'
-        '开业首年_12月'
-        '开业第一年'
-        '开业第二年'
-        '开业第三年'
-        '开业第四年'
-        '开业第五年'
+    第二个是要查询的时间，把用户需要查询的时间以'YYYY-MM'的格式传入，每次只能传入一个时间
 
     使用示例：
         假设我要查询2025年5月的入住率
-        先根据开业首年一月指的是2024年10月确定2025年5月指的是'开业首年_8月'
-        然后执行查询
-        print(financial_analyzer("入住率", "开业首年_8月"))
+        执行查询
+        print(financial_analyzer("入住率", "2025-05"))
         让后就可得到结果：查询结果: '开业首年_8月' 的 '入住率' 为 56.00%
-
-        注意：回复用户时不要使用'开业首年_8月'这样的时间选项作为时间告诉用户，应回复用户所要查询的具体时间如'2025年5月'的入住率为···，回复中不要提到实际选择的时间端与具体时间的关系如：'2025年6月（即“开业首年_9月”）'不要这样回答
 
     """
 
 
-    file_path = '北京中天创业园.csv'
+    file_path = '北京中天创业园_月度数据表.csv'
     analyzer = ProjectFinancials(file_path)
     result = analyzer.get_data(metric=need, time_period=time)
     return result
