@@ -49,8 +49,6 @@ import numpy as np
 from datetime import datetime
 import os
 
-from celery.bin.celery import report
-
 
 class OrganizationalStructureAnalysis:
     def __init__(self, data, month):
