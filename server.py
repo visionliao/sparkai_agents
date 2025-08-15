@@ -5,11 +5,28 @@ import os
 from datetime import datetime
 from typing import List, Dict, Optional, Any
 
+from jupyter_ai.handlers import ChatHistoryHandler
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 import traceback
 
+from zope.interface import alsoProvides
+
 from analyzer import ProjectFinancials
+#from x import FinancialAnalysis
+from analysis_scripts.a1_财务状况分析  import FinancialAnalysis
+from analysis_scripts.a2_租赁业绩分析 import LeasingPerformanceAnalysis
+from analysis_scripts.a3_客户分析 import CustomerAnalysis
+from analysis_scripts.a4_营销效果分析 import MarketingEffectivenessAnalysis
+from analysis_scripts.a5_运营效率分析 import OperationalEfficiencyAnalysis
+from analysis_scripts.a6_市场竞争分析 import MarketCompetitionAnalysis
+from analysis_scripts.a7_能耗与ESG分析 import EnergyESGAnalysis
+from analysis_scripts.a8_团队与人力资源分析 import TeamHRAnalysis
+from analysis_scripts.a9_技术与数字化分析 import ITDigitalAnalysis
+from analysis_scripts.a10_客户满意度分析 import CustomerSatisfactionAnalysis
+from analysis_scripts.a11_竞争对手LS指标分析 import CompetitorLSAnalysis
+from analysis_scripts.a12_详细费用分析 import DetailedExpenseAnalysis
+from analysis_scripts.a14_组织架构与效率分析 import OrganizationalStructureAnalysis
 
 # --- 1. 配置与初始化 (No changes here) ---
 
@@ -519,11 +536,733 @@ def financial_analyzer(need: str, time: str):
     result = analyzer.get_data(metric=need, time_period=time)
     return result
 
+@mcp.tool()
+def als1(time: str):
+    """
+    这是一个北京中天创业园项目财务状况分析脚本
+    分析现金流状况、收入结构、成本控制等财务指标
+
+    具体能获取到的统计数据有:
+    1. 现金流分析
+       - 现金充足率
+       - 现金流趋势
+       - 现金周转率
+       - 流动性风险评估
+
+    2. 收入结构分析
+       - 运营收入分析
+       - 收入增长率
+       - 收入结构占比
+       - 收入质量评估
+
+    3. 成本控制分析
+       - 总成本分析
+       - 成本率计算
+       - 成本结构分析
+       - 成本控制效果
+
+    4. 盈利能力分析
+       - GOP率计算
+       - 净利润率
+       - 投资回报率(ROI)
+       - 盈利能力等级评估
+
+    5. 综合财务评估
+       - 财务健康度评分
+       - 风险等级评估
+       - 改进建议生成
+       - 财务状况趋势分析
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    # 创建分析实例
+    analyzer = FinancialAnalysis(data_file)
+
+    # 分析指定月份
+    target_month = time  # 可以修改为任意月份
+    analyzer.analyze(target_month)
+    report_string = analyzer.output_results_to_file(target_month)
+    return report_string
+
+@mcp.tool()
+def als2(time: str):
+    """
+    这是一个北京中天创业园项目租赁业绩分析脚本
+    分析出租率、租金、租赁漏斗等租赁业绩指标
+
+    具体能获取到的统计数据有:
+    1. 出租率分析
+       - 整体出租率
+       - 长租出租率
+       - 短租出租率
+       - 出租率趋势分析
+
+    2. 租金水平分析
+       - 平均租金
+       - 长租平均租金
+       - 短租平均租金
+       - 租金效率计算
+
+    3. 租赁漏斗分析
+       - 咨询量统计
+       - 看房量统计
+       - 成交量统计
+       - 各环节转化率
+
+    4. 租金回收分析
+       - 租金回收率
+       - 欠租金额统计
+       - 收租及时率
+       - 坏账风险评估
+
+    5. 租赁业绩评估
+       - 租赁收入分析
+       - 综合业绩评分
+       - 市场竞争力分析
+       - 改进建议生成
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    # 创建分析实例
+    analyzer = LeasingPerformanceAnalysis(data_file)
+
+    # 分析指定月份
+    target_month = time  # 可以修改为任意月份
+    analyzer.analyze(target_month)
+    report_string = analyzer.output_results_to_file(target_month)
+    return report_string
+
+@mcp.tool()
+def als3(time: str):
+    """
+    这是一个北京中天创业园项目客户分析脚本
+    分析客户结构、住户画像、客户满意度等客户相关指标
+
+    具体能获取到的统计数据有:
+    1. 客户结构分析
+       - 长租客户占比
+       - 短租客户占比
+       - 新老客户比例
+       - 客户集中度分析
+
+    2. 住户画像分析
+       - 年龄分布分析
+       - 性别分布分析
+       - 职业分布分析
+       - 收入水平分布
+
+    3. 客户行为分析
+       - 平均租期分析
+       - 续租率统计
+       - 退租原因分析
+       - 客户活跃度分析
+
+    4. 客户满意度分析
+       - 满意度评分
+       - 投诉处理率
+       - 服务响应时间
+       - 客户忠诚度评估
+
+    5. 客户价值分析
+       - 客户终身价值
+       - 高价值客户识别
+       - 客户流失风险
+       - 客户关系管理建议
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    # 创建分析实例
+    analyzer = CustomerAnalysis(data_file)
+
+    # 分析指定月份
+    target_month = time  # 可以修改为任意月份
+    analyzer.analyze(target_month)
+
+    report_string = analyzer.output_results_to_file(target_month)
+    return report_string
+
+@mcp.tool()
+def als4(time: str):
+    """
+    这是一个北京中天创业园项目营销效果分析脚本
+    分析营销投入产出、自有渠道效果等营销相关指标
+
+    具体能获取到的统计数据有:
+    1. 营销投入分析
+       - 总营销投入
+       - 各渠道投入占比
+       - 营销投入趋势
+       - 营销预算执行率
+
+    2. 获客效果分析
+       - 获客数量统计
+       - 获客成本计算
+       - 获客渠道分析
+       - 获客转化率
+
+    3. 渠道效果分析
+       - 自有渠道效果
+       - 第三方渠道效果
+       - 线上渠道效果
+       - 线下渠道效果
+
+    4. 营销ROI分析
+       - 各渠道ROI计算
+       - 营销投资回报率
+       - 营销效率评估
+       - 成本效益分析
+
+    5. 营销策略评估
+       - 营销活动效果
+       - 品牌影响力分析
+       - 市场渗透率分析
+       - 营销优化建议
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    # 创建分析实例
+    analyzer = MarketingEffectivenessAnalysis(data_file)
+
+    # 分析指定月份
+    target_month = time # 可以修改为任意月份
+    analyzer.analyze(target_month)
+
+    report_string = analyzer.output_results_to_file(target_month)
+    return report_string
+
+@mcp.tool()
+def als5(time: str):
+    """
+    这是一个北京中天创业园项目运营效率分析脚本
+    分析运营指标、维护服务等运营效率相关指标
+
+    具体能获取到的统计数据有:
+    1. 运营效率指标
+       - 运营GOP（毛利润）
+       - 运营NOI率（净运营收入率）
+       - GOP率（毛利润率）
+       - 税负率
+       - 管理费率
+       - 运营盈利状态评估
+
+    2. 维护服务指标
+       - 服务请求数
+       - 房源整备数
+       - 平均维修响应时间
+       - 维修完成率
+       - 响应效率
+       - 服务质量评分
+
+    3. 成本控制指标
+       - 运营费用占比
+       - 人力成本效率
+       - 能耗成本控制
+       - 维修成本分析
+
+    4. 服务质量指标
+       - 客户满意度
+       - 投诉处理时效
+       - 服务达标率
+       - 品质检查结果
+
+    5. 资源利用指标
+       - 房间使用率
+       - 设施使用效率
+       - 公共区域利用率
+       - 资源配置合理性
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    # 创建分析实例
+    analyzer = OperationalEfficiencyAnalysis(data_file)
+
+    # 分析指定月份
+    target_month = time # 可以修改为任意月份
+    analyzer.analyze(target_month)
+
+    report_string = analyzer.output_results_to_file(target_month)
+    return report_string
+
+'''@mcp.tool()
+def als6(time: str):
+    """
+    这是一个北京中天创业园项目市场竞争分析脚本
+    分析北京中天创业园与竞争对手的市场表现对比
+
+    具体能获取到的统计数据有:
+    1. 市场份额指标
+       - 项目出租率
+       - 竞争对手出租率对比
+       - 市场份额估算
+       - 市场渗透率
+       - 客户获取成本
+
+    2. 价格竞争力指标
+       - 项目均价
+       - 竞争对手价格对比
+       - 价格优势指数
+       - 租金效率
+       - 价格弹性分析
+
+    3. 转化效率指标
+       - 项目转化率
+       - 竞争对手L:S指标
+       - 转化效率对比
+       - 销售漏斗分析
+       - 渠道效果评估
+
+    4. 竞争格局指标
+       - 竞争强度分析
+       - 市场集中度
+       - 竞争对手分布
+       - 差异化程度
+       - 进入壁垒分析
+
+    5. 竞争优势指标
+       - 综合竞争优势指数
+       - 品牌影响力
+       - 服务差异化
+       - 客户忠诚度
+       - 市场定位评估
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    target_month = time
+
+    analyzer = MarketCompetitionAnalysis(data_file, target_month)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string'''
+
+@mcp.tool()
+def als7(time: str):
+    """
+    这是一个北京中天创业园项目能耗与ESG分析脚本
+    分析北京中天创业园的能源消耗和ESG项目表现
+
+    能获得到的具体统计项目有:
+    1. 能源消耗指标
+       - 总用电量
+       - 总用水量
+       - 总用气量
+       - 单位面积能耗
+       - 人均能耗
+       - 能耗成本率
+
+    2. 能源效率指标
+       - 能效得分
+       - 能源利用率
+       - 节能效果
+       - 能源浪费率
+       - 能耗趋势分析
+
+    3. ESG项目指标
+       - ESG投资总额
+       - ESG项目收益
+       - 投资回报率
+       - 投资回收期
+       - ESG成熟度评分
+
+    4. 环境影响指标
+       - 碳排放量
+       - 可再生能源使用率
+       - 废弃物处理率
+       - 环保合规性
+       - 绿色认证情况
+
+    5. 社会责任指标
+       - 员工满意度
+       - 社区参与度
+       - 安全事故率
+       - 培训投入
+       - 社会贡献评估
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    target_month = time
+
+    analyzer = EnergyESGAnalysis(data_file, target_month)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string
+
+@mcp.tool()
+def als8(time: str):
+    """
+    这是一个北京中天创业园项目团队与人力资源分析脚本
+    分析北京中天创业园的团队结构和人力资源效率
+
+    能获取到的具体统计数据有:
+    1. 人力资源配置指标
+       - 计划FTE总数
+       - 当前FTE数
+       - 编制完成率
+       - 人员流动率
+       - 招聘完成率
+
+    2. 团队结构指标
+       - 管理团队配置
+       - 运营团队配置
+       - 工程团队配置
+       - 客服团队配置
+       - 营销团队配置
+       - 财务团队配置
+
+    3. 人员效率指标
+       - 人均管理房间数
+       - 人均收入贡献
+       - 人均成本控制
+       - 团队效率等级
+       - 人员配置合理性
+
+    4. 团队建设指标
+       - 团队活动次数
+       - 培训活动参与率
+       - 员工满意度
+       - 团队凝聚力得分
+       - 人均活动成本
+
+    5. 绩效管理指标
+       - 绩效目标完成率
+       - 培训投入产出比
+       - 员工成长指标
+       - 激励机制效果
+       - 人才保留率
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    target_month = time
+
+    analyzer = TeamHRAnalysis(data_file, target_month)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string
+
+@mcp.tool()
+def als9(time: str):
+    """
+    这是一个北京中天创业园项目IT系统与数字化分析脚本
+    分析PMS系统使用、IT项目状况等IT数字化相关指标
+
+    能获取到的具体统计数据有:
+    1. 系统使用指标
+       - PMS系统使用率
+       - 活跃用户数
+       - 系统工单处理数
+       - 在线支付比例
+       - 系统覆盖率
+
+    2. 系统性能指标
+       - 系统故障次数
+       - 平均故障恢复时间
+       - 系统稳定性
+       - 响应时间
+       - 用户满意度
+
+    3. 数字化服务指标
+       - 微信小程序访客数
+       - 预订看房转化率
+       - 签约转化率
+       - 数字化服务覆盖率
+       - 租户使用率
+
+    4. 技术创新指标
+       - 新技术应用情况
+       - 自动化程度
+       - 数据分析能力
+       - 技术投入回报率
+       - 数字化成熟度
+
+    5. 信息安全指标
+       - 数据安全性
+       - 系统合规性
+       - 隐私保护措施
+       - 灾备能力
+       - 安全培训覆盖率
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    target_month = time
+    file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    analyzer = ITDigitalAnalysis(file, target_month)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string
+
+@mcp.tool()
+def als10(time: str):
+    """
+    这是一个北京中天创业园项目组织架构与效率分析脚本
+    分析组织结构、人员配置和运营效率
+
+    能获取到的具体统计数据有:
+    1. 组织架构指标
+       - 管理团队配置
+       - 运营团队配置
+       - 工程团队配置
+       - 客服团队配置
+       - 营销团队配置
+       - 财务团队配置
+       - 编制完成率
+
+    2. 人员配置指标
+       - 计划FTE总数
+       - 当前FTE总数
+       - 人均管理房间数
+       - 人均服务住户数
+       - 人均创收能力
+       - 人员成本占比
+
+    3. 组织效能指标
+       - 管理跨度
+       - 一线人员占比
+       - 支持人员占比
+       - 人均处理工单数
+       - 组织结构合理性
+
+    4. 团队效率指标
+       - 各团队人均效率
+       - 团队成本控制
+       - 团队收入贡献
+       - 团队协作效果
+       - 资源配置优化
+
+    5. 组织发展指标
+       - 生产力趋势分析
+       - 人员配置得分
+       - 运营效率得分
+       - 组织结构得分
+       - 综合组织评级
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    target_month = time
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+
+    analyzer = CustomerSatisfactionAnalysis(data, target_month)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string
+
+@mcp.tool()
+def als11(time: str):
+    """
+    这是一个北京中天创业园项目竞争对手L:S指标分析脚本
+    分析竞争对手的L:S指标和转化效率
+
+    能获取到的具体统计数据有:
+    1. L:S核心指标
+       - 本项目L:S指标
+       - 竞争对手L:S指标
+       - L:S指标对比
+       - L:S指标趋势
+       - 价格合理性评估
+
+    2. 入住率指标
+       - 本项目入住率
+       - 竞争对手入住率
+       - 入住率对比
+       - 入住率趋势
+       - 市场占有率
+
+    3. 转化效率指标
+       - 本项目转化率
+       - 竞争对手转化率
+       - 转化效率对比
+       - 转化漏斗分析
+       - 渠道效果评估
+
+    4. 租金效率指标
+       - 各户型租金范围
+       - 租金效率对比
+       - 价格竞争力
+       - 租金溢价能力
+       - 价值定位评估
+
+    5. 综合竞争力指标
+       - 相对效率分析
+       - 竞争优势指数
+       - 市场定位评估
+       - 差异化程度
+       - 综合得分评级
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    target_month = time
+    analyzer = CompetitorLSAnalysis(data, target_month)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string
+
+@mcp.tool()
+def als12(time: str):
+    """
+    这是一个北京中天创业园项目详细费用分析脚本
+    分析各项费用的构成、趋势和控制效果
+
+    能获取到的具体统计数据有:
+    1. 费用结构指标
+       - 人力成本
+       - 能耗费用
+       - 营销费用
+       - 行政费用
+       - 维修费用
+       - 税费
+       - 其他费用
+
+    2. 费用分类指标
+       - 运营费用总额
+       - 营销费用总额
+       - 财务费用总额
+       - 其他费用总额
+       - 费用占比分析
+
+    3. 成本类型指标
+       - 固定成本
+       - 变动成本
+       - 半变动成本
+       - 法定费用
+       - 成本结构合理性
+
+    4. 费用效率指标
+       - 总费用率
+       - 人均费用
+       - 单位面积费用
+       - 费用控制效果
+       - 成本优化空间
+
+    5. 费用控制指标
+       - 费用趋势分析
+       - 预算执行率
+       - 异常费用监测
+       - 成本节约目标
+       - 费用管理评级
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    time = time
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    analyzer = DetailedExpenseAnalysis(data, time)
+    analyzer.run_analysis()
+
+    report_string = analyzer.output_results_to_file()
+    return report_string
+
+@mcp.tool()
+def als14(time: str):
+    """
+    这是一个北京中天创业园项目组织架构与效率分析脚本
+    分析组织结构、人员配置和运营效率
+
+    能获取到的具体统计数据有:
+    1. 组织架构指标
+       - 管理团队配置
+       - 运营团队配置
+       - 工程团队配置
+       - 客服团队配置
+       - 营销团队配置
+       - 财务团队配置
+       - 编制完成率
+
+    2. 人员配置指标
+       - 计划FTE总数
+       - 当前FTE总数
+       - 人均管理房间数
+       - 人均服务住户数
+       - 人均创收能力
+       - 人员成本占比
+
+    3. 组织效能指标
+       - 管理跨度
+       - 一线人员占比
+       - 支持人员占比
+       - 人均处理工单数
+       - 组织结构合理性
+
+    4. 团队效率指标
+       - 各团队人均效率
+       - 团队成本控制
+       - 团队收入贡献
+       - 团队协作效果
+       - 资源配置优化
+
+    5. 组织发展指标
+       - 生产力趋势分析
+       - 人员配置得分
+       - 运营效率得分
+       - 组织结构得分
+       - 综合组织评级
+
+    查询时请输入要查询的具体月份，月份必须以形如'Aug-25'这样的形式填写
+
+    注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
+    """
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    month = time
+    analyzer = OrganizationalStructureAnalysis(data, month)
+    analyzer.run_analysis()
+
+    report = analyzer.output_results_to_file()
+    return report
+
 
 # --- 5. 服务器启动入口 (No changes here) ---
 if __name__ == "__main__":
     main_df = load_data(CSV_FILE_PATH)
+    '''
     print(financial_analyzer("入住率", "开业首年_8月"))
+    print(hh("Aug-25"))
+    print(hhh("Aug-25"))
+    print(als14("Aug-25"))
+    '''
     if main_df is not None:
         print("数据服务已准备就绪。正在启动 MCP 服务器...")
         #print(advanced_search(include_analysis=True, nation="日本"))
