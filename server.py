@@ -7,9 +7,6 @@ from typing import List, Dict, Optional, Any
 
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
-import traceback
-
-from zope.interface import alsoProvides
 
 from analyzer import ProjectFinancials
 #from x import FinancialAnalysis
