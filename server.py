@@ -5,7 +5,6 @@ import os
 from datetime import datetime
 from typing import List, Dict, Optional, Any
 
-from jupyter_ai.handlers import ChatHistoryHandler
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 import traceback
