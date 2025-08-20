@@ -9,6 +9,7 @@ from demo.room import analyze_room_type_performance, format_analysis_to_string
 from demo.query_guest_data import load_data_from_xml, get_query_result_as_string
 from demo.query_checkins import query_checkin_records, format_records_to_string
 from demo.query_by_room import query_records_by_room, format_string
+from demo.query_orders import parse_service_orders, search_by_rmno, format_results_to_string
 
 from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("公寓数据查询")
@@ -456,6 +457,64 @@ def query_by_room(room: str):
     # 3. 打印结果
     return final_report_string
 
+@mcp.tool()
+def query_orders(room: str):
+    """
+        功能描述 (description): 一个用于获取指定房间号的历史工单信息，可获得的具体字段有：入住日期、离店日期、房号、房型、租金、状态、用户ID、备注、交班信息
+
+        输入参数 (parameters):
+        room (Optional[str]): 房间号
+
+
+        返回结果 (returns):
+        下面是一个调用返回示例：
+        print(query_orders('A513'))
+        返回：
+        '
+          工单ID:     3422
+          房号:       A513
+          服务项目:   拖线板 (B506)
+          需求描述:   浴室淋浴房漏水 需要第二次修补 漏水太厉害
+          具体位置:   客厅 (009)
+          优先级:   低
+          进入房间指引/注意事项:   室内无人 需前台陪同
+          服务状态:   O
+          服务人员:   工程刘
+          处理结果:   已处理
+          创建时间:   2025-07-13 22:17:33
+          完成时间:   2025-07-14 18:47:44
+        '
+    """
+
+    XML_FILE_PATH = 'demo/lease_service_order.xml'
+
+    SERVICE_CODE_MAP = {
+        'A01': '更换布草', 'A02': '家具保洁', 'A03': '地面保洁', 'A04': '家电保洁',
+        'A05': '洁具保洁', 'A06': '客用品更换', 'A07': '杀虫', 'B1001': '电梯',
+        'B101': '冰箱', 'B102': '微波炉', 'B103': '烘干机', 'B104': '电视',
+        'B105': '洗衣机', 'B106': '空气净化器', 'B107': '抽湿机', 'B108': '油烟机',
+        'B110': '电风扇', 'B114': '取暖机', 'B117': '投影仪', 'B119': '屏幕',
+        'B120': '热水器', 'B121': '洗碗机', 'B122': '电磁炉', 'B123': '烤箱',
+        'B124': '排气扇', 'B201': '烟雾报警器', 'B202': '手动报警器',
+        'B203': '消防喷淋', 'B204': '消防应急灯', 'B301': '暖气片', 'B302': '通风管',
+        'B303': '空调', 'B401': '毛巾架', 'B402': '龙头', 'B403': '室内门把手/门锁',
+        'B404': '窗户', 'B405': '铰链', 'B501': '电源插座', 'B502': '开关',
+        'B503': '灯具', 'B504': '电灯泡', 'B505': '灭蝇灯', 'B506': '拖线板',
+        'B601': '家具', 'B602': '橱柜', 'B603': '天花板', 'B604': '地板',
+        'B605': '墙', 'B606': '百叶窗', 'B607': '脚板', 'B701': '排水',
+        'B702': '浴盆', 'B703': '镜子', 'B704': '瓷砖', 'B705': '水槽',
+        'B706': '花洒', 'B707': '马桶', 'B708': '台盆', 'B801': '其他',
+        'B901': '网络设备'
+    }
+    all_orders = parse_service_orders(XML_FILE_PATH)
+    if all_orders is None: return
+
+    room_number_input = room
+
+    found_orders = search_by_rmno(all_orders, room_number_input)
+    result_string = format_results_to_string(found_orders)
+    return result_string
+
 
 
 if __name__ == "__main__":
@@ -501,6 +560,9 @@ if __name__ == "__main__":
     print(query_guest("3664"))
     print(query_checkins('2025-08-08', '2025-08-12', '1'))
     print(query_by_room("A312,A313"))
+    print(query_orders('A513'))
     '''
+
+
 
     mcp.run(transport="sse")
