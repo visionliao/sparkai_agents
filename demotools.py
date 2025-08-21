@@ -9,7 +9,8 @@ from demo.room import analyze_room_type_performance, format_analysis_to_string
 from demo.query_guest_data import load_data_from_xml, get_query_result_as_string
 from demo.query_checkins import query_checkin_records, format_records_to_string
 from demo.query_by_room import query_records_by_room, format_string
-from demo.query_orders import parse_service_orders, search_by_rmno, format_results_to_string
+from demo.query_orders import parse_service_orders, search_by_rmno, format_results_string
+from demo.advanced_query import parse_service_orders, search_orders_advanced, format_to_string
 
 from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("公寓数据查询")
@@ -460,7 +461,7 @@ def query_by_room(room: str):
 @mcp.tool()
 def query_orders(room: str):
     """
-        功能描述 (description): 一个用于获取指定房间号的历史工单信息，可获得的具体字段有：入住日期、离店日期、房号、房型、租金、状态、用户ID、备注、交班信息
+        功能描述 (description): 一个用于获取指定房间号的历史工单信息，可获得的具体字段有：工单ID、房号、服务项目、需求描述、具体位置、优先级、进入房间指引/注意事项、服务状态、服务人员、处理结果、创建时间、完成时间
 
         输入参数 (parameters):
         room (Optional[str]): 房间号
@@ -512,9 +513,135 @@ def query_orders(room: str):
     room_number_input = room
 
     found_orders = search_by_rmno(all_orders, room_number_input)
-    result_string = format_results_to_string(found_orders)
+    result_string = format_results_string(found_orders)
     return result_string
 
+@mcp.tool()
+def advanced_query_service(
+    start_date_str: Optional[str] = None,
+    end_date_str: Optional[str] = None,
+    service_code: Optional[str] = None,
+    location_code: Optional[str] = None
+) -> str:
+    """
+    功能描述 (description):
+    一个用于根据时间范围、服务项目和具体位置等条件，查询并格式化历史工单信息的服务函数。
+    可获得的具体字段有：工单ID、房号、服务项目、具体位置、需求描述、优先级、进入指引、服务状态、服务人员、处理结果、创建时间、完成时间。
+
+    输入参数 (parameters):
+    start_date_str (Optional[str]): 开始日期, 格式为 'YYYY-MM-DD'。默认为None (不限)。
+    end_date_str (Optional[str]):   结束日期, 格式为 'YYYY-MM-DD'。默认为None (不限)。
+    service_code (Optional[str]):   服务项目代码 (例如 'B501' 代表电源插座)。默认为None (不限)。
+    location_code (Optional[str]):  具体位置代码 (例如 '004' 代表厨房)。默认为None (不限)。
+
+    具体服务项目代码与具体位置代码为：
+    SERVICE_CODE_MAP = {
+        'A01': '更换布草', 'A02': '家具保洁', 'A03': '地面保洁', 'A04': '家电保洁',
+        'A05': '洁具保洁', 'A06': '客用品更换', 'A07': '杀虫', 'B1001': '电梯',
+        'B101': '冰箱', 'B102': '微波炉', 'B103': '烘干机', 'B104': '电视',
+        'B105': '洗衣机', 'B106': '空气净化器', 'B107': '抽湿机', 'B108': '油烟机',
+        'B110': '电风扇', 'B114': '取暖机', 'B117': '投影仪', 'B119': '屏幕',
+        'B120': '热水器', 'B121': '洗碗机', 'B122': '电磁炉', 'B123': '烤箱',
+        'B124': '排气扇', 'B201': '烟雾报警器', 'B202': '手动报警器',
+        'B203': '消防喷淋', 'B204': '消防应急灯', 'B301': '暖气片', 'B302': '通风管',
+        'B303': '空调', 'B401': '毛巾架', 'B402': '龙头', 'B403': '室内门把手/门锁',
+        'B404': '窗户', 'B405': '铰链', 'B501': '电源插座', 'B502': '开关',
+        'B503': '灯具', 'B504': '电灯泡', 'B505': '灭蝇灯', 'B506': '拖线板',
+        'B601': '家具', 'B602': '橱柜', 'B603': '天花板', 'B604': '地板',
+        'B605': '墙', 'B606': '百叶窗', 'B607': '脚板', 'B701': '排水',
+        'B702': '浴盆', 'B703': '镜子', 'B704': '瓷砖', 'B705': '水槽',
+        'B706': '花洒', 'B707': '马桶', 'B708': '台盆', 'B801': '其他',
+        'B901': '网络设备'
+    }
+    LOCATION_CODE_MAP = {
+        '002': '卧室', '004': '厨房', '008': '卫生间', '009': '客厅',
+        '001': '公寓外围', '003': '工区走道', '005': '后场区域', '006': '前场区域',
+        '011': '电梯厅-后', '010': '电梯厅-前', '007': '停车场', '012': '消防楼梯',
+    }
+
+    返回结果 (returns):
+    str: 一个包含所有查询结果的、格式化好的字符串。如果未找到结果，则返回相应的提示信息。
+        下面是一个调用返回示例：
+        print(advanced_query_service(start_date_str='2025-07-01', service_code='B701'))
+        返回：
+        '''
+        查询条件: 时间范围: [2025-07-01 至 不限], 服务项目: [排水], 具体位置: [不限]
+        --- 共找到 2 条相关工单 ---
+
+        【记录 1】
+        工单ID:     2639
+        房号:       B902
+        服务项目:   排水 (B701)
+        具体位置:   卫生间 (008)
+        需求描述:   浴室下水慢，密封胶条开裂
+        优先级:     低
+        进入指引:   未提供
+        服务状态:   O
+        服务人员:   Junfeng Wu
+        处理结果:   完成
+        创建时间:   2025-05-06 10:29:28
+        完成时间:   2025-05-06 11:29:43
+
+        【记录 2】
+        工单ID:     3251
+        房号:       B911
+        服务项目:   排水 (B701)
+        具体位置:   未提供 (无代码)
+        需求描述:   浴室下水慢
+        优先级:     LOW
+        进入指引:   未提供
+        服务状态:   O
+        服务人员:   leonhu
+        处理结果:   修复
+        创建时间:   2025-07-03 12:12:09
+        完成时间:   2025-07-03 12:39:36
+        '''
+    """
+    XML_FILE_PATH = 'demo/lease_service_order.xml'
+    SERVICE_CODE_MAP = {
+        'A01': '更换布草', 'A02': '家具保洁', 'A03': '地面保洁', 'A04': '家电保洁',
+        'A05': '洁具保洁', 'A06': '客用品更换', 'A07': '杀虫', 'B1001': '电梯',
+        'B101': '冰箱', 'B102': '微波炉', 'B103': '烘干机', 'B104': '电视',
+        'B105': '洗衣机', 'B106': '空气净化器', 'B107': '抽湿机', 'B108': '油烟机',
+        'B110': '电风扇', 'B114': '取暖机', 'B117': '投影仪', 'B119': '屏幕',
+        'B120': '热水器', 'B121': '洗碗机', 'B122': '电磁炉', 'B123': '烤箱',
+        'B124': '排气扇', 'B201': '烟雾报警器', 'B202': '手动报警器',
+        'B203': '消防喷淋', 'B204': '消防应急灯', 'B301': '暖气片', 'B302': '通风管',
+        'B303': '空调', 'B401': '毛巾架', 'B402': '龙头', 'B403': '室内门把手/门锁',
+        'B404': '窗户', 'B405': '铰链', 'B501': '电源插座', 'B502': '开关',
+        'B503': '灯具', 'B504': '电灯泡', 'B505': '灭蝇灯', 'B506': '拖线板',
+        'B601': '家具', 'B602': '橱柜', 'B603': '天花板', 'B604': '地板',
+        'B605': '墙', 'B606': '百叶窗', 'B607': '脚板', 'B701': '排水',
+        'B702': '浴盆', 'B703': '镜子', 'B704': '瓷砖', 'B705': '水槽',
+        'B706': '花洒', 'B707': '马桶', 'B708': '台盆', 'B801': '其他',
+        'B901': '网络设备'
+    }
+    LOCATION_CODE_MAP = {
+        '002': '卧室', '004': '厨房', '008': '卫生间', '009': '客厅',
+        '001': '公寓外围', '003': '工区走道', '005': '后场区域', '006': '前场区域',
+        '011': '电梯厅-后', '010': '电梯厅-前', '007': '停车场', '012': '消防楼梯',
+    }
+
+    ALL_ORDERS_DATA = parse_service_orders(XML_FILE_PATH)
+
+    # --- 处理和验证输入 ---
+    try:
+        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+    except ValueError:
+        return "输入错误：日期格式不正确，请使用 'YYYY-MM-DD' 格式。"
+
+    # --- 执行查询并格式化结果 ---
+    found_orders = search_orders_advanced(ALL_ORDERS_DATA, start_date, end_date, service_code, location_code)
+
+    # 构建查询条件描述字符串
+    criteria_desc = (
+        f"时间范围: [{start_date_str or '不限'} 至 {end_date_str or '不限'}], "
+        f"服务项目: [{SERVICE_CODE_MAP.get(service_code, '不限')}], "
+        f"具体位置: [{LOCATION_CODE_MAP.get(location_code, '不限')}]"
+    )
+
+    return format_to_string(found_orders, criteria_desc)
 
 
 if __name__ == "__main__":
@@ -561,6 +688,7 @@ if __name__ == "__main__":
     print(query_checkins('2025-08-08', '2025-08-12', '1'))
     print(query_by_room("A312,A313"))
     print(query_orders('A513'))
+    print(advanced_query_service(start_date_str='2025-07-01', service_code='B701'))
     '''
 
 

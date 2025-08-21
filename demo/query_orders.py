@@ -102,7 +102,7 @@ def search_by_rmno(orders, room_number):
 
 
 # --- 步骤 3: 修改输出格式 ---
-def format_results_to_string(results):
+def format_results_string(results):
     if not results:
         return ">> 未找到相关工单信息。"
 
@@ -150,7 +150,7 @@ def main():
             print("感谢使用，再见！")
             break
         found_orders = search_by_rmno(all_orders, room_number_input)
-        result_string = format_results_to_string(found_orders)
+        result_string = format_results_string(found_orders)
         print(result_string)
 
 
