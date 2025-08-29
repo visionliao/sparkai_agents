@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 import datetime
+import re
 
 # --- 配置 ---
 XML_FILE_PATH = 'lease_service_order.xml'
@@ -100,6 +101,21 @@ def search_by_rmno(orders, room_number):
     search_term = room_number.lower().strip()
     return [order for order in orders if order.get('rmno', '').lower().strip() == search_term]
 
+def sanitize_for_display(text):
+    """
+    清理字符串，将可能破坏布局的控制字符（如换行、回车、U+2028等）替换为空格。
+    这确保了每个字段的内容不会意外地跨越多行。
+    """
+    if not isinstance(text, str):
+        return text
+
+    # 正则表达式，匹配所有C0和C1控制字符，以及Unicode的行/段落分隔符
+    control_char_regex = re.compile(r'[\x00-\x1F\x7F-\x9F\u2028\u2029]')
+
+    # 将所有匹配到的控制字符替换为一个空格，防止单词粘连
+    sanitized_text = control_char_regex.sub(' ', text)
+
+    return sanitized_text
 
 # --- 步骤 3: 修改输出格式 ---
 def format_results_string(results):
@@ -121,14 +137,17 @@ def format_results_string(results):
         create_dt_human = convert_excel_date(order.get('create_datetime', ''))
         complete_dt_human = convert_excel_date(order.get('complete_date', ''))
 
+        sanitized_requirement = sanitize_for_display(order.get('requirement') or '无')
+        sanitized_entry_guidelines = sanitize_for_display(order.get('entry_guidelines') or '无')
+
         output_parts.append(f"【记录 {i + 1}】\n")
         output_parts.append(f"  工单ID:     {order.get('id', 'N/A')}\n")
         output_parts.append(f"  房号:       {order.get('rmno', 'N/A')}\n")
         output_parts.append(f"  服务项目:   {service_name} ({product_code or '无代码'})\n")
         output_parts.append(f"  具体位置:   {location_name} ({location_code or '无代码'})\n")
-        output_parts.append(f"  需求描述:   {order.get('requirement', '无')}\n")
+        output_parts.append(f"  需求描述:   {sanitized_requirement}\n")
         output_parts.append(f"  优先级:   {order.get('priority', '无描述')}\n")
-        output_parts.append(f"  进入房间指引/注意事项:   {order.get('entry_guidelines', '无描述')}\n")
+        output_parts.append(f"  进入房间指引/注意事项:   {sanitized_entry_guidelines}\n")
         output_parts.append(f"  服务状态:   {order.get('service_state', 'N/A')}\n")
         output_parts.append(f"  服务人员:   {order.get('service_man', '未分配')}\n")
         output_parts.append(f"  处理结果:   {order.get('remark', '无')}\n")

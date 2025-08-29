@@ -44,6 +44,23 @@ def parse_spreadsheetml(file_path: str):
     except Exception as e:
         return f"解析XML文件时发生错误: {e}"
 
+def sanitize_for_display(text):
+    """
+    清理字符串，将可能破坏表格布局的控制字符替换为空格。
+    这确保了每条记录在生成的表格中只占一行。
+    """
+    if not isinstance(text, str):
+        return text
+
+    # 定义一个正则表达式，匹配所有 C0 和 C1 控制字符，但排除我们常见的空白符
+    # 比如 \t(tab), \n(换行), \r(回车) 都会被替换
+    # 同时包含 Unicode 的行分隔符和段落分隔符
+    control_char_regex = re.compile(r'[\x00-\x1F\x7F-\x9F\u2028\u2029]')
+
+    # 将所有匹配到的控制字符替换为一个空格
+    sanitized_text = control_char_regex.sub(' ', text)
+
+    return sanitized_text
 
 # --- 核心查询函数 (按房号筛选) ---
 def query_records_by_room(file_path: str, room_numbers: list):
@@ -93,6 +110,10 @@ def format_string(records_df, room_numbers, room_names) -> str:
     if records_df.empty:
         return f"没有找到与房间号 '{query_rooms_str}' 相关的任何记录。"
 
+    # 清理自由文本字段，防止非法字符破坏表格布局
+    records_df['remark'] = records_df['remark'].apply(sanitize_for_display)
+    records_df['co_msg'] = records_df['co_msg'].apply(sanitize_for_display)
+
     records_df['房型名称'] = records_df['rmtype'].map(room_names).fillna(records_df['rmtype'])
     records_df['入住类型'] = records_df['is_long'].apply(lambda x: '长租' if x == 'T' else '短住')
     records_df['租金/房价'] = records_df['full_rate_long'].apply(lambda x: f"{x:,.2f}" if pd.notna(x) else "N/A")
@@ -125,7 +146,8 @@ def format_string(records_df, room_numbers, room_names) -> str:
 # --- 主程序入口 ---
 if __name__ == "__main__":
     print("--- 房间历史记录查询工具 ---")
-    room_input = input("请输入一个或多个房间号 (用空格或逗号分隔): ")
+    #room_input = input("请输入一个或多个房间号 (用空格或逗号分隔): ")
+    room_input = 'A212, B202 C303'
 
     # 使用正则表达式分割输入，并清除空字符串
     # 例如，'A101, B202 C303' -> ['A101', 'B202', 'C303']

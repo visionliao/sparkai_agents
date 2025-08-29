@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 import datetime
+import re
 
 # --- 配置与数据字典 (无变化) ---
 XML_FILE_PATH = 'lease_service_order.xml'
@@ -90,6 +91,21 @@ def search_orders_advanced(orders, start_date=None, end_date=None, service_code=
         results.append(order)
     return results
 
+def sanitize_for_display(text):
+    """
+    清理字符串，将可能破坏布局的控制字符（如换行、回车、U+2028等）替换为空格。
+    这确保了每个字段的内容不会意外地跨越多行。
+    """
+    if not isinstance(text, str):
+        return text
+
+    # 正则表达式，匹配所有C0和C1控制字符，以及Unicode的行/段落分隔符
+    control_char_regex = re.compile(r'[\x00-\x1F\x7F-\x9F\u2028\u2029]')
+
+    # 将所有匹配到的控制字符替换为一个空格，防止单词粘连
+    sanitized_text = control_char_regex.sub(' ', text)
+
+    return sanitized_text
 
 def format_to_string(results, criteria):
     if not results:
@@ -104,12 +120,13 @@ def format_to_string(results, criteria):
         location_name = LOCATION_CODE_MAP.get(location_code) if location_code else "未提供"
         create_dt_human = convert_excel_to_datetime_obj(order.get('create_datetime', ''))
         complete_dt_human = convert_excel_to_datetime_obj(order.get('complete_date', ''))
+        sanitized_requirement = sanitize_for_display(order.get('requirement') or '无')
         default_text = "未提供"
         output_parts.append(f"【记录 {i + 1}】\n")
         output_parts.append(f"  房号:       {order.get('rmno', default_text)}\n")
         output_parts.append(f"  服务项目:   {service_name} ({product_code or '无代码'})\n")
         output_parts.append(f"  具体位置:   {location_name} ({location_code or '无代码'})\n")
-        output_parts.append(f"  需求描述:   {order.get('requirement') or default_text}\n")
+        output_parts.append(f"  需求描述:   {sanitized_requirement}\n")
         output_parts.append(
             f"  创建时间:   {create_dt_human.strftime('%Y-%m-%d %H:%M:%S') if create_dt_human else 'N/A'}\n")
         output_parts.append(

@@ -848,7 +848,7 @@ def als6(time: str):
     注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
     """
 
-    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    data_file = "analysis_scripts/北京中天创业园_月度数据表_补充版.general"
     target_month = time
 
     analyzer = MarketCompetitionAnalysis(data_file, target_month)
@@ -1071,7 +1071,7 @@ def als10(time: str):
     注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
     """
     target_month = time
-    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.general"
 
     analyzer = CustomerSatisfactionAnalysis(data, target_month)
     analyzer.run_analysis()
@@ -1125,7 +1125,7 @@ def als11(time: str):
 
     注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
     """
-    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.general"
     target_month = time
     analyzer = CompetitorLSAnalysis(data, target_month)
     analyzer.run_analysis()
@@ -1182,7 +1182,7 @@ def als12(time: str):
     注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
     """
     time = time
-    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.general"
     analyzer = DetailedExpenseAnalysis(data, time)
     analyzer.run_analysis()
 
@@ -1238,7 +1238,7 @@ def als14(time: str):
 
     注意：调用该工具时会一次性获取所有项目的统计数据，但是不要把这些统计数据一次性告诉用户，要选择用户需要的告诉用户
     """
-    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.csv"
+    data = "analysis_scripts/北京中天创业园_月度数据表_补充版.general"
     month = time
     analyzer = OrganizationalStructureAnalysis(data, month)
     analyzer.run_analysis()

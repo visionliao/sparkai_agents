@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 from lxml import etree
+import re
 
 # --- 配置区域 ---
 FILE_PATH = 'master_base.xml'
@@ -78,7 +79,25 @@ def query_checkin_records(file_path: str, start_date_str: str, end_date_str: str
         return checkin_records_df
 
 
-# --- 格式化输出函数 (修改了 display_columns 和数据准备) ---
+def sanitize_for_display(text):
+    """
+    清理字符串，将可能破坏表格布局的控制字符替换为空格。
+    这确保了每条记录在生成的表格中只占一行。
+    """
+    if not isinstance(text, str):
+        return text
+
+    # 定义一个正则表达式，匹配所有 C0 和 C1 控制字符，但排除我们常见的空白符
+    # 比如 \t(tab), \n(换行), \r(回车) 都会被替换
+    # 同时包含 Unicode 的行分隔符和段落分隔符
+    control_char_regex = re.compile(r'[\x00-\x1F\x7F-\x9F\u2028\u2029]')
+
+    # 将所有匹配到的控制字符替换为一个空格
+    sanitized_text = control_char_regex.sub(' ', text)
+
+    return sanitized_text
+
+# --- 格式化输出函数 (已更新) ---
 def format_records_to_string(records_df, start_date_str, end_date_str, room_names, status_filter):
     if isinstance(records_df, str): return records_df
 
@@ -87,13 +106,21 @@ def format_records_to_string(records_df, start_date_str, end_date_str, room_name
     if records_df.empty:
         return f"在 {start_date_str} 到 {end_date_str} 期间没有找到任何（去重后，{status_text}）的入住记录。"
 
+    # 创建一个副本以避免 SettingWithCopyWarning
+    records_df = records_df.copy()
+
     # 数据准备
     records_df['房型名称'] = records_df['rmtype'].map(room_names).fillna(records_df['rmtype'])
     records_df['入住类型'] = records_df['is_long'].apply(lambda x: '长租' if x == 'T' else '短住')
     records_df['租金/房价'] = records_df['full_rate_long'].apply(lambda x: f"{x:,.2f}" if pd.notna(x) else "N/A")
-    # (修改点) 填充 remark 和 co_msg 的空值，使其在表格中显示为空白
+
+    # 填充 remark 和 co_msg 的空值
     records_df['remark'] = records_df['remark'].fillna('')
     records_df['co_msg'] = records_df['co_msg'].fillna('')
+
+    # (关键修改点) 清理自由文本字段，防止非法字符破坏表格布局
+    records_df['remark'] = records_df['remark'].apply(sanitize_for_display)
+    records_df['co_msg'] = records_df['co_msg'].apply(sanitize_for_display)
 
     records_df_sorted = records_df.sort_values(by='arr_date')
 
@@ -101,7 +128,6 @@ def format_records_to_string(records_df, start_date_str, end_date_str, room_name
     report_lines.append(f"--- 入住记录查询结果 ({start_date_str} 到 {end_date_str}, {status_text}) ---")
     report_lines.append(f"共找到 {len(records_df_sorted)} 条（去重后）记录。\n")
 
-    # (修改点) 增加 'remark' 和 'co_msg' 到显示列
     display_columns = {
         'arr_date': '入住日期',
         'dep_date': '离店日期',
@@ -130,12 +156,12 @@ def format_records_to_string(records_df, start_date_str, end_date_str, room_name
 # --- 主程序入口 (与之前相同) ---
 if __name__ == "__main__":
     print("--- 最近入住记录查询工具 ---")
-    start_input = input("请输入查询开始日期 (YYYY-MM-DD): ")
-    end_input = input("请输入查询结束日期 (YYYY-MM-DD): ")
+    start_input = "2025-01-01"
+    end_input = "2025-08-28"
 
     print("\n请选择要查询的记录状态:")
     print(" 1: I (在住)\n 2: O (结帐)\n 3: X (取消)\n 4: R (预订)\n 5: ALL (所有状态，默认)")
-    status_choice = input("请输入选项编号 (1-5): ")
+    status_choice = "1"
 
     status_map = {'1': 'I', '2': 'O', '3': 'X', '4': 'R', '5': 'ALL'}
     selected_status = status_map.get(status_choice, 'ALL')

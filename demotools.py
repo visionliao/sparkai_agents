@@ -3,6 +3,7 @@ import datetime
 import pandas as pd
 from typing import List, Any, Union, Optional
 import re
+import uvicorn
 
 from demo.calculate_occupancy import calculate_occupancy_rate, format_result_to_string
 from demo.room import analyze_room_type_performance, format_analysis_to_string
@@ -529,8 +530,8 @@ def advanced_query_service(
     可获得的具体字段有：工单ID、房号、服务项目、具体位置、需求描述、优先级、进入指引、服务状态、服务人员、处理结果、创建时间、完成时间。
 
     输入参数 (parameters):
-    start_date_str (Optional[str]): 开始日期, 格式为 'YYYY-MM-DD'。默认为None (不限)。
-    end_date_str (Optional[str]):   结束日期, 格式为 'YYYY-MM-DD'。默认为None (不限)。
+    start_date_str (Optional[str]): 开始日期, 格式为 'YYYY-MM-DD'
+    end_date_str (Optional[str]):   结束日期, 格式为 'YYYY-MM-DD'
     service_code (Optional[str]):   服务项目代码 (例如 'B501' 代表电源插座)。默认为None (不限)。
     location_code (Optional[str]):  具体位置代码 (例如 '004' 代表厨房)。默认为None (不限)。
 
@@ -669,7 +670,7 @@ if __name__ == "__main__":
     print("-" * 20)
 
     # CSV文件路径
-    csv_file = '房间状态表包含已入住住客的信息（数据更新时间2025.5.15）.csv'
+    csv_file = '房间状态表包含已入住住客的信息（数据更新时间2025.5.15）.general'
 
     print(f"\n--- 4. 获取 '{csv_file}' 的前5条数据 ---")
     csv_head = get_csv_head(csv_file, n=5)
@@ -691,6 +692,17 @@ if __name__ == "__main__":
     print(advanced_query_service(start_date_str='2025-07-01', service_code='B701'))
     '''
 
+    app_instance = mcp.sse_app
 
+    # 定义使用的主机和端口
+    host = "127.0.0.1"
+    port = 8000
 
-    mcp.run(transport="sse")
+    print(f"Starting server with SSE transport on http://{host}:{port}")
+
+    # 使用 uvicorn.run() 来启动服务
+    uvicorn.run(
+        app=app_instance,
+        host=host,
+        port=port
+    )

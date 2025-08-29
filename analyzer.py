@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
-import csv
+import general
 
 class ProjectFinancials:
     """
-    用于分析"北京中天创业园_月度数据表.csv"财务预测数据的工具。
+    用于分析"北京中天创业园_月度数据表.general"财务预测数据的工具。
     基于原始脚本修改，适配当前数据文件格式。
     """
 
@@ -28,7 +28,7 @@ class ProjectFinancials:
         try:
             # 手动读取CSV文件以正确处理格式
             with open(self.filepath, 'r', encoding='utf-8-sig') as f:
-                reader = csv.reader(f)
+                reader = general.reader(f)
                 rows = list(reader)
             
             # 清理BOM字符
