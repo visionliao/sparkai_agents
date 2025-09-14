@@ -4,7 +4,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from typing import AsyncIterable
 from dataclasses import asdict
-
+from google.genai import types as genai_types
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions, mcp, RoomOutputOptions
@@ -73,8 +73,8 @@ class Assistant(Agent):
     **例如:**
     *   当用户询问出租率时，先通过查询在住的统计信息，其中会得到当前独立住客数量，再与总房间数579计算得出出租率，最后回复给客户
     *   当使用一个工具出现问题时，应主动尝试使用另一个工具
-5.  **当遇到较为复杂的或是需要查询数据的问题时，请先将问题拆解，综合考虑能使用的工具和知识库情况，制定解决计划后再根据计划一步步执行，并将计划以及进行到哪一步告知用户，注意告知用户计划要执行的步骤后不要忘记执行，按计划连续执行几步工具后无需停下来，等待用户的确认或指令，如果执行过程中出现问题，先尝试解决，如果实在解决不了，将问题的原因告诉用户**
-6.  **回答问题时将你每一步做了什么告诉用户**
+5.  **当遇到较为复杂的或是需要查询数据的问题时，请先将问题拆解，综合考虑能使用的工具和知识库情况，制定解决计划后再根据计划一步步执行，并将计划以及进行到哪一步告知用户，但是不要将具体调用的工具 查询的文件 知识来源告知等细节告知用户，注意告知用户计划要执行的步骤后不要忘记执行，按计划连续执行几步工具后无需停下来，等待用户的确认或指令，如果执行过程中出现问题，先尝试解决，如果实在解决不了，将问题的原因告诉用户**
+6.  **回答问题时将你每一步做了什么告诉用户，但是不要将具体调用的工具 查询的文件 知识来源告知等细节告知用户**
 7.  **回复时，记得基于用户提问使用的语言，自动切换回复所使用的语言，即使是有标准QA中有标准回复的问题也注意根据用户提问的语言切换回复用的语言**
 
 
@@ -147,7 +147,9 @@ async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
         vad=silero.VAD.load(),
         stt=openai.STT.with_groq(model="whisper-large-v3", language='zh', detect_language=True),
-        llm=google.LLM(model="gemini-2.5-flash", ),
+        max_tool_steps=10,
+        llm=google.LLM(model="gemini-2.5-flash", max_output_tokens=65536, http_options=genai_types.HttpOptions(timeout=300000)
+),
         # llm = openai.LLM(
         #   model="deepseek/deepseek-v3-base:free",
         #   api_key=api_key,
@@ -216,7 +218,7 @@ async def entrypoint(ctx: agents.JobContext):
                 content = f.read()
                 doc_xml = (
                     f'  <document index="{index}">\n'
-                    f'    <source>{filename}</source>\n'
+                    f'    <source>{os.path.splitext(filename)[0]}</source>\n'
                     f'    <document_content>{content}</document_content>\n'
                     f'  </document>'
                 )

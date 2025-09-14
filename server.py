@@ -8,7 +8,7 @@ from typing import List, Dict, Optional, Any
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 
-from analyzer import ProjectFinancials
+from analysis_scripts.analyzer import ProjectFinancials
 #from x import FinancialAnalysis
 from analysis_scripts.a1_财务状况分析  import FinancialAnalysis
 from analysis_scripts.a2_租赁业绩分析 import LeasingPerformanceAnalysis
@@ -527,7 +527,7 @@ def financial_analyzer(need: str, time: str):
     """
 
 
-    file_path = '北京中天创业园_月度数据表.csv'
+    file_path = 'analysis_scripts/北京中天创业园_月度数据表.csv'
     analyzer = ProjectFinancials(file_path)
     result = analyzer.get_data(metric=need, time_period=time)
     return result
