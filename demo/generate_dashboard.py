@@ -260,12 +260,15 @@ def main():
     }
 
     master_df = parse_spreadsheetml(MASTER_BASE_XML_PATH)
-    if master_df is None: return
+    if master_df is None:
+        print("数据加载失败，程序终止。")
+        return
 
     automated_data = gather_automated_data(master_df)
     final_data = {**manual_data, **automated_data}
 
     try:
+        # --- (所有数据格式化的代码保持不变) ---
         final_data["occupancy_rate"] = f"{final_data.get('occupancy_rate', 0):.2f}"
         final_data["data_coverage_rate"] = f"{final_data.get('data_coverage_rate', 0):.2f}"
         final_data["estimated_monthly_income"] = f"{final_data.get('estimated_monthly_income', 0):,.2f}"
@@ -302,57 +305,17 @@ def main():
         return
 
     output_content = template_content.format(**final_data)
+
     # 确保输出目录存在
     output_dir = os.path.dirname(OUTPUT_PATH)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
         f.write(output_content)
-    print(f"\n成功生成报表: {OUTPUT_PATH}")
 
-    # --- 从这里开始是修改的核心 ---
-
-    PORT = 3000
-    # 我们需要在HTML文件所在的目录启动服务器
-    # 例如，如果OUTPUT_PATH是 'demo/dashboard.html'，我们就在 'demo' 目录下启动服务
-    server_dir = os.path.dirname(os.path.abspath(OUTPUT_PATH))
-
-    # 定义一个处理HTTP请求的Handler，它会在指定的目录下提供文件服务
-    Handler = http.server.SimpleHTTPRequestHandler
-
-    # 切换到目标目录来启动服务器
-    os.chdir(server_dir)
-
-    httpd = socketserver.TCPServer(("", PORT), Handler)
-
-    print(f"正在启动本地服务器，端口为: {PORT}")
-    print(f"你可以在浏览器中访问: http://localhost:{PORT}/{os.path.basename(OUTPUT_PATH)}")
-
-    # 在一个新线程中运行服务器，这样就不会阻塞主程序
-    server_thread = threading.Thread(target=httpd.serve_forever)
-    server_thread.daemon = True  # 设置为守护线程，主程序退出时线程也退出
-    server_thread.start()
-
-    # 稍等片刻以确保服务器已启动
-    time.sleep(1)
-
-    # 在浏览器中打开URL
-    url = f"http://localhost:{PORT}/{os.path.basename(OUTPUT_PATH)}"
-    webbrowser.open(url)
-    print("正在默认浏览器中打开报表...")
-
-    # 让主程序保持运行，直到用户手动停止（例如按 Ctrl+C）
-    try:
-        # 你可以让脚本在这里结束后立即退出，服务器线程也会随之关闭
-        print("\n报表已在浏览器中打开。服务器正在后台运行。")
-        print("关闭此终端窗口或按 Ctrl+C 即可停止服务器。")
-        while True:
-            time.sleep(3600)  # 保持主线程存活
-    except KeyboardInterrupt:
-        print("\n正在关闭服务器...")
-        httpd.shutdown()
-        print("服务器已关闭。")
+    print(f"\n成功生成报表: {os.path.abspath(OUTPUT_PATH)}")
+    print("现在你可以运行 'start_server.py' 脚本来查看报表。")
 
 
 if __name__ == '__main__':
