@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公寓运营数据洞察仪表板 (功能完整版)</title>
+    <title>公寓运营数据仪表板</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -256,8 +256,8 @@
         <header class="main-header">
             <h1>公寓运营数据洞察</h1>
             <p class="report-meta">
-                <span><strong>生成日期:</strong> 2025年10月09日</span>
-                <span><strong>数据周期:</strong> 2025.09.09 - 2025.10.09 (基于过去30天分析)</span>
+                <span><strong>生成日期:</strong> 2025年10月10日</span>
+                <span><strong>数据周期:</strong> 2025.09.10 - 2025.10.10 (基于过去30天分析)</span>
             </p>
         </header>
 
@@ -269,13 +269,13 @@
                         <div class="icon">🏢</div><div><div class="stat-value">579</div><div class="stat-label">房间总数</div></div>
                     </div>
                     <div class="card overview-card grid-col-3">
-                         <div class="icon">📈</div><div><div class="stat-value">198</div><div class="stat-label">已出租房间</div></div>
+                         <div class="icon">📈</div><div><div class="stat-value">195</div><div class="stat-label">已出租房间</div></div>
                     </div>
                     <div class="card overview-card grid-col-3">
-                         <div class="icon">📊</div><div><div class="stat-value">34.20%</div><div class="stat-label">最终入住率</div></div>
+                         <div class="icon">📊</div><div><div class="stat-value">33.68%</div><div class="stat-label">最终入住率</div></div>
                     </div>
                     <div class="card overview-card grid-col-3">
-                         <div class="icon">💾</div><div><div class="stat-value">37.13%</div><div class="stat-label">数据覆盖率</div></div>
+                         <div class="icon">💾</div><div><div class="stat-value">36.10%</div><div class="stat-label">数据覆盖率</div></div>
                     </div>
                 </div>
             </section>
@@ -294,8 +294,8 @@
                     <tbody>
                         <tr><td>有租金记录房间</td><td>268 间</td><td>包含所有状态</td></tr>
                         <tr><td>当前出租且有租金</td><td class="highlight-info">194 间</td><td>包含入住与预定状态，最有效的财务基数</td></tr>
-                        <tr><td>当前出租但无租金记录</td><td class="highlight-red">4 间</td><td>数据缺失，影响收入精确计算</td></tr>
-                        <tr><td><strong>合理月收入估算</strong></td><td class="highlight-green"><strong>1,955,115.20 元</strong></td><td>基于198间已出租房平均推算</td></tr>
+                        <tr><td>当前出租但无租金记录</td><td class="highlight-red">1 间</td><td>数据缺失，影响收入精确计算</td></tr>
+                        <tr><td><strong>合理月收入估算</strong></td><td class="highlight-green"><strong>1,955,115.20 元</strong></td><td>基于195间已出租房平均推算</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -310,8 +310,8 @@
                         </thead>
                         <tbody>
                             <tr><td>Studio Deluxe</td><td><span>31.82%</span></td><td>6,486.03</td><td><span>144.13</span></td></tr>
-                            <tr><td>One Bedroom Deluxe</td><td>45.66%</td><td>12,752.00</td><td>174.68</td></tr>
-                            <tr><td>Studio Executive (B)</td><td>36.71%</td><td>7,784.01</td><td>129.73</td></tr>
+                            <tr><td>One Bedroom Deluxe</td><td>45.68%</td><td>12,749.72</td><td>174.65</td></tr>
+                            <tr><td>Studio Executive (B)</td><td>36.63%</td><td>7,784.58</td><td>129.74</td></tr>
                             <tr><td>One Bedroom Premier</td><td>36.84%</td><td>17,236.94</td><td>195.87</td></tr>
                             <tr><td>Studio Executive (A)</td><td>20.00%</td><td>22,700.00</td><td>210.19</td></tr>
                             <tr><td>Two Bedroom Deluxe</td><td>0.00%</td><td><span>0.00</span></td><td>0.00</td></tr>
@@ -327,7 +327,7 @@
                     <table>
                         <thead><tr><th>楼栋</th><th>房间总数</th><th>已出租</th><th>入住率</th><th>平均租金</th><th>中位数租金</th></tr></thead>
                         <tbody>
-                            <tr><td>A栋</td><td>418</td><td>133</td><td>31.82%</td><td>8,776.43 元</td><td>7,324.80 元</td></tr>
+                            <tr><td>A栋</td><td>418</td><td>130</td><td>31.10%</td><td>8,776.43 元</td><td>7,324.80 元</td></tr>
                             <tr><td>B栋</td><td>161</td><td>64</td><td>39.75%</td><td>12,721.54 元</td><td>12,760.00 元</td></tr>
                         </tbody>
                     </table>
@@ -427,7 +427,7 @@
                     labels: ['在住', '预订', '已结账', '已取消', '未出租'],
                     datasets: [{
                         label: '房间数量',
-                        data: [198, 14, 3, 0, 364],
+                        data: [195, 14, 0, 0, 370],
                         backgroundColor: ['#34D399', '#FBBF24', '#4A90E2', '#F87171', '#f9fafb'],
                         borderColor: 'var(--card-bg-color)',
                         borderWidth: 4

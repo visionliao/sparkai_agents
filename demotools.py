@@ -743,7 +743,7 @@ def generate_dashboard_service():
     打开一个网页数据仪表盘，调用后你会得到一个打开成功消息
     """
     generate_dashboard()
-    return "仪表盘开启成功"
+    return "仪表盘开启成功，请访问https://chatbot.sparkai.xin/查看"
 
 
 if __name__ == "__main__":
@@ -820,8 +820,6 @@ if __name__ == "__main__":
     '''
 
     app_instance = mcp.sse_app
-
-    print(query_guest([3664, 999]))
 
     # 定义使用的主机和端口
     host = "127.0.0.1"

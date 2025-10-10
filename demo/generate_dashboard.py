@@ -4,8 +4,12 @@ import pandas as pd
 from lxml import etree
 from datetime import datetime, timedelta, date
 import warnings
+import http.server
+import socketserver
+import threading
+import time
 
-# --- 1. 配置区域 (请仔细检查并根据需要修改) ---
+# --- 1. 配置区域 (根据需要修改) ---
 
 # 数据源和模板文件路径
 MASTER_BASE_XML_PATH = 'demo/master_base.xml'
@@ -267,10 +271,7 @@ def main():
         final_data["estimated_monthly_income"] = f"{final_data.get('estimated_monthly_income', 0):,.2f}"
         final_data["highlight_income"] = f"{final_data.get('highlight_income', 0):.1f}"
         final_data["highlight_max_efficiency"] = f"{final_data.get('highlight_max_efficiency', 0):.2f}"
-
-        # 【新增】格式化总坪效
         final_data["rent_sqm_avg"] = f"{final_data.get('rent_sqm_avg', 0):.2f}"
-
         for key in ['rent_avg', 'rent_median', 'rent_min', 'rent_max', 'highlight_avg_rent']:
             final_data[key] = f"{final_data.get(key, 0):,.2f}"
         for key_prefix in DASHBOARD_KEY_MAP.keys():
@@ -301,12 +302,57 @@ def main():
         return
 
     output_content = template_content.format(**final_data)
+    # 确保输出目录存在
+    output_dir = os.path.dirname(OUTPUT_PATH)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
     with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
         f.write(output_content)
     print(f"\n成功生成报表: {OUTPUT_PATH}")
 
-    webbrowser.open('file://' + os.path.abspath(OUTPUT_PATH))
+    # --- 从这里开始是修改的核心 ---
+
+    PORT = 3000
+    # 我们需要在HTML文件所在的目录启动服务器
+    # 例如，如果OUTPUT_PATH是 'demo/dashboard.html'，我们就在 'demo' 目录下启动服务
+    server_dir = os.path.dirname(os.path.abspath(OUTPUT_PATH))
+
+    # 定义一个处理HTTP请求的Handler，它会在指定的目录下提供文件服务
+    Handler = http.server.SimpleHTTPRequestHandler
+
+    # 切换到目标目录来启动服务器
+    os.chdir(server_dir)
+
+    httpd = socketserver.TCPServer(("", PORT), Handler)
+
+    print(f"正在启动本地服务器，端口为: {PORT}")
+    print(f"你可以在浏览器中访问: http://localhost:{PORT}/{os.path.basename(OUTPUT_PATH)}")
+
+    # 在一个新线程中运行服务器，这样就不会阻塞主程序
+    server_thread = threading.Thread(target=httpd.serve_forever)
+    server_thread.daemon = True  # 设置为守护线程，主程序退出时线程也退出
+    server_thread.start()
+
+    # 稍等片刻以确保服务器已启动
+    time.sleep(1)
+
+    # 在浏览器中打开URL
+    url = f"http://localhost:{PORT}/{os.path.basename(OUTPUT_PATH)}"
+    webbrowser.open(url)
     print("正在默认浏览器中打开报表...")
+
+    # 让主程序保持运行，直到用户手动停止（例如按 Ctrl+C）
+    try:
+        # 你可以让脚本在这里结束后立即退出，服务器线程也会随之关闭
+        print("\n报表已在浏览器中打开。服务器正在后台运行。")
+        print("关闭此终端窗口或按 Ctrl+C 即可停止服务器。")
+        while True:
+            time.sleep(3600)  # 保持主线程存活
+    except KeyboardInterrupt:
+        print("\n正在关闭服务器...")
+        httpd.shutdown()
+        print("服务器已关闭。")
 
 
 if __name__ == '__main__':
