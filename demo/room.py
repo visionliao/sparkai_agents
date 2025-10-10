@@ -142,9 +142,19 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
         (df_inhouse['arr_date'] <= end_date) & (df_inhouse['dep_date'] > start_date)
     ].copy().drop_duplicates(subset='id', keep='first') # 确保每个booking ID只出现一次
 
+    # === 修改开始 ===
+    # 如果在整个分析期间内没有找到任何相关的预订记录（即没有预订与该时间段有任何重叠），
+    # 则返回一个空列表。这会触发 format_analysis_to_string 函数中的特定消息。
+    if df_all_bookings_in_period.empty:
+        return [] # 返回空列表，表示没有找到与该期间相关的经营活动记录
+    # === 修改结束 ===
+
     analysis_results = []
     # 合并所有户型代码，确保报告完整性
-    all_room_types = set(room_counts.keys()) | set(room_areas.keys()) | set(df_inhouse['rmtype'].unique())
+    # 确保即使 df_inhouse 为空，也能获取配置的户型代码
+    all_room_types = set(room_counts.keys()) | set(room_areas.keys())
+    if not df_inhouse.empty:
+        all_room_types |= set(df_inhouse['rmtype'].unique())
 
     for rmtype in sorted(list(all_room_types)):
         total_supply = room_counts.get(rmtype, 0)
@@ -257,12 +267,26 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
         return analysis_results
 
     if not analysis_results:
+        # 当 analyze_room_type_performance 返回空列表时，显示此消息
         return f"在日期范围 {start_date_str} 至 {end_date_str} 没有找到任何相关的房间记录。"
 
     report_lines = []
     report_lines.append(f"--- 各户型经营表现分析 (数据范围: {start_date_str} 至 {end_date_str}) ---")
 
-    for result in analysis_results:
+    # 过滤掉那些所有关键指标都为0或N/A的户型，只报告有实际数据的户型
+    # 关键指标包括期末在租数、期间总入住房晚数或期间总租金
+    meaningful_results = [
+        r for r in analysis_results if r['期末在租数'] > 0 or
+                                       r['期间总入住房晚数'] > 0 or
+                                       r['期间总租金(元)'] > 0
+    ]
+
+    if not meaningful_results:
+        # 如果虽然存在户型配置，但所有户型在指定期间都没有实际经营活动，也显示此消息
+        return f"在日期范围 {start_date_str} 至 {end_date_str} 内，虽然存在户型配置，但没有找到任何实际的经营活动记录。"
+
+
+    for result in meaningful_results: # 遍历有实际数据的户型
         room_type_name = room_names.get(result['户型代码'], result['户型代码'])
         report_lines.append(f"\n==================== 户型: {room_type_name} ====================")
 
@@ -297,8 +321,9 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
         report_lines.append(line6)
 
     # --- 总体概要 (基于期间房晚和租金) ---
-    total_rent_all_types = sum(r['期间总租金(元)'] for r in analysis_results)
-    total_paid_room_nights_all_types = sum(r['期间总付费房晚数'] for r in analysis_results)
+    # 总体概要也应该基于 meaningful_results 来计算
+    total_rent_all_types = sum(r['期间总租金(元)'] for r in meaningful_results)
+    total_paid_room_nights_all_types = sum(r['期间总付费房晚数'] for r in meaningful_results)
 
     overall_avg_daily_rent = (total_rent_all_types / total_paid_room_nights_all_types
                               if total_paid_room_nights_all_types > 0 else 0)
@@ -317,11 +342,13 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
 # --- 主程序入口 ---
 if __name__ == "__main__":
     print("--- 户型经营表现分析工具 ---")
-    #start_date_input = input("请输入分析的开始日期 (YYYY-MM-DD): ")
-    #end_date_input = input("请输入分析的结束日期 (YYYY-MM-DD): ")
+    # 为了测试，可以取消注释以下两行，让用户输入日期
+    # start_date_input = input("请输入分析的开始日期 (YYYY-MM-DD): ")
+    # end_date_input = input("请输入分析的结束日期 (YYYY-MM-DD): ")
 
-    start_date_input = "2025-08-01"
-    end_date_input = "2025-08-31"
+    # 默认测试日期范围
+    start_date_input = "2024-09-01"
+    end_date_input = "2024-09-30"
 
     # 1. 调用计算函数，获取原始数据结果
     results_list = analyze_room_type_performance(

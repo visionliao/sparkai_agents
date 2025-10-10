@@ -125,49 +125,102 @@ def get_query_result_as_string(df: pd.DataFrame, query_id: int) -> str:
     return "\n".join(output_lines)
 
 
+# --- 【新增功能：多次查询，参数为字符串类型】 ---
+def get_multiple_query_results_as_string(df: pd.DataFrame, query_ids_str: str) -> str:
+    """
+    解析逗号分隔的ID字符串，查询指定ID列表的数据，并将格式化后的结果作为单个字符串返回。
+    每个记录之间用分隔符隔开。此函数通过调用 get_query_result_as_string 来复用单次查询接口。
+
+    Args:
+        df (pd.DataFrame): 包含所有客户数据的DataFrame。
+        query_ids_str (str): 逗号分隔的客户ID字符串，例如 "3664,3494,9999"。
+
+    Returns:
+        str: 格式化后的查询结果字符串，包含所有有效ID的信息。
+    """
+    all_results = []
+    invalid_ids = []
+    # 定义一个清晰的分隔符，用于分隔不同ID的查询结果
+    separator = "\n\n" + "=" * 60 + "\n\n"
+
+    # 解析输入的字符串为ID列表
+    raw_ids = [id_str.strip() for id_str in query_ids_str.split(',') if id_str.strip()]
+
+    if not raw_ids:
+        return "输入为空或不包含有效ID。"
+
+    for id_part in raw_ids:
+        try:
+            q_id = int(id_part)
+            # 调用原有的单次查询接口来获取每个ID的结果
+            result_string = get_query_result_as_string(df, q_id)
+            all_results.append(result_string)
+        except ValueError:
+            invalid_ids.append(id_part)
+            # 可以在这里添加一个消息，说明该ID无效，但为了简洁，我们只收集无效ID
+
+    output_str = ""
+    if all_results:
+        output_str = separator.join(all_results)
+    else:
+        output_str = "未查询到任何有效记录。"
+
+    if invalid_ids:
+        output_str += f"\n\n--- 注意：以下ID无效或无法解析，已跳过：{', '.join(invalid_ids)} ---"
+
+    return output_str
+
+
 def query_and_display_interactive(df: pd.DataFrame):
     """
-    启动一个交互式循环，调用新函数来获取结果字符串并打印它。
+    启动一个交互式循环，允许用户输入单个或多个客户ID进行查询，并将结果打印。
     """
     while True:
-        user_input = input("\n请输入要查询的客户 ID (输入 'q' 或 'quit' 退出): ").strip()
+        user_input = input(
+            "\n请输入要查询的客户 ID (可输入多个，用逗号分隔，如: 3664,3494；输入 'q' 或 'quit' 退出): ").strip()
         if user_input.lower() in ['q', 'quit']:
             print("脚本退出。")
             break
-        try:
-            query_id = int(user_input)
-            # 调用新函数获取结果字符串
-            result_string = get_query_result_as_string(df, query_id)
-            # 打印结果
-            print(result_string)
-        except ValueError:
-            print("无效输入。请输入一个数字ID。")
+
+        # 直接将用户输入字符串传递给多查询函数
+        # 错误处理（如非数字ID）现在由 get_multiple_query_results_as_string 内部处理
+        result_string = get_multiple_query_results_as_string(df, user_input)
+        print(result_string)
 
 
 if __name__ == "__main__":
     guest_df = load_data_from_xml(XML_FILE_PATH)
 
     if guest_df is not None:
-        # --- 示例：如何将查询结果存入变量 ---
-        print("\n--- 将ID 3494 的查询结果存入变量 ---")
+        # --- 示例：如何将单个查询结果存入变量 (保持不变，直接调用单次查询接口) ---
+        print("\n--- 将ID 3664 的查询结果存入变量 ---")
         query_id_example = 3664
 
         # 调用函数，将返回的字符串存入 `result_variable`
         result_variable = get_query_result_as_string(guest_df, query_id_example)
 
-        print("查询结果已成功存入变量 'result_variable'。")
+        print("单个查询结果已成功存入变量 'result_variable'。")
         print("现在可以对这个变量进行操作，例如打印它：\n")
 
         # 打印变量的内容
         print(result_variable)
 
-        # 也可以将它写入文件
-        # with open("query_result.txt", "w", encoding="utf-8") as f:
-        #     f.write(result_variable)
-        # print("\n结果也已写入到 query_result.txt 文件。")
+        # --- 示例：如何将多个查询结果存入变量 (使用新增的多查询接口，参数为字符串) ---
+        print("\n\n--- 将ID 3664、3494 和一个不存在的 ID (9999) 以及一个无效输入 ('abc') 的查询结果存入变量 ---")
+        # 参数现在是一个字符串
+        multiple_query_ids_str_example = "3664, 3494, 9999, abc"
 
-        # --- 启动交互式查询 ---
-        print("\n\n--- 现在启动交互式查询 ---")
+        # 调用新增的多查询函数，将返回的字符串存入 `multiple_results_variable`
+        multiple_results_variable = get_multiple_query_results_as_string(guest_df, multiple_query_ids_str_example)
+
+        print("多个查询结果已成功存入变量 'multiple_results_variable'。")
+        print("现在可以对这个变量进行操作，例如打印它：\n")
+
+        # 打印变量的内容
+        print(multiple_results_variable)
+
+        # --- 启动交互式查询 (已更新以支持多查询，且参数传递为字符串) ---
+        print("\n\n--- 现在启动交互式查询 (支持单个或多个ID) ---")
         query_and_display_interactive(guest_df)
     else:
         print("数据未能成功加载，程序即将退出。")

@@ -7,13 +7,15 @@ import uvicorn
 
 from demo.calculate_occupancy import calculate_occupancy_rate, format_result_to_string
 from demo.room import analyze_room_type_performance, format_analysis_to_string
-from demo.query_guest_data import load_data_from_xml, get_query_result_as_string
+from demo.query_guest_data import load_data_from_xml, get_multiple_query_results_as_string
 from demo.query_checkins import query_checkin_records, format_records_to_string
 from demo.query_by_room import query_records_by_room, format_string
 from demo.query_orders import parse_service_orders, search_by_rmno, format_results_string
 from demo.advanced_query import parse_service_orders, search_orders_advanced, format_to_string
+from demo.generate_dashboard import main as generate_dashboard
 
 from mcp.server.fastmcp import FastMCP
+
 mcp = FastMCP("公寓数据查询")
 
 # --- 1. 查询现在的系统时间 ---
@@ -93,6 +95,13 @@ def calculate_occupancy(start: str, end: str, details: str):
     TOTAL_ROOMS = 579
 
     print("--- 入住率计算 ---")
+
+    # 验证日期格式
+    try:
+        datetime.datetime.strptime(start, '%Y-%m-%d')
+        datetime.datetime.strptime(end, '%Y-%m-%d')
+    except ValueError:
+        return "输入错误：日期格式不正确，请使用 'YYYY-MM-DD' 格式。"
 
     start_input = start
     end_input = end
@@ -266,6 +275,13 @@ def occupancy_details(start_time: str, end_time: str) -> str:
     FILE_PATH = 'demo/master_base.xml'
     print("--- 户型经营表现分析工具 ---")
 
+    # 验证日期格式
+    try:
+        datetime.datetime.strptime(start_time, '%Y-%m-%d')
+        datetime.datetime.strptime(end_time, '%Y-%m-%d')
+    except ValueError:
+        return "输入错误：日期格式不正确，请使用 'YYYY-MM-DD' 格式。"
+
     start_date_input = start_time
     end_date_input = end_time
 
@@ -289,17 +305,18 @@ def occupancy_details(start_time: str, end_time: str) -> str:
     # 3. 打印字符串变量
     return final_report_string
 
+
 @mcp.tool()
-def query_guest(id: str):
+def query_guest(id: Union[str, List[str]]):
     """
     功能描述 (description): 一个用于获取指定用户ID的用户信息
 
     输入参数 (parameters):
-    id (Optional[str]): 用户ID，可使用从如occupancy_details等其他工具中获取的ID；例如: '3664'
+    id (Union[str, List[str]]): 用户ID，可使用从如occupancy_details等其他工具中获取的ID；例如: '3664'或'3664, 3694'(同时查询多个ID) 或 ['3664', '3694']
 
     返回结果 (returns):
     下面是一个调用返回示例：
-    print(query_guest("3664"))
+    print(query_guest("3664, 999"))
     返回：
     '
     成功加载并处理了 501 条记录。
@@ -326,6 +343,9 @@ def query_guest(id: str):
     修改用户       : SHINZHANG
     修改时间       : 2025-08-11 17:03:41
     ----------------------------
+    ============================================================
+
+    --- 未找到 ID 为 999 的记录 ---
     '
     """
 
@@ -364,14 +384,22 @@ def query_guest(id: str):
         'modify_datetime': '修改时间',
     }
     guest_df = load_data_from_xml(XML_FILE_PATH)
-    query_id = int(id)
+
+    final_id_list: List[str] = []
+    if isinstance(id, list):
+        final_id_list = [str(item).strip() for item in id if str(item).strip()]
+    elif isinstance(id, str):
+        final_id_list = [item.strip() for item in re.split(r'[\s,]+', id) if item.strip()]
+
+    if not final_id_list:
+        return "输入错误：未能从输入中解析出有效的用户ID。"
 
     if guest_df is not None:
-        query_id_example = query_id
-
-        result_variable = get_query_result_as_string(guest_df, query_id_example)
+        result_variable = get_multiple_query_results_as_string(guest_df, ','.join(
+            final_id_list))  # get_multiple_query_results_as_string expects a comma-separated string
 
         return result_variable
+
 
 @mcp.tool()
 def query_checkins(start: str, end: str, choice: str):
@@ -414,6 +442,13 @@ def query_checkins(start: str, end: str, choice: str):
         'STE': "行政单间公寓",
         'STP': "豪华行政单间"
     }
+    # 验证日期格式
+    try:
+        datetime.datetime.strptime(start, '%Y-%m-%d')
+        datetime.datetime.strptime(end, '%Y-%m-%d')
+    except ValueError:
+        return "输入错误：日期格式不正确，请使用 'YYYY-MM-DD' 格式。"
+
     start_input = start
     end_input = end
 
@@ -430,10 +465,11 @@ def query_checkins(start: str, end: str, choice: str):
 
     return final_report_string
 
+
 @mcp.tool()
 def query_by_room(rooms: Union[str, List[str]]):
     """
-    功能描述 (description): 一个用于获取指定房间号的入住信息，可获得的具体字段有：入住日期、离店日期、房号、房型、租金、状态、用户ID、备注、交班信息
+    功能描述 (description): 一个用于获取指定房间号的历史入住信息，可获得的具体字段有：入住日期、离店日期、房号、房型、租金、状态、用户ID、备注、交班信息
 
     输入参数 (parameters):
     rooms (Union[str, List[str]]): 需要查询的一个或多个房间号。
@@ -496,14 +532,14 @@ def query_by_room(rooms: Union[str, List[str]]):
     # 3. 打印结果
     return final_report_string
 
+
 @mcp.tool()
-def query_orders(room: str):
+def query_orders(room_numbers: Union[str, List[str]]):
     """
         功能描述 (description): 一个用于获取指定房间号的历史工单信息，可获得的具体字段有：工单ID、房号、服务项目、需求描述、具体位置、优先级、进入房间指引/注意事项、服务状态、服务人员、处理结果、创建时间、完成时间
 
         输入参数 (parameters):
-        room (Optional[str]): 房间号
-
+        room_numbers (Union[str, List[str]]): 一个或多个房间号。例如: 'A513' 或 'A513, A514' 或 ['A513', 'A514']
 
         返回结果 (returns):
         下面是一个调用返回示例：
@@ -545,21 +581,39 @@ def query_orders(room: str):
         'B706': '花洒', 'B707': '马桶', 'B708': '台盆', 'B801': '其他',
         'B901': '网络设备'
     }
-    all_orders = parse_service_orders(XML_FILE_PATH)
-    if all_orders is None: return
+    all_orders_data = parse_service_orders(XML_FILE_PATH)
+    if all_orders_data is None:
+        return "未能加载工单数据。"
 
-    room_number_input = room
+    final_room_list: List[str] = []
+    if isinstance(room_numbers, list):
+        final_room_list = [str(item).strip() for item in room_numbers if str(item).strip()]
+    elif isinstance(room_numbers, str):
+        final_room_list = [item.strip() for item in re.split(r'[\s,]+', room_numbers) if item.strip()]
 
-    found_orders = search_by_rmno(all_orders, room_number_input)
-    result_string = format_results_string(found_orders)
+    if not final_room_list:
+        return "输入错误：未能从输入中解析出有效的房间号。"
+
+    all_found_orders = pd.DataFrame()  # 用于存储所有房间查询到的工单
+
+    for room_num in final_room_list:
+        found_orders_for_room = search_by_rmno(all_orders_data, room_num)
+        if not found_orders_for_room.empty:
+            all_found_orders = pd.concat([all_found_orders, found_orders_for_room], ignore_index=True)
+
+    if all_found_orders.empty:
+        return f"未找到房间号 {', '.join(final_room_list)} 的相关工单。"
+
+    result_string = format_results_string(all_found_orders)
     return result_string
+
 
 @mcp.tool()
 def advanced_query_service(
-    start_date_str: Optional[str] = None,
-    end_date_str: Optional[str] = None,
-    service_code: Optional[str] = None,
-    location_code: Optional[str] = None
+        start_date_str: Optional[str] = None,
+        end_date_str: Optional[str] = None,
+        service_code: Optional[str] = None,
+        location_code: Optional[str] = None
 ) -> str:
     """
     功能描述 (description):
@@ -661,6 +715,8 @@ def advanced_query_service(
     }
 
     ALL_ORDERS_DATA = parse_service_orders(XML_FILE_PATH)
+    if ALL_ORDERS_DATA is None:
+        return "未能加载工单数据。"
 
     # --- 处理和验证输入 ---
     try:
@@ -681,8 +737,17 @@ def advanced_query_service(
 
     return format_to_string(found_orders, criteria_desc)
 
+@mcp.tool()
+def generate_dashboard_service():
+    """
+    打开一个网页数据仪表盘，调用后你会得到一个打开成功消息
+    """
+    generate_dashboard()
+    return "仪表盘开启成功"
+
 
 if __name__ == "__main__":
+    # 测试函数
     '''
     print("--- 1. 获取当前时间 ---")
     current_time = get_current_time()
@@ -693,43 +758,70 @@ if __name__ == "__main__":
     expression = "(100 + 20) / 2 - 5 * 2"
     result = calculate_expression(expression)
     print(f"表达式 '{expression}' 的计算结果是: {result}")
-
-    # 错误表达式示例
     error_expression = "5 / 0"
     error_result = calculate_expression(error_expression)
     print(f"表达式 '{error_expression}' 的计算结果是: {error_result}")
     print("-" * 20)
 
-    print("\n--- 3. 列出当前目录下的文件 ---")
-    # 查询当前目录（'.'代表当前目录）
-    files = list_knowledge()
-    print(f"当前目录下的文件: {files}")
-    print("-" * 20)
-
-    # CSV文件路径
-    csv_file = '房间状态表包含已入住住客的信息（数据更新时间2025.5.15）.general'
-
-    print(f"\n--- 4. 获取 '{csv_file}' 的前5条数据 ---")
-    csv_head = get_csv_head(csv_file, n=5)
-    print(csv_head)
-    print("-" * 20)
-
-    y = "当前状态 == '在住'"
-    x = count_csv_query(csv_file, y)
-    z = query_csv(csv_file, y)
-    print(x)
-    print(z)
-    
+    print("\n--- 3. 计算入住率 ---")
     print(calculate_occupancy("2025-06-01", "2025-06-05", "y"))
-    print(occupancy_details("2025-06-01"))
+    print(calculate_occupancy("2025-06-01", "invalid-date", "n"))  # 测试错误日期
+    print("-" * 20)
+
+    print("\n--- 4. 查询户型详情 ---")
+    print(occupancy_details("2025-08-01", "2025-08-31"))
+    print(occupancy_details("invalid-date", "2025-08-31"))  # 测试错误日期
+    print("-" * 20)
+
+    print("\n--- 5. 查询用户信息 ---")
+    print("查询单个ID (字符串):")
     print(query_guest("3664"))
+    print("\n查询多个ID (逗号分隔字符串):")
+    print(query_guest("3664, 3694, 999"))
+    print("\n查询多个ID (列表):")
+    print(query_guest(['3664', '3694', '999']))
+    print("\n查询无效ID:")
+    print(query_guest("abc, xyz"))
+    print("-" * 20)
+
+    print("\n--- 6. 查询入住记录 ---")
     print(query_checkins('2025-08-08', '2025-08-12', '1'))
+    print(query_checkins('2025-08-08', 'invalid-date', '1'))  # 测试错误日期
+    print("-" * 20)
+
+    print("\n--- 7. 按房间查询历史入住 ---")
+    print("查询单个房间号 (字符串):")
+    print(query_by_room("A312"))
+    print("\n查询多个房间号 (逗号分隔字符串):")
     print(query_by_room("A312,A313"))
+    print("\n查询带有通配符的房间号 (列表):")
+    print(query_by_room(["A312", "A3*", "B1510"]))
+    print("\n查询无效房间号:")
+    print(query_by_room("XYZ"))
+    print("-" * 20)
+
+    print("\n--- 8. 查询工单 ---")
+    print("查询单个房间工单 (字符串):")
     print(query_orders('A513'))
+    print("\n查询多个房间工单 (逗号分隔字符串):")
+    print(query_orders('A513, B902'))
+    print("\n查询多个房间工单 (列表):")
+    print(query_orders(['A513', 'B902']))
+    print("\n查询无效房间工单:")
+    print(query_orders("Z999"))
+    print("-" * 20)
+
+    print("\n--- 9. 高级工单查询 ---")
     print(advanced_query_service(start_date_str='2025-07-01', service_code='B701'))
+    print(advanced_query_service(start_date_str='invalid-date', service_code='B701'))  # 测试错误日期
+    print("-" * 20)
+    
+    generate_dashboard_service()
     '''
 
     app_instance = mcp.sse_app
+
+    print(query_guest([3664, 999]))
 
     # 定义使用的主机和端口
     host = "127.0.0.1"

@@ -22,7 +22,6 @@ def parse_spreadsheetml(file_path: str):
     """
     使用 lxml 解析 SpreadsheetML 2003 XML 文件并返回一个 pandas DataFrame 或错误信息。
     """
-    # ... (此函数代码与之前完全相同，此处省略)
     try:
         tree = etree.parse(file_path)
         root = tree.getroot()
@@ -62,13 +61,14 @@ def sanitize_for_display(text):
 
     return sanitized_text
 
-# --- 核心查询函数 (按房号筛选) ---
-def query_records_by_room(file_path: str, room_numbers: list):
+# --- 核心查询函数 (按房号或楼层模式筛选) ---
+def query_records_by_room(file_path: str, query_inputs: list):
     """
-    根据一个或多个房间号查询所有相关记录。
+    根据一个或多个房间号或楼层模式查询所有相关记录。
+    查询输入可以包含具体的房间号（如 'A212'）或简化模式（如 'A2*'）。
     """
-    if not room_numbers:
-        return "错误: 未输入任何房间号。"
+    if not query_inputs:
+        return "错误: 未输入任何房间号或楼层模式。"
 
     df_or_error = parse_spreadsheetml(file_path)
     if isinstance(df_or_error, str):
@@ -86,29 +86,48 @@ def query_records_by_room(file_path: str, room_numbers: list):
     for col in ['id', 'arr', 'dep', 'full_rate_long']:
         df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    df.dropna(subset=['rmno'], inplace=True)
+    df.dropna(subset=['rmno'], inplace=True) # 移除房间号为空的记录，以确保后续字符串操作的有效性
 
     df['arr_date'] = pd.to_datetime(df['arr'], unit='D', origin='1899-12-30').dt.date
     df['dep_date'] = pd.to_datetime(df['dep'], unit='D', origin='1899-12-30').dt.date
 
     # --- 核心筛选逻辑 ---
-    # 使用 .isin() 方法来匹配列表中的多个房间号
-    # .str.upper() 将数据和输入的房号都转为大写，实现不区分大小写的匹配
-    room_numbers_upper = [r.upper() for r in room_numbers]
-    room_records_df = df[df['rmno'].str.upper().isin(room_numbers_upper)].copy()
+    filters = [] # 用于收集所有的筛选条件
+
+    for item in query_inputs:
+        item_upper = item.upper() # 将输入转换为大写进行不区分大小写匹配
+        if item_upper.endswith('*'):
+            # 这是简化查询 (例如 'A2*')
+            prefix = item_upper[:-1] # 移除通配符 '*'
+            if prefix: # 确保前缀不为空，例如避免只输入一个 '*'
+                # 使用 str.startswith 进行前缀匹配
+                filters.append(df['rmno'].str.upper().str.startswith(prefix))
+        else:
+            # 这是一个具体的房间号查询
+            filters.append(df['rmno'].str.upper() == item_upper)
+
+    if not filters:
+        return "错误: 未找到有效的查询条件，请检查输入格式。例如，单独的 '*' 不被视为有效查询。"
+
+    # 使用 | (逻辑或) 将所有筛选条件合并
+    combined_condition = filters[0]
+    for i in range(1, len(filters)):
+        combined_condition = combined_condition | filters[i]
+
+    room_records_df = df[combined_condition].copy()
 
     return room_records_df
 
 
 # --- 格式化输出函数 (与之前类似) ---
-def format_string(records_df, room_numbers, room_names) -> str:
+def format_string(records_df, query_inputs, room_names) -> str:
     if isinstance(records_df, str):
         return records_df
 
-    query_rooms_str = ", ".join(room_numbers)
+    query_str_display = ", ".join(query_inputs)
 
     if records_df.empty:
-        return f"没有找到与房间号 '{query_rooms_str}' 相关的任何记录。"
+        return f"没有找到与 '{query_str_display}' 相关的任何记录。"
 
     # 清理自由文本字段，防止非法字符破坏表格布局
     records_df['remark'] = records_df['remark'].apply(sanitize_for_display)
@@ -124,7 +143,7 @@ def format_string(records_df, room_numbers, room_names) -> str:
     records_df_sorted = records_df.sort_values(by='arr_date', ascending=False)
 
     report_lines = []
-    report_lines.append(f"--- 房间号查询结果 ({query_rooms_str}) ---")
+    report_lines.append(f"--- 房间号/楼层模式查询结果 ({query_str_display}) ---")
     report_lines.append(f"共找到 {len(records_df_sorted)} 条相关记录。\n")
 
     display_columns = {
@@ -146,11 +165,11 @@ def format_string(records_df, room_numbers, room_names) -> str:
 # --- 主程序入口 ---
 if __name__ == "__main__":
     print("--- 房间历史记录查询工具 ---")
-    #room_input = input("请输入一个或多个房间号 (用空格或逗号分隔): ")
-    room_input = 'A212, B202 C303'
+    #room_input = input("请输入一个或多个房间号或楼层模式 (如 'A2*', 'B*', 用空格或逗号分隔): ")
+    room_input = 'A212, B202 C303 A2*'
 
     # 使用正则表达式分割输入，并清除空字符串
-    # 例如，'A101, B202 C303' -> ['A101', 'B202', 'C303']
+    # 例如，'A101, B202 C303 A2*' -> ['A101', 'B202', 'C303', 'A2*']
     room_list = [r.strip() for r in re.split(r'[\s,]+', room_input) if r.strip()]
 
     # 1. 调用查询函数
@@ -159,7 +178,7 @@ if __name__ == "__main__":
     # 2. 调用格式化函数
     final_string = format_string(
         found_records,
-        room_list,
+        room_list, # 将处理后的输入列表传递给格式化函数
         ROOM_TYPE_NAMES
     )
 
