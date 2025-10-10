@@ -14,7 +14,7 @@ import time
 # 数据源和模板文件路径
 MASTER_BASE_XML_PATH = 'demo/master_base.xml'
 TEMPLATE_PATH = "demo/template.html"
-OUTPUT_PATH = "demo/dashboard.html"
+OUTPUT_PATH = "demo/index.html"
 
 # 公寓基本信息
 TOTAL_ROOMS = 579
