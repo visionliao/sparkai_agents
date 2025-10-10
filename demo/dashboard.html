@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公寓运营数据洞察仪表板 (功能完整版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #1a253c;
+            --sidebar-text: #aab8c5;
+            --sidebar-active-bg: rgba(74, 144, 226, 0.15);
+            --sidebar-active-text: #ffffff;
+            --bg-color: #f4f7fa;
+            --card-bg-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --primary-color: #4A90E2;
+            --green-color: #34D399;
+            --yellow-color: #FBBF24;
+            --red-color: #F87171;
+            --blue-info-color: #17a2b8;
+            --border-color: #e2e8f0;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--sidebar-active-text);
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-nav a {
+            display: block;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a.active,
+        .sidebar-nav a:hover {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .main-content {
+            margin-left: 240px;
+            width: calc(100% - 240px);
+            padding: 30px;
+        }
+
+        .main-header {
+            margin-bottom: 30px;
+        }
+
+        .main-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .main-header p {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .report-meta {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            margin-top: 10px !important;
+        }
+
+        .report-meta strong {
+            font-weight: 500;
+            margin-right: 6px;
+            color: var(--text-primary);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .section-anchor {
+            padding-top: 30px;
+        }
+
+        .card {
+            background: var(--card-bg-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            fill: var(--text-secondary);
+        }
+
+        /* --- Grid Span Definitions --- */
+        .grid-col-3 { grid-column: span 3; }
+        .grid-col-4 { grid-column: span 4; }
+        .grid-col-5 { grid-column: span 5; }
+        .grid-col-6 { grid-column: span 6; }
+        .grid-col-7 { grid-column: span 7; }
+        .grid-col-8 { grid-column: span 8; }
+        .grid-col-12 { grid-column: span 12; }
+
+        /* --- Specific Card Styles --- */
+        .overview-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .overview-card .icon {
+            font-size: 24px;
+            background-color: var(--sidebar-active-bg);
+            color: var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .overview-card .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .overview-card .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            height: 280px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            text-align: left;
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        thead th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        tbody tr:nth-child(even) {
+             background-color: #f9fafb;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight-green { font-weight: 700; color: var(--green-color); }
+        .highlight-blue { font-weight: 700; color: var(--primary-color); }
+        .highlight-red { font-weight: 700; color: var(--red-color); }
+        .highlight-info { font-weight: 700; color: var(--blue-info-color); }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; width: 100%; }
+            .grid-col-3 { grid-column: span 6; }
+            .grid-col-4, .grid-col-5, .grid-col-7, .grid-col-8 { grid-column: span 12; }
+        }
+        @media (max-width: 768px) {
+            .main-content { padding: 15px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .card { grid-column: span 1 !important; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">数据仪表板</div>
+        <nav class="sidebar-nav">
+            <a href="#overview" class="active">🏢 运营总览</a>
+            <a href="#room_analysis">🏠 房型分析</a>
+            <a href="#building_analysis">🏢 楼栋分析</a>
+            <a href="#rent_analysis">💰 租金分析</a>
+            <a href="#channel_analysis">🧮 渠道与市场</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="main-header">
+            <h1>公寓运营数据洞察</h1>
+            <p class="report-meta">
+                <span><strong>生成日期:</strong> 2025年10月09日</span>
+                <span><strong>数据周期:</strong> 2025.09.09 - 2025.10.09 (基于过去30天分析)</span>
+            </p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- 运营总览 -->
+            <section id="overview" class="section-anchor grid-col-12">
+                <div class="dashboard-grid">
+                    <div class="card overview-card grid-col-3">
+                        <div class="icon">🏢</div><div><div class="stat-value">579</div><div class="stat-label">房间总数</div></div>
+                    </div>
+                    <div class="card overview-card grid-col-3">
+                         <div class="icon">📈</div><div><div class="stat-value">198</div><div class="stat-label">已出租房间</div></div>
+                    </div>
+                    <div class="card overview-card grid-col-3">
+                         <div class="icon">📊</div><div><div class="stat-value">34.20%</div><div class="stat-label">最终入住率</div></div>
+                    </div>
+                    <div class="card overview-card grid-col-3">
+                         <div class="icon">💾</div><div><div class="stat-value">37.13%</div><div class="stat-label">数据覆盖率</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="card grid-col-4">
+                <h2 class="card-title">🧾 房间状态分布</h2>
+                <div class="chart-container" style="height:200px;">
+                    <canvas id="roomStatusChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card grid-col-8">
+                <h2 class="card-title">📉 租金记录准确性与收入估算</h2>
+                <table>
+                    <thead><tr><th>项目</th><th>数值</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>有租金记录房间</td><td>268 间</td><td>包含所有状态</td></tr>
+                        <tr><td>当前出租且有租金</td><td class="highlight-info">194 间</td><td>包含入住与预定状态，最有效的财务基数</td></tr>
+                        <tr><td>当前出租但无租金记录</td><td class="highlight-red">4 间</td><td>数据缺失，影响收入精确计算</td></tr>
+                        <tr><td><strong>合理月收入估算</strong></td><td class="highlight-green"><strong>1,955,115.20 元</strong></td><td>基于198间已出租房平均推算</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 房型分析 -->
+            <section id="room_analysis" class="section-anchor grid-col-12">
+                <div class="card">
+                    <h2 class="card-title">🏠 按房型分析</h2>
+                    <table>
+                        <thead>
+                            <tr><th>房型</th><th>入住率</th><th>平均租金 (元)</th><th>坪效 (元/㎡/月)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Studio Deluxe</td><td><span>31.82%</span></td><td>6,486.03</td><td><span>144.13</span></td></tr>
+                            <tr><td>One Bedroom Deluxe</td><td>45.66%</td><td>12,752.00</td><td>174.68</td></tr>
+                            <tr><td>Studio Executive (B)</td><td>36.71%</td><td>7,784.01</td><td>129.73</td></tr>
+                            <tr><td>One Bedroom Premier</td><td>36.84%</td><td>17,236.94</td><td>195.87</td></tr>
+                            <tr><td>Studio Executive (A)</td><td>20.00%</td><td>22,700.00</td><td>210.19</td></tr>
+                            <tr><td>Two Bedroom Deluxe</td><td>0.00%</td><td><span>0.00</span></td><td>0.00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 楼栋分析 -->
+            <section id="building_analysis" class="section-anchor grid-col-12">
+                 <div class="card">
+                    <h2 class="card-title">🏢 按楼栋分析</h2>
+                    <table>
+                        <thead><tr><th>楼栋</th><th>房间总数</th><th>已出租</th><th>入住率</th><th>平均租金</th><th>中位数租金</th></tr></thead>
+                        <tbody>
+                            <tr><td>A栋</td><td>418</td><td>133</td><td>31.82%</td><td>8,776.43 元</td><td>7,324.80 元</td></tr>
+                            <tr><td>B栋</td><td>161</td><td>64</td><td>39.75%</td><td>12,721.54 元</td><td>12,760.00 元</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 租金分析 -->
+            <section id="rent_analysis" class="section-anchor grid-col-12">
+                <div class="dashboard-grid">
+                    <div class="card grid-col-5">
+                        <h2 class="card-title">💰 租金整体指标</h2>
+                        <table>
+                            <tbody>
+                                <tr><td>平均租金</td><td class="highlight-blue">10,077.91 元</td></tr>
+                                <tr><td>中位数租金</td><td class="highlight-blue">8,456.60 元</td></tr>
+                                <tr><td>最低租金</td><td>5,050.20 元</td></tr>
+                                <tr><td>最高租金</td><td>24,220.00 元</td></tr>
+                                <tr><td>每平米平均租金</td><td>153.62 元/㎡/月</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card grid-col-7">
+                        <h2 class="card-title">📊 租金分布区间</h2>
+                        <div class="chart-container" style="height:250px;">
+                            <canvas id="rentDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 渠道与市场 -->
+            <section id="channel_analysis" class="section-anchor grid-col-12">
+                 <div class="card">
+                    <h2 class="card-title">🧮 各渠道 & 市场细分分析</h2>
+                    <div class="dashboard-grid">
+                        <div class="grid-col-6">
+                            <h3 style="text-align:center; font-weight:500;">渠道细分</h3>
+                             <table>
+                                <thead><tr><th>渠道</th><th>出租数</th><th>总收入</th><th>占比</th></tr></thead>
+                                <tbody>
+                                    <tr><td>中介</td><td>154</td><td>1,544,026 元</td><td>79.0%</td></tr>
+                                    <tr><td>市场渠道</td><td>17</td><td>191,999 元</td><td>9.8%</td></tr>
+                                    <tr><td>微信小程序</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>无预订散客</td><td>7</td><td>71,035 元</td><td>3.6%</td></tr>
+                                    <tr><td>忠诚计划</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>交叉销售</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>客户推荐</td><td>4</td><td>38,216 元</td><td>2.0%</td></tr>
+                                    <tr><td>线上旅行社</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>企业开发</td><td>1</td><td>6,600 元</td><td>0.3%</td></tr>
+                                    <tr><td>官网预定</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>销售渠道</td><td>11</td><td>103,239 元</td><td>5.3%</td></tr>
+                                    <tr><td>员工预订</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+
+                                </tbody>
+                             </table>
+                        </div>
+                        <div class="grid-col-6">
+                            <h3 style="text-align:center; font-weight:500;">市场细分</h3>
+                             <table>
+                                <thead><tr><th>市场细分</th><th>出租数</th><th>总收入</th><th>占比</th></tr></thead>
+                                <tbody>
+                                    <tr><td>散客</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>本地公司</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>国内公司</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>国外公司</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>全球网络分销系统</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>网络公司</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>品牌官网</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>微信</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                    <tr><td>销售渠道</td><td>0</td><td>0 元</td><td>0.0%</td></tr>
+                                </tbody>
+                             </table>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { family: "'Noto Sans SC', sans-serif" }, padding: 15 }
+                    }
+                }
+            };
+
+            // 图表1: 房间状态
+            new Chart(document.getElementById('roomStatusChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['在住', '预订', '已结账', '已取消', '未出租'],
+                    datasets: [{
+                        label: '房间数量',
+                        data: [198, 14, 3, 0, 364],
+                        backgroundColor: ['#34D399', '#FBBF24', '#4A90E2', '#F87171', '#f9fafb'],
+                        borderColor: 'var(--card-bg-color)',
+                        borderWidth: 4
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // 图表2: 租金分布
+            new Chart(document.getElementById('rentDistributionChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['5k-10k', '10k-15k', '15k-20k', '20k-30k'],
+                    datasets: [{
+                        label: '房间数',
+                        data: [113, 60, 15, 6],
+                        backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                        borderColor: 'rgba(74, 144, 226, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: { ...chartOptions, plugins: { legend: { display: false } } }
+            });
+
+            // --- 侧边栏滚动监听与点击功能 ---
+            const sections = document.querySelectorAll('.section-anchor');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        const id = entry.target.getAttribute('id');
+                        const activeLink = document.querySelector('.sidebar-nav a[href="#' + id + '"]');
+                        if (activeLink) {
+                            activeLink.classList.add('active');
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '-30% 0px -70% 0px'
+            });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // 侧边栏最后一个链接高亮的边界问题修复
+            const lastNavLink = navLinks[navLinks.length - 1];
+            window.addEventListener('scroll', () => {
+                const isAtBottom = (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 2;
+                if (isAtBottom) {
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    lastNavLink.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
