@@ -8,7 +8,7 @@ import time
 # 需要启动服务的HTML文件的相对路径
 HTML_FILE_PATH = 'dashboard.html'
 # 服务器端口
-PORT = 3006
+PORT = 3000
 
 
 # --- 配置结束 ---
