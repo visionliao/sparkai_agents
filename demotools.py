@@ -4,10 +4,11 @@ import pandas as pd
 from typing import List, Any, Union, Optional
 import re
 import uvicorn
+from typing import Optional, Dict, Any
 
 from demo.calculate_occupancy import calculate_occupancy_rate, format_result_to_string
 from demo.room import analyze_room_type_performance, format_analysis_to_string
-from demo.query_guest_data import load_data_from_xml, get_multiple_query_results_as_string
+from demo.query_guest_data import load_data_from_xml, get_multiple_query_results_as_string, load_status_rent_data_from_xml, get_guest_statistics
 from demo.query_checkins import query_checkin_records, format_records_to_string
 from demo.query_by_room import query_records_by_room, format_string
 from demo.query_orders import parse_service_orders, search_by_rmno, format_results_string
@@ -744,6 +745,79 @@ def generate_dashboard_service():
     """
     generate_dashboard()
     return "仪表盘开启成功，请访问 https://chatbot.sparkai.xin/ 查看"
+
+@mcp.tool()
+def get_statistical_summary(
+        name: Optional[str] = None,
+        room_number: Optional[str] = None,
+        status: Optional[str] = None,
+        nation: Optional[str] = None,
+        min_age: Optional[int] = 0,
+        max_age: Optional[int] = 200,
+        min_rent: Optional[float] = 0.0,
+        max_rent: Optional[float] = 1000000.0,
+        remark_keyword: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    根据筛选条件对住客数据进行统计分析，但不返回具体的住客记录。
+
+    例如可以使用这个工具获取到公寓目前的在住的统计信息
+
+    Args:
+        name (Optional[str]): 按住客姓名进行模糊搜索。
+        room_number (Optional[str]): 按房号进行精确匹配。
+        status (Optional[str]): 按住客状态进行精确筛选 ('I'(In-House, 在住), 'R'(Reservation, 预订), 'O'(Checked-Out, 已离店), 'X'(Cancelled, 已取消))。
+        nation (Optional[str]): 按国籍进行模糊搜索。
+        min_age (Optional[int]): 筛选住客的最小年龄。
+        max_age (Optional[int]): 筛选住客的最大年龄。
+        min_rent (Optional[float]): 筛选月租金的最低值。
+        max_rent (Optional[float]): 筛选月租金的最高值。
+        remark_keyword (Optional[str]): 在备注字段中进行模糊搜索。
+
+    Returns:
+        一个包含统计分析结果的字典对象，其结构如下:
+        {
+          "count": int,  // 符合条件的记录总数
+          "analysis": null | { // 如果有结果，则包含此对象
+              "based_on": str, // 描述分析所基于的独立住客数量
+              "age_distribution": [{"group": str, "count": int, "percentage": str}],
+              "nationality_distribution": [{"nation": str, "count": int, "percentage": str}],
+              "gender_distribution": [{"gender": str, "count": int, "percentage": str}]
+            }
+        }
+    """
+    guest_df = load_data_from_xml('demo/master_guest.xml')
+    # 加载状态和租金数据
+    status_rent_df = load_status_rent_data_from_xml('demo/master_base.xml')
+
+    # 3. 如果状态租金数据成功加载，则执行合并
+    if status_rent_df is not None:
+        # 确保合并键的数据类型一致
+        guest_df['profile_id'] = pd.to_numeric(guest_df['id'], errors='coerce')
+
+        print(f"\n正在合并数据...")
+        # 使用左连接（left join）进行合并
+        merged_df = pd.merge(guest_df, status_rent_df, on='id', how='left')
+        print("数据合并完成。")
+    else:
+        # 如果第二个文件不存在或加载失败，则继续使用原始数据
+        merged_df = guest_df
+        print("\n未加载状态/租金数据，将仅使用主数据进行操作。")
+
+    stats_result = get_guest_statistics(
+        merged_df,
+        name,
+        room_number,
+        status,
+        nation,
+        min_age,
+        max_age,
+        min_rent,
+        max_rent,
+        remark_keyword,
+    )
+
+    return stats_result
 
 
 if __name__ == "__main__":

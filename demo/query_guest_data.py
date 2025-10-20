@@ -2,19 +2,18 @@ import pandas as pd
 import os
 from lxml import etree
 from datetime import datetime, timedelta
+from typing import Optional, Dict, Any, List
 
 # --- 配置 ---
 XML_FILE_PATH = 'master_guest.xml'
+XML_STATUS_RENT_PATH = 'master_base.xml'
 
-# 定义重要字段列表
 IMPORTANT_FIELDS = [
     'id', 'profile_id', 'name', 'sex_like', 'birth', 'language',
     'mobile', 'email', 'nation', 'country', 'state', 'street',
     'id_code', 'id_no', 'hotel_id', 'profile_type', 'times_in',
     'create_user', 'create_datetime', 'modify_user', 'modify_datetime',
 ]
-
-# 字段名到中文描述的映射
 FIELD_NAME_MAPPING = {
     'id': '主键ID', 'profile_id': '客户档案ID', 'name': '姓名',
     'sex_like': '推断性别', 'birth': '出生日期', 'language': '语言代码',
@@ -68,159 +67,236 @@ def load_data_from_xml(file_path: str) -> pd.DataFrame:
             if col in df.columns:
                 df[col] = df[col].apply(convert_excel_date)
 
-        print(f"成功加载并处理了 {len(df)} 条记录。")
+        print(f"成功从 '{file_path}' 加载并处理了 {len(df)} 条主记录。")
         return df
     except Exception as e:
-        print(f"加载或处理XML文件时发生错误: {e}")
+        print(f"加载或处理 '{file_path}' 时发生错误: {e}")
         return None
 
 
-# --- 【核心新函数】 ---
+# ---【核心变更 2】--- 新增一个函数，用于加载包含status和rent的XML文件
+def load_status_rent_data_from_xml(file_path: str) -> pd.DataFrame:
+    """
+    专门从XML文件加载住客状态和租金数据。
+    假设该文件至少包含 'profile_id', 'status', 'rent' 列。
+    """
+    if not os.path.exists(file_path):
+        print(f"信息：状态/租金文件 '{file_path}' 不存在，将跳过加载。")
+        return None
+    try:
+        tree = etree.parse(file_path)
+        ns = {'ss': 'urn:schemas-microsoft-com:office:spreadsheet'}
+        rows = tree.xpath('.//ss:Row', namespaces=ns)
+        if not rows: return None
+
+        header = [cell.text for cell in rows[0].xpath('.//ss:Data', namespaces=ns)]
+        # 确保关键列存在
+        if 'id' not in header:
+            print(f"错误：'{file_path}' 中缺少关键合并列 'id'。")
+            return None
+
+        all_rows_data = [[cell.text if cell.text is not None else '' for cell in row.xpath('.//ss:Data', namespaces=ns)]
+                         for row in rows[1:]]
+        df = pd.DataFrame([row for row in all_rows_data if len(row) == len(header)], columns=header)
+
+        # 数据类型转换，确保合并键类型一致
+        df['id'] = pd.to_numeric(df['id'], errors='coerce')
+        df.dropna(subset=['id'], inplace=True)
+
+        print(f"成功从 '{file_path}' 加载了 {len(df)} 条状态/租金记录。")
+        return df[['id', 'sta', 'full_rate_long']]  # 只返回需要的列
+    except Exception as e:
+        print(f"加载或处理 '{file_path}' 时发生错误: {e}")
+        return None
+
+
+# (get_query_result_as_string, get_multiple_query_results_as_string, get_guest_statistics, query_and_display_interactive 函数保持不变)
+# ...
 def get_query_result_as_string(df: pd.DataFrame, query_id: int) -> str:
-    """
-    查询指定ID的数据，并将格式化后的结果作为单个字符串返回。
-
-    Args:
-        df (pd.DataFrame): 包含所有客户数据的DataFrame。
-        query_id (int): 要查询的客户ID。
-
-    Returns:
-        str: 格式化后的查询结果字符串，或一条“未找到”的消息。
-    """
     result = df[df['id'] == query_id]
-
-    if result.empty:
-        return f"--- 未找到 ID 为 {query_id} 的记录 ---"
-
+    if result.empty: return f"--- 未找到 ID 为 {query_id} 的记录 ---"
     record = result.iloc[0]
-    output_lines = []
-
-    # 添加标题行
-    output_lines.append(f"--- ID: {query_id} 的核心数据 ---")
-
+    output_lines = [f"--- ID: {query_id} 的核心数据 ---"]
     max_label_width = 15
     for field in IMPORTANT_FIELDS:
         if field in record:
             display_name = FIELD_NAME_MAPPING.get(field, field)
             value = record[field]
             display_value = value if pd.notna(value) and str(value).strip() != '' else "[空]"
-
-            if field == 'sex_like':
-                if display_value == '>':
-                    display_value = "男"
-                elif display_value == '?':
-                    display_value = "女"
-
+            if field == 'sex_like': display_value = {"_": "男", "?": "女"}.get(display_value, display_value)
             padding_spaces = " " * (max_label_width - get_display_width(display_name))
-            line = f"{display_name}{padding_spaces}: {display_value}"
-            output_lines.append(line)
+            output_lines.append(f"{display_name}{padding_spaces}: {display_value}")
         else:
-            line = f"{FIELD_NAME_MAPPING.get(field, field)}: [字段未找到]"
-            output_lines.append(line)
-
-    # 添加结尾行
+            output_lines.append(f"{FIELD_NAME_MAPPING.get(field, field)}: [字段未找到]")
     output_lines.append("----------------------------")
-
-    # 将所有行用换行符连接成一个字符串并返回
     return "\n".join(output_lines)
 
 
-# --- 【新增功能：多次查询，参数为字符串类型】 ---
 def get_multiple_query_results_as_string(df: pd.DataFrame, query_ids_str: str) -> str:
-    """
-    解析逗号分隔的ID字符串，查询指定ID列表的数据，并将格式化后的结果作为单个字符串返回。
-    每个记录之间用分隔符隔开。此函数通过调用 get_query_result_as_string 来复用单次查询接口。
-
-    Args:
-        df (pd.DataFrame): 包含所有客户数据的DataFrame。
-        query_ids_str (str): 逗号分隔的客户ID字符串，例如 "3664,3494,9999"。
-
-    Returns:
-        str: 格式化后的查询结果字符串，包含所有有效ID的信息。
-    """
     all_results = []
     invalid_ids = []
-    # 定义一个清晰的分隔符，用于分隔不同ID的查询结果
     separator = "\n\n" + "=" * 60 + "\n\n"
-
-    # 解析输入的字符串为ID列表
     raw_ids = [id_str.strip() for id_str in query_ids_str.split(',') if id_str.strip()]
-
-    if not raw_ids:
-        return "输入为空或不包含有效ID。"
-
+    if not raw_ids: return "输入为空或不包含有效ID。"
     for id_part in raw_ids:
         try:
             q_id = int(id_part)
-            # 调用原有的单次查询接口来获取每个ID的结果
-            result_string = get_query_result_as_string(df, q_id)
-            all_results.append(result_string)
+            all_results.append(get_query_result_as_string(df, q_id))
         except ValueError:
             invalid_ids.append(id_part)
-            # 可以在这里添加一个消息，说明该ID无效，但为了简洁，我们只收集无效ID
-
-    output_str = ""
-    if all_results:
-        output_str = separator.join(all_results)
-    else:
-        output_str = "未查询到任何有效记录。"
-
+    output_str = separator.join(all_results) if all_results else "未查询到任何有效记录。"
     if invalid_ids:
         output_str += f"\n\n--- 注意：以下ID无效或无法解析，已跳过：{', '.join(invalid_ids)} ---"
-
     return output_str
 
 
+def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_number: Optional[str] = None,
+                         status: Optional[str] = None, nation: Optional[str] = None, min_age: Optional[int] = None,
+                         max_age: Optional[int] = None, min_rent: Optional[float] = None,
+                         max_rent: Optional[float] = None, remark_keyword: Optional[str] = None) -> Dict[str, Any]:
+    filtered_df = df.copy()
+
+    def apply_filter(column, value, exact=False):
+        nonlocal filtered_df
+        if column not in filtered_df.columns:
+            print(f"警告：数据中不存在 '{column}' 列，相关筛选条件已忽略。")
+            return
+        if pd.isna(value): return
+        filtered_df.dropna(subset=[column], inplace=True)
+        if exact:
+            filtered_df = filtered_df[filtered_df[column] == value]
+        else:
+            filtered_df = filtered_df[filtered_df[column].astype(str).str.contains(value, case=False, na=False)]
+
+    if name: apply_filter('name', name)
+    if room_number: apply_filter('room_number', room_number, exact=True)
+    if status: apply_filter('sta', status, exact=True)
+    if nation: apply_filter('nation', nation)
+    if remark_keyword: apply_filter('remark', remark_keyword)
+    if min_age is not None or max_age is not None:
+        if 'birth' in filtered_df.columns:
+            birth_dates = pd.to_datetime(filtered_df['birth'], errors='coerce')
+            filtered_df['age'] = (pd.to_datetime('today') - birth_dates).dt.days / 365.25
+            filtered_df.dropna(subset=['age'], inplace=True)
+            if not filtered_df.empty: filtered_df['age'] = filtered_df['age'].astype(int)
+            if min_age is not None: filtered_df = filtered_df[filtered_df['age'] >= min_age]
+            if max_age is not None: filtered_df = filtered_df[filtered_df['age'] <= max_age]
+        else:
+            print("警告：数据中不存在 'birth' 列，年龄筛选已忽略。")
+    if min_rent is not None or max_rent is not None:
+        if 'full_rate_long' in filtered_df.columns:
+            filtered_df['full_rate_long'] = pd.to_numeric(filtered_df['full_rate_long'], errors='coerce')
+            filtered_df.dropna(subset=['full_rate_long'], inplace=True)
+            if min_rent is not None: filtered_df = filtered_df[filtered_df['full_rate_long'] >= min_rent]
+            if max_rent is not None: filtered_df = filtered_df[filtered_df['full_rate_long'] <= max_rent]
+        else:
+            print(f"警告：数据中不存在 'full_rate_long' 列，租金筛选已忽略。")
+    record_count = len(filtered_df)
+    if record_count == 0: return {"count": 0, "analysis": None}
+    unique_col = 'profile_id' if 'profile_id' in filtered_df.columns else 'id'
+    analysis_df = filtered_df.drop_duplicates(subset=[unique_col])
+    unique_guest_count = len(analysis_df)
+    age_dist, nat_dist, gen_dist = [], [], []
+    if 'age' in analysis_df.columns:
+        bins, labels = [0, 18, 30, 45, 60, 150], ['18岁以下', '18-30岁', '31-45岁', '46-60岁', '60岁以上']
+        age_groups = pd.cut(analysis_df['age'], bins=bins, labels=labels, right=False)
+        age_counts = age_groups.value_counts().sort_index()
+        for group, count in age_counts.items():
+            age_dist.append(
+                {"group": group, "count": int(count), "percentage": f"{(count / unique_guest_count) * 100:.2f}%"})
+    if 'nation' in analysis_df.columns:
+        nation_counts = analysis_df['nation'].value_counts()
+        top_nations = nation_counts.nlargest(9)
+        for nation, count in top_nations.items():
+            nat_dist.append({"nation": nation if nation else "未知", "count": int(count),
+                             "percentage": f"{(count / unique_guest_count) * 100:.2f}%"})
+        if len(nation_counts) > 9:
+            other_count = nation_counts.iloc[9:].sum()
+            nat_dist.append({"nation": "其他", "count": int(other_count),
+                             "percentage": f"{(other_count / unique_guest_count) * 100:.2f}%"})
+    if 'sex_like' in analysis_df.columns:
+        gender_map = {'>': '男', '?': '女'}
+        gender_counts = analysis_df['sex_like'].map(gender_map).fillna('未知').value_counts()
+        for gender, count in gender_counts.items():
+            gen_dist.append(
+                {"gender": gender, "count": int(count), "percentage": f"{(count / unique_guest_count) * 100:.2f}%"})
+    return {"count": record_count,
+            "analysis": {"based_on": f"基于 {unique_guest_count} 名独立住客的分析", "age_distribution": age_dist,
+                         "nationality_distribution": nat_dist, "gender_distribution": gen_dist}}
+
+
 def query_and_display_interactive(df: pd.DataFrame):
-    """
-    启动一个交互式循环，允许用户输入单个或多个客户ID进行查询，并将结果打印。
-    """
     while True:
         user_input = input(
             "\n请输入要查询的客户 ID (可输入多个，用逗号分隔，如: 3664,3494；输入 'q' 或 'quit' 退出): ").strip()
         if user_input.lower() in ['q', 'quit']:
             print("脚本退出。")
             break
-
-        # 直接将用户输入字符串传递给多查询函数
-        # 错误处理（如非数字ID）现在由 get_multiple_query_results_as_string 内部处理
-        result_string = get_multiple_query_results_as_string(df, user_input)
-        print(result_string)
+        print(get_multiple_query_results_as_string(df, user_input))
 
 
 if __name__ == "__main__":
+    # ---【核心变更 3】--- 修改数据加载和合并逻辑
+
+    # 1. 加载主住客数据
     guest_df = load_data_from_xml(XML_FILE_PATH)
 
     if guest_df is not None:
-        # --- 示例：如何将单个查询结果存入变量 (保持不变，直接调用单次查询接口) ---
+        # 2. 加载状态和租金数据
+        status_rent_df = load_status_rent_data_from_xml(XML_STATUS_RENT_PATH)
+
+        # 3. 如果状态租金数据成功加载，则执行合并
+        if status_rent_df is not None:
+            # 确保合并键的数据类型一致
+            guest_df['profile_id'] = pd.to_numeric(guest_df['id'], errors='coerce')
+
+            print(f"\n正在合并数据...")
+            # 使用左连接（left join）进行合并
+            merged_df = pd.merge(guest_df, status_rent_df, on='id', how='left')
+            print("数据合并完成。")
+        else:
+            # 如果第二个文件不存在或加载失败，则继续使用原始数据
+            merged_df = guest_df
+            print("\n未加载状态/租金数据，将仅使用主数据进行操作。")
+
+        # --- 后续所有操作都使用合并后的 `merged_df` ---
+
+        # 示例1：将单个查询结果存入变量
         print("\n--- 将ID 3664 的查询结果存入变量 ---")
-        query_id_example = 3664
-
-        # 调用函数，将返回的字符串存入 `result_variable`
-        result_variable = get_query_result_as_string(guest_df, query_id_example)
-
-        print("单个查询结果已成功存入变量 'result_variable'。")
-        print("现在可以对这个变量进行操作，例如打印它：\n")
-
-        # 打印变量的内容
+        result_variable = get_query_result_as_string(merged_df, 3664)
+        print("单个查询结果已成功存入变量 'result_variable'。打印如下：\n")
         print(result_variable)
 
-        # --- 示例：如何将多个查询结果存入变量 (使用新增的多查询接口，参数为字符串) ---
-        print("\n\n--- 将ID 3664、3494 和一个不存在的 ID (9999) 以及一个无效输入 ('abc') 的查询结果存入变量 ---")
-        # 参数现在是一个字符串
-        multiple_query_ids_str_example = "3664, 3494, 9999, abc"
+        # ... (后续示例和交互式查询都自动使用合并后的数据) ...
+        print("\n\n" + "=" * 20 + " 功能演示：统计分析 " + "=" * 20)
+        print("\n--- 示例：获取所有在住('I')、年龄在20到40岁之间、月租金高于3000的住客统计信息 ---")
 
-        # 调用新增的多查询函数，将返回的字符串存入 `multiple_results_variable`
-        multiple_results_variable = get_multiple_query_results_as_string(guest_df, multiple_query_ids_str_example)
+        stats_result = get_guest_statistics(
+            merged_df,
+            status='I',
+            min_age=0,
 
-        print("多个查询结果已成功存入变量 'multiple_results_variable'。")
-        print("现在可以对这个变量进行操作，例如打印它：\n")
+            min_rent=0
+        )
 
-        # 打印变量的内容
-        print(multiple_results_variable)
+        print(f"\n查询到的记录总数: {stats_result['count']}")
+        if stats_result['analysis']:
+            analysis = stats_result['analysis']
+            print(f"统计概要: {analysis['based_on']}")
+            print("\n年龄分布:")
+            for item in analysis['age_distribution']: print(
+                f"  - {item['group']:<10}: {item['count']}人 ({item['percentage']})")
+            print("\n国籍分布:")
+            for item in analysis['nationality_distribution']: print(
+                f"  - {item['nation']:<10}: {item['count']}人 ({item['percentage']})")
+            print("\n性别分布:")
+            for item in analysis['gender_distribution']: print(
+                f"  - {item['gender']:<10}: {item['count']}人 ({item['percentage']})")
+        else:
+            print("没有符合条件的住客可以进行分析。")
+        print("=" * 64)
 
-        # --- 启动交互式查询 (已更新以支持多查询，且参数传递为字符串) ---
         print("\n\n--- 现在启动交互式查询 (支持单个或多个ID) ---")
-        query_and_display_interactive(guest_df)
+        query_and_display_interactive(merged_df)
     else:
-        print("数据未能成功加载，程序即将退出。")
+        print("主数据未能成功加载，程序即将退出。")
