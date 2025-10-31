@@ -81,7 +81,8 @@ def parse_spreadsheetml(file_path: str) -> pd.DataFrame:
 
 
 # --- 3. 核心分析函数 (返回结果列表) ---
-def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_str: str, room_counts: dict, room_areas: dict):
+def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_str: str, room_counts: dict,
+                                  room_areas: dict):
     """
     计算指定时间范围内的各户型经营表现。
     - 将输入从一个时间点改为一个时间段 (start_date_str, end_date_str)。
@@ -125,7 +126,7 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
     # 筛选在结束日期当天仍在租的房间
     df_end_of_period_occupied = df_inhouse[
         (df_inhouse['arr_date'] <= end_date) & (df_inhouse['dep_date'] > end_date)
-    ].copy()
+        ].copy()
 
     df_end_of_period_occupied_unique = pd.DataFrame()
     if not df_end_of_period_occupied.empty:
@@ -140,13 +141,13 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
     # 这些是所有在期间内有重叠的独立预订记录（按'id'去重），用于查找最高/最低月租金。
     df_all_bookings_in_period = df_inhouse[
         (df_inhouse['arr_date'] <= end_date) & (df_inhouse['dep_date'] > start_date)
-    ].copy().drop_duplicates(subset='id', keep='first') # 确保每个booking ID只出现一次
+        ].copy().drop_duplicates(subset='id', keep='first')  # 确保每个booking ID只出现一次
 
     # === 修改开始 ===
     # 如果在整个分析期间内没有找到任何相关的预订记录（即没有预订与该时间段有任何重叠），
     # 则返回一个空列表。这会触发 format_analysis_to_string 函数中的特定消息。
     if df_all_bookings_in_period.empty:
-        return [] # 返回空列表，表示没有找到与该期间相关的经营活动记录
+        return []  # 返回空列表，表示没有找到与该期间相关的经营活动记录
     # === 修改结束 ===
 
     analysis_results = []
@@ -163,18 +164,18 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
         # --- 1. 期末在租数与期末付费在租数 ---
         occupied_rooms_end_of_period_df = df_end_of_period_occupied_unique[
             df_end_of_period_occupied_unique['rmtype'] == rmtype
-        ]
+            ]
         end_of_period_occupied_count = len(occupied_rooms_end_of_period_df)
         end_of_period_rented_count_for_calc = len(
             occupied_rooms_end_of_period_df[occupied_rooms_end_of_period_df['full_rate_long'] > 0]
         )
-        end_of_period_vacancy_rate = ((total_supply - end_of_period_occupied_count) / total_supply) * 100 if total_supply > 0 else 100
-
+        end_of_period_vacancy_rate = ((
+                                                  total_supply - end_of_period_occupied_count) / total_supply) * 100 if total_supply > 0 else 100
 
         # --- 2. 期间的房晚数和租金计算 (按实际晚数) ---
-        total_occupied_room_nights_for_rmtype = 0 # 期间总入住房晚数
-        total_paid_room_nights_for_rmtype = 0    # 期间总付费房晚数
-        total_rent_for_rmtype_period = 0         # 期间总租金 (按日租金累加)
+        total_occupied_room_nights_for_rmtype = 0  # 期间总入住房晚数
+        total_paid_room_nights_for_rmtype = 0  # 期间总付费房晚数
+        total_rent_for_rmtype_period = 0  # 期间总租金 (按日租金累加)
 
         # 遍历分析期间内的每一天
         for day in pd.date_range(start=start_date, end=end_date, freq='D').date:
@@ -182,7 +183,7 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
             daily_occupied_df = df_inhouse[
                 (df_inhouse['arr_date'] <= day) & (df_inhouse['dep_date'] > day) &
                 (df_inhouse['rmtype'] == rmtype)
-            ].copy()
+                ].copy()
 
             daily_unique_occupied_rooms = pd.DataFrame()
             if not daily_occupied_df.empty:
@@ -217,21 +218,28 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
         # 期间坪效 (元/m²/日)
         ping_xiao_daily = avg_daily_rent / area if area > 0 and avg_daily_rent > 0 else 0
 
+        ### 新增 ###
+        # 计算期间总付费面积房晚数，用于后续计算总体坪效
+        total_paid_area_nights_for_rmtype = total_paid_room_nights_for_rmtype * area
+
         # 期间空置率
         total_available_room_nights_for_rmtype = total_supply * num_days_in_period
-        vacancy_rate_period = ((total_available_room_nights_for_rmtype - total_occupied_room_nights_for_rmtype) / total_available_room_nights_for_rmtype) * 100 if total_available_room_nights_for_rmtype > 0 else 100
+        vacancy_rate_period = ((
+                                           total_available_room_nights_for_rmtype - total_occupied_room_nights_for_rmtype) / total_available_room_nights_for_rmtype) * 100 if total_available_room_nights_for_rmtype > 0 else 100
 
         # --- 4. 最高/最低月租金 (从在期间内所有重叠的付费预订的完整月租金中查找) ---
         # 筛选出属于当前户型且有付费记录的所有相关预订
         relevant_paid_bookings_for_rmtype = df_all_bookings_in_period[
             (df_all_bookings_in_period['rmtype'] == rmtype) &
             (df_all_bookings_in_period['full_rate_long'] > 0)
-        ]
+            ]
 
         max_rent_record, min_rent_record = None, None
         if not relevant_paid_bookings_for_rmtype.empty:
-            max_rent_row = relevant_paid_bookings_for_rmtype.loc[relevant_paid_bookings_for_rmtype['full_rate_long'].idxmax()]
-            min_rent_row = relevant_paid_bookings_for_rmtype.loc[relevant_paid_bookings_for_rmtype['full_rate_long'].idxmin()]
+            max_rent_row = relevant_paid_bookings_for_rmtype.loc[
+                relevant_paid_bookings_for_rmtype['full_rate_long'].idxmax()]
+            min_rent_row = relevant_paid_bookings_for_rmtype.loc[
+                relevant_paid_bookings_for_rmtype['full_rate_long'].idxmin()]
             max_rent_record = {'rent': max_rent_row['full_rate_long'], 'id': int(max_rent_row['id']),
                                'arr': max_rent_row['arr_date'], 'dep': max_rent_row['dep_date']}
             min_rent_record = {'rent': min_rent_row['full_rate_long'], 'id': int(min_rent_row['id']),
@@ -242,7 +250,7 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
             '总数': total_supply,
             '期末在租数': end_of_period_occupied_count,
             '期末付费在租数': end_of_period_rented_count_for_calc,
-            '期末空置率(%)': end_of_period_vacancy_rate, # 添加期末空置率以提供更全面的视图
+            '期末空置率(%)': end_of_period_vacancy_rate,  # 添加期末空置率以提供更全面的视图
             '期间总入住房晚数': total_occupied_room_nights_for_rmtype,
             '期间总付费房晚数': total_paid_room_nights_for_rmtype,
             '期间空置率(%)': vacancy_rate_period,
@@ -251,7 +259,8 @@ def analyze_room_type_performance(file_path: str, start_date_str: str, end_date_
             '户型面积(m²)': area,
             '期间坪效(元/m²/日)': ping_xiao_daily,
             'max_rent_info': max_rent_record,
-            'min_rent_info': min_rent_record
+            'min_rent_info': min_rent_record,
+            '期间总付费面积房晚数': total_paid_area_nights_for_rmtype
         })
 
     return analysis_results
@@ -276,7 +285,7 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
     # 过滤掉那些所有关键指标都为0或N/A的户型，只报告有实际数据的户型
     # 关键指标包括期末在租数、期间总入住房晚数或期间总租金
     meaningful_results = [
-        r for r in analysis_results if r['期末在租数'] > 0 or
+        r for r in analysis_results if r['期末在租数'] >= 0 or
                                        r['期间总入住房晚数'] > 0 or
                                        r['期间总租金(元)'] > 0
     ]
@@ -285,13 +294,12 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
         # 如果虽然存在户型配置，但所有户型在指定期间都没有实际经营活动，也显示此消息
         return f"在日期范围 {start_date_str} 至 {end_date_str} 内，虽然存在户型配置，但没有找到任何实际的经营活动记录。"
 
-
-    for result in meaningful_results: # 遍历有实际数据的户型
+    for result in meaningful_results:  # 遍历有实际数据的户型
         room_type_name = room_names.get(result['户型代码'], result['户型代码'])
         report_lines.append(f"\n==================== 户型: {room_type_name} ====================")
 
         # 期末数据
-        line1_ep = f"期末供应与占用: 总数 {result['总数']} 间, 期末在租 {result['期末在租数']} 间 (其中期末付费 {result['期末付费在租数']} 间)"
+        line1_ep = f"期末供应与占用: 总数 {result['总数']} 间, 期末在租 {result['期末在租数']} 间(包括已预订房间)，其中期末付费 {result['期末付费在租数']} 间"
         line2_ep = f"期末空置率    : {result['期末空置率(%)']:.2f}%"
         report_lines.extend([line1_ep, line2_ep, "---"])
 
@@ -301,7 +309,7 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
         report_lines.extend([line1_period, line2_period, "---"])
 
         # 期间租金和坪效
-        line3 = f"期间租金表现  : 期间总租金 {result['期间总租金(元)']:,.2f} 元, 期间平均日租金 {result['期间平均日租金(元)']:,.2f} 元"
+        line3 = f"期间租金表现  : 期间总租金 {result['期间总租金(元)']:,.2f} 元, 期间平均日租金 {result['期间平均日租金(元)']:,.2f} 元, 按30天计算平均月租金 {(30 * result['期间平均日租金(元)']):,.2f} 元"
         line4 = f"坪效表现      : {result['期间坪效(元/m²/日)']:,.2f} 元/m²/日 (按户型面积 {result['户型面积(m²)']} m² 计算)"
         report_lines.extend([line3, line4, "---"])
 
@@ -325,13 +333,23 @@ def format_analysis_to_string(analysis_results: list, start_date_str: str, end_d
     total_rent_all_types = sum(r['期间总租金(元)'] for r in meaningful_results)
     total_paid_room_nights_all_types = sum(r['期间总付费房晚数'] for r in meaningful_results)
 
+    ### 新增/修改 ###
+    total_paid_area_nights_all_types = sum(r['期间总付费面积房晚数'] for r in meaningful_results)
+
     overall_avg_daily_rent = (total_rent_all_types / total_paid_room_nights_all_types
                               if total_paid_room_nights_all_types > 0 else 0)
 
+    overall_ping_xiao = (total_rent_all_types / total_paid_area_nights_all_types
+                         if total_paid_area_nights_all_types > 0 else 0)
+
     report_lines.append("\n==================== 总体概要 ====================")
-    summary_line = (f"所有户型期间总平均日租金: {overall_avg_daily_rent:,.2f} 元 "
-                    f"(基于 {total_paid_room_nights_all_types:,} 晚期间总付费房晚数计算)")
-    report_lines.append(summary_line)
+    summary_line_adr = (f"所有户型期间总平均日租金: {overall_avg_daily_rent:,.2f} 元 "
+                        f"(基于 {total_paid_room_nights_all_types:,} 晚期间总付费房晚数计算)")
+
+    summary_line_pingxiao = f"所有户型期间总坪效: {overall_ping_xiao:,.2f} 元/m²/日 (基于总租金除以总付费面积房晚数)"
+
+    report_lines.append(summary_line_adr)
+    report_lines.append(summary_line_pingxiao)  # 添加坪效行
     # --- 总体概要结束 ---
 
     report_lines.append("========================================================")
@@ -347,8 +365,8 @@ if __name__ == "__main__":
     # end_date_input = input("请输入分析的结束日期 (YYYY-MM-DD): ")
 
     # 默认测试日期范围
-    start_date_input = "2024-09-01"
-    end_date_input = "2024-09-30"
+    start_date_input = "2025-08-01"
+    end_date_input = "2025-08-31"
 
     # 1. 调用计算函数，获取原始数据结果
     results_list = analyze_room_type_performance(

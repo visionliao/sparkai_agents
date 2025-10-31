@@ -162,13 +162,17 @@ def main():
     all_orders = parse_service_orders(XML_FILE_PATH)
     if all_orders is None: return
 
+    found_orders = search_by_rmno(all_orders, 'A513')
+    result_string = format_results_string(found_orders)
+    print(result_string)
+
     print("欢迎使用服务工单查询系统！")
     while True:
         room_number_input = input("请输入要查询的房号 (输入 'q' 退出): ")
         if room_number_input.lower().strip() == 'q':
             print("感谢使用，再见！")
             break
-        found_orders = search_by_rmno(all_orders, room_number_input)
+        found_orders = search_by_rmno(all_orders, 'A513')
         result_string = format_results_string(found_orders)
         print(result_string)
 

@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import os
 import datetime
 import re
+from collections import Counter  # 引入Counter，更方便地进行计数
 
 # --- 配置与数据字典 (无变化) ---
 XML_FILE_PATH = 'lease_service_order.xml'
@@ -30,7 +31,7 @@ LOCATION_CODE_MAP = {
 }
 
 
-# --- 辅助、数据加载、高级筛选、结果格式化函数 (无变化) ---
+# --- 辅助、数据加载、高级筛选、结果格式化函数 (部分新增和修改) ---
 def get_service_name(code):
     return SERVICE_CODE_MAP.get(code, f"未知代码 ({code})")
 
@@ -43,6 +44,26 @@ def convert_excel_to_datetime_obj(excel_serial_date_str):
         return base_date + datetime.timedelta(days=excel_serial_date)
     except (ValueError, TypeError):
         return None
+
+
+def parse_room_info(rmno):
+    if not rmno or not isinstance(rmno, str):
+        return {'building': '未知栋', 'floor': '未知楼层'}
+    match = re.match(r'^([A-Za-z])?(\d+)$', rmno.strip())
+    if not match:
+        return {'building': '未知栋', 'floor': '未知楼层 (格式错误)'}
+    prefix, number_part = match.groups()
+    if prefix:
+        building = f"{prefix.upper()}栋"
+    else:
+        building = "主楼"
+    if len(number_part) == 3:
+        floor = f"{number_part[0]}楼"
+    elif len(number_part) == 4:
+        floor = f"{number_part[:2]}楼"
+    else:
+        floor = "未知楼层 (编号异常)"
+    return {'building': building, 'floor': floor}
 
 
 def parse_service_orders(xml_file):
@@ -91,25 +112,19 @@ def search_orders_advanced(orders, start_date=None, end_date=None, service_code=
         results.append(order)
     return results
 
+
+# ... format_to_string 和 sanitize_for_display 函数无变化 ...
 def sanitize_for_display(text):
-    """
-    清理字符串，将可能破坏布局的控制字符（如换行、回车、U+2028等）替换为空格。
-    这确保了每个字段的内容不会意外地跨越多行。
-    """
-    if not isinstance(text, str):
-        return text
-
-    # 正则表达式，匹配所有C0和C1控制字符，以及Unicode的行/段落分隔符
+    if not isinstance(text, str): return text
     control_char_regex = re.compile(r'[\x00-\x1F\x7F-\x9F\u2028\u2029]')
-
-    # 将所有匹配到的控制字符替换为一个空格，防止单词粘连
     sanitized_text = control_char_regex.sub(' ', text)
-
     return sanitized_text
+
 
 def format_to_string(results, criteria):
     if not results:
         return f"查询条件: {criteria}\n>> 未找到符合条件的工单信息。"
+    # ... 此函数无变化，保持原样 ...
     output_parts = []
     output_parts.append(f"查询条件: {criteria}")
     output_parts.append(f"--- 共找到 {len(results)} 条相关工单 ---\n\n")
@@ -135,68 +150,132 @@ def format_to_string(results, criteria):
     return "".join(output_parts)
 
 
-# --- 主程序 ---
+def analyze_distribution(orders):
+    distribution = {}
+    for order in orders:
+        room_info = parse_room_info(order.get('rmno'))
+        building, floor = room_info['building'], room_info['floor']
+        location_name = LOCATION_CODE_MAP.get(order.get('location'), '未知位置')
+        service_name = get_service_name(order.get('product_code'))
+
+        building_data = distribution.setdefault(building, {})
+        floor_data = building_data.setdefault(floor, {})
+        location_data = floor_data.setdefault(location_name, {})
+        location_data[service_name] = location_data.get(service_name, 0) + 1
+    return distribution
+
+
+def format_distribution_report(distribution_data):
+    if not distribution_data: return ""  # 如果没有数据，返回空字符串
+    report_parts = ["\n" + "=" * 50]
+    report_parts.append("--- 服务工单分布情况详细报告 ---")
+    for building in sorted(distribution_data.keys()):
+        building_data = distribution_data[building]
+        report_parts.append(f"\n[ 栋座: {building} ]")
+        for floor in sorted(building_data.keys()):
+            floor_data = building_data[floor]
+            report_parts.append(f"  [ 楼层: {floor} ]")
+            for location, location_data in floor_data.items():
+                report_parts.append(f"    ● 位置: {location}")
+                for service, count in location_data.items():
+                    report_parts.append(f"      - {service}: {count} 次")
+    report_parts.append("=" * 50 + "\n")
+    return "\n".join(report_parts)
+
+
+# --- 新增: 总体数据总结分析函数 ---
+def calculate_summaries(orders):
+    """遍历工单，计算各个维度的总体数量。"""
+    if not orders:
+        return {}, {}, {}, {}
+
+    service_counts = Counter()
+    location_counts = Counter()
+    floor_counts = Counter()
+    building_counts = Counter()
+
+    for order in orders:
+        service_counts[get_service_name(order.get('product_code'))] += 1
+        location_counts[LOCATION_CODE_MAP.get(order.get('location'), '未知位置')] += 1
+
+        room_info = parse_room_info(order.get('rmno'))
+        floor_counts[room_info['floor']] += 1
+        building_counts[room_info['building']] += 1
+
+    return service_counts, location_counts, floor_counts, building_counts
+
+
+# --- 新增: 格式化总结报告的函数 ---
+def format_summary_report(total_orders, service_counts, location_counts, floor_counts, building_counts):
+    """将统计数据格式化为Top 3的总结报告。"""
+    if not total_orders:
+        return "没有可用于生成总结报告的数据。"
+
+    report_parts = ["\n" + "=" * 50]
+    report_parts.append("--- 总体数据总结 ---")
+    report_parts.append(f"查询范围内总工单数: {total_orders} 条\n")
+
+    # 一个辅助函数，用于生成Top 3列表
+    def get_top_three_string(title, counter):
+        lines = [f"--- Top 3 {title} ---"]
+        if not counter:
+            lines.append("  无数据")
+            return "\n".join(lines)
+
+        # counter.most_common(3) 直接返回前三的 (项目, 次数) 列表
+        for i, (item, count) in enumerate(counter.most_common(3)):
+            percentage = (count / total_orders) * 100
+            lines.append(f"  {i + 1}. {item}: {count} 次 ({percentage:.1f}%)")
+        return "\n".join(lines)
+
+    report_parts.append(get_top_three_string("工单项目", service_counts))
+    report_parts.append(get_top_three_string("工单位置", location_counts))
+    report_parts.append(get_top_three_string("楼层分布", floor_counts))
+    report_parts.append(get_top_three_string("楼栋分布", building_counts))
+
+    report_parts.append("=" * 50 + "\n")
+    return "\n\n".join(report_parts)
+
+
+# --- 主程序 (已修改) ---
 def main():
     all_orders = parse_service_orders(XML_FILE_PATH)
     if not all_orders:
         return
 
-    service_list = list(SERVICE_CODE_MAP.items())
-    location_list = list(LOCATION_CODE_MAP.items())
+    start_date_str = '2025-07-01'
+    end_date_str = None
+    target_service_code = None
+    target_location_code = None
 
-    print("欢迎使用高级工单查询系统！\n")
+    start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+    end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
 
-    while True:
-        print("--- 请输入筛选条件 ---")
-        start_date_str = input("请输入开始日期 (格式 YYYY-MM-DD, 直接回车表示不限): ")
-        end_date_str = input("请输入结束日期 (格式 YYYY-MM-DD, 直接回车表示不限): ")
+    # 1. 筛选出符合条件的工单
+    found_orders = search_orders_advanced(all_orders, start_date, end_date, target_service_code, target_location_code)
 
-        print("\n可选服务项目:")
-        for i, (code, name) in enumerate(service_list):
-            print(f"  {i + 1}: {name} ({code})")
-        # 【修改】更新提示信息
-        service_choice_str = input("请选择服务项目编号 (输入 0 或直接回车表示不限): ")
+    # (可选) 打印详细的工单列表
+    criteria_desc = (
+        f"时间范围: [{start_date or '不限'} 至 {end_date or '不限'}], "
+        f"服务项目: [{SERVICE_CODE_MAP.get(target_service_code, '不限')}], "
+        f"具体位置: [{LOCATION_CODE_MAP.get(target_location_code, '不限')}]"
+    )
+    # result_string = format_to_string(found_orders, criteria_desc)
+    # print("\n" + "=" * 50)
+    # print("--- 详细工单列表 ---")
+    # print(result_string)
+    # print("=" * 50 + "\n")
 
-        print("\n可选具体位置:")
-        for i, (code, name) in enumerate(location_list):
-            print(f"  {i + 1}: {name} ({code})")
-        # 【修改】更新提示信息
-        location_choice_str = input("请选择具体位置编号 (输入 0 或直接回车表示不限): ")
+    # 2. 生成并打印总体数据总结报告
+    service_counts, location_counts, floor_counts, building_counts = calculate_summaries(found_orders)
+    summary_report = format_summary_report(len(found_orders), service_counts, location_counts, floor_counts,
+                                           building_counts)
+    print(summary_report)
 
-        try:
-            start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
-            end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
-
-            # 【修改】更新输入处理逻辑，将 '0' 也视作 '不限'
-            service_code = None
-            if service_choice_str and service_choice_str != '0':
-                service_code = service_list[int(service_choice_str) - 1][0]
-
-            # 【修改】更新输入处理逻辑，将 '0' 也视作 '不限'
-            location_code = None
-            if location_choice_str and location_choice_str != '0':
-                location_code = location_list[int(location_choice_str) - 1][0]
-
-        except (ValueError, IndexError):
-            print("\n!!! 输入错误: 日期格式或编号无效，请重新输入。 !!!\n")
-            continue
-
-        criteria_desc = (
-            f"时间范围: [{start_date_str or '不限'} 至 {end_date_str or '不限'}], "
-            f"服务项目: [{SERVICE_CODE_MAP.get(service_code, '不限')}], "
-            f"具体位置: [{LOCATION_CODE_MAP.get(location_code, '不限')}]"
-        )
-
-        found_orders = search_orders_advanced(all_orders, start_date, end_date, service_code, location_code)
-        result_string = format_to_string(found_orders, criteria_desc)
-        print("\n" + "=" * 50)
-        print(result_string)
-        print("=" * 50 + "\n")
-
-        continue_choice = input("是否进行新的查询? (y/n, 默认y): ").lower()
-        if continue_choice == 'n':
-            print("感谢使用，再见！")
-            break
+    # 3. 生成并打印详细分布报告
+    distribution_data = analyze_distribution(found_orders)
+    distribution_report = format_distribution_report(distribution_data)
+    print(distribution_report)
 
 
 if __name__ == "__main__":
