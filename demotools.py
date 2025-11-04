@@ -1,7 +1,6 @@
-import os
 import datetime
 import pandas as pd
-from typing import List, Any, Union, Optional
+from typing import List, Union, Tuple
 import re
 import uvicorn
 from typing import Optional, Dict, Any
@@ -15,13 +14,25 @@ from demo.query_guest_data import load_data_from_xml, get_multiple_query_results
 from demo.query_checkins import query_checkin_records, format_records_to_string
 from demo.query_by_room import query_records_by_room, format_string
 from demo.query_orders import parse_service_orders, search_by_rmno, format_results_string
-from demo.advanced_query import parse_service_orders, search_orders_advanced, format_to_string, analyze_distribution, format_distribution_report, calculate_summaries, format_summary_report
+from demo.advanced_query import parse_service_orders, search_orders_advanced, format_to_string, analyze_distribution, format_distribution_report, calculate_summaries, format_summary_report, analyze_temporal_distribution, format_temporal_report
 from demo.generate_dashboard import main as generate_dashboard
 from demo.query_by_room import query_nearby_rooms_status, format_nearby_status
+from demo.apartment_query import ApartmentQueryTool
 
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("公寓数据查询")
+TOOL = ApartmentQueryTool(filepath='demo/公寓信息汇总.csv')
+
+RMTYPE_MAPPING = {
+    '1BD': "一房豪华式公寓",
+    '1BP': "一房行政豪华式公寓",
+    '2BD': "两房行政公寓",
+    '3BR': "三房公寓",
+    'STD': "豪华单间公寓",
+    'STE': "行政单间公寓",
+    'STP': "豪华行政单间"
+}
 
 # --- 1. 查询现在的系统时间 ---
 @mcp.tool()
@@ -523,6 +534,7 @@ def query_checkins(start: str, end: str, choice: str = 'ALL'):
     2025-08-12 2026-08-12 A1723 一房豪华式公寓       3660 11,192.40  I                          18654/月，押二付一
     --------------------------------------------------------------------------------
     '
+    注意：该工具获取的入住记录是经过去除重后的入住记录，是以房间为单位的，而一个房间同时可能有多个住客，所以如需获取准确入住住客人数需使用其他工具
     """
     FILE_PATH = 'demo/master_base.xml'
     # 各户型代码到具体名称的映射
@@ -729,41 +741,42 @@ def advanced_query_service(
 
     返回结果 (returns):
     str: 一个包含所有查询结果的、格式化好的字符串。如果未找到结果，则返回相应的提示信息。
-        下面是一个调用返回示例：
-        advanced_query_service(start_date_str='2025-07-01', service_code='B701')
-        返回：
-        '''
-        查询条件: 时间范围: [2025-07-01 至 不限], 服务项目: [排水], 具体位置: [不限]
-        --- 共找到 2 条相关工单 ---
 
-        【记录 1】
-        工单ID:     2639
-        房号:       B902
-        服务项目:   排水 (B701)
-        具体位置:   卫生间 (008)
-        需求描述:   浴室下水慢，密封胶条开裂
-        优先级:     低
-        进入指引:   未提供
-        服务状态:   O
-        服务人员:   Junfeng Wu
-        处理结果:   完成
-        创建时间:   2025-05-06 10:29:28
-        完成时间:   2025-05-06 11:29:43
+    下面是一个调用返回示例：
+    advanced_query_service(start_date_str='2025-07-01', service_code='B701')
+    返回：
+    '''
+    查询条件: 时间范围: [2025-07-01 至 不限], 服务项目: [排水], 具体位置: [不限]
+    --- 共找到 2 条相关工单 ---
 
-        【记录 2】
-        工单ID:     3251
-        房号:       B911
-        服务项目:   排水 (B701)
-        具体位置:   未提供 (无代码)
-        需求描述:   浴室下水慢
-        优先级:     LOW
-        进入指引:   未提供
-        服务状态:   O
-        服务人员:   leonhu
-        处理结果:   修复
-        创建时间:   2025-07-03 12:12:09
-        完成时间:   2025-07-03 12:39:36
-        '''
+    【记录 1】
+    工单ID:     2639
+    房号:       B902
+    服务项目:   排水 (B701)
+    具体位置:   卫生间 (008)
+    需求描述:   浴室下水慢，密封胶条开裂
+    优先级:     低
+    进入指引:   未提供
+    服务状态:   O
+    服务人员:   Junfeng Wu
+    处理结果:   完成
+    创建时间:   2025-05-06 10:29:28
+    完成时间:   2025-05-06 11:29:43
+
+    【记录 2】
+    工单ID:     3251
+    房号:       B911
+    服务项目:   排水 (B701)
+    具体位置:   未提供 (无代码)
+    需求描述:   浴室下水慢
+    优先级:     LOW
+    进入指引:   未提供
+    服务状态:   O
+    服务人员:   leonhu
+    处理结果:   修复
+    创建时间:   2025-07-03 12:12:09
+    完成时间:   2025-07-03 12:39:36
+    '''
     """
     XML_FILE_PATH = 'demo/lease_service_order.xml'
     SERVICE_CODE_MAP = {
@@ -829,78 +842,99 @@ def query_distribution_report(
 
     返回结果 (returns):
     str: 一个包含所有查询结果的、格式化好的字符串。如果未找到结果，则返回相应的提示信息。
-        下面是一个调用返回示例：
-        query_distribution_report(start_date_str='2025-07-01', end_date_str='2025-07-05')
-        返回：
-        '''
-        ==================================================
 
-        --- 总体数据总结 ---
+    下面是一个调用返回示例：
+    query_distribution_report(start_date_str='2025-07-01', end_date_str='2025-07-02')
+    返回：
+    '''
+    ==================================================
+    --- 总体数据总结 ---
+    查询范围内总工单数: 11 条
 
-        查询范围内总工单数: 14 条
+    --- Top 3 工单项目 ---
+      无数据
 
+    --- Top 3 工单位置 ---
+      无数据
 
-        --- Top 3 工单项目 ---
-          1. 未知代码 (): 5 次 (35.7%)
-          2. 龙头: 4 次 (28.6%)
-          3. 排水: 2 次 (14.3%)
+    --- Top 3 楼层分布 ---
+      1. 12楼: 2 次 (18.2%)
+      2. 5楼: 2 次 (18.2%)
+      3. 6楼: 2 次 (18.2%)
 
-        --- Top 3 工单位置 ---
-          1. 未知位置: 9 次 (64.3%)
-          2. 客厅: 5 次 (35.7%)
+    --- Top 3 楼栋分布 ---
+      1. A栋: 8 次 (72.7%)
+      2. B栋: 3 次 (27.3%)
 
-        --- Top 3 楼层分布 ---
-          1. 5楼: 5 次 (35.7%)
-          2. 12楼: 2 次 (14.3%)
-          3. 6楼: 2 次 (14.3%)
+    ==================================================
+    --- 工单创建时间分布报告 ---
+    ==================================================
 
-        --- Top 3 楼栋分布 ---
-          1. A栋: 11 次 (78.6%)
-          2. B栋: 3 次 (21.4%)
+    [ 按年份分布 ]
+      - 2025 年: 11 次 (100.0%)
 
-        ==================================================
+    [ 按月份分布 ]
+      - 2025-07 月: 11 次 (100.0%)
 
-        ==================================================
-        --- 服务工单分布情况详细报告 ---
+    [ 按周数分布 ]
+      - 2025-W26: 11 次 (100.0%)
 
-        [ 栋座: A栋 ]
-          [ 楼层: 12楼 ]
-            ● 位置: 未知位置
-              - 未知代码 (): 1 次
-          [ 楼层: 2楼 ]
-            ● 位置: 客厅
-              - 家具: 1 次
-          [ 楼层: 3楼 ]
-            ● 位置: 未知位置
-              - 排水: 1 次
-          [ 楼层: 5楼 ]
-            ● 位置: 未知位置
-              - 龙头: 2 次
-              - 未知代码 (): 2 次
-          [ 楼层: 6楼 ]
-            ● 位置: 客厅
-              - 其他: 1 次
-            ● 位置: 未知位置
-              - 未知代码 (): 1 次
-          [ 楼层: 8楼 ]
-            ● 位置: 客厅
-              - 龙头: 2 次
+    [ 按星期内的日分布 (周一至周日) ]
+      - 周一: 0 次 (0.0%)
+      - 周二: 9 次 (81.8%)
+      - 周三: 2 次 (18.2%)
+      - 周四: 0 次 (0.0%)
+      - 周五: 0 次 (0.0%)
+      - 周六: 0 次 (0.0%)
+      - 周日: 0 次 (0.0%)
 
-        [ 栋座: B栋 ]
-          [ 楼层: 12楼 ]
-            ● 位置: 客厅
-              - 其他: 1 次
-          [ 楼层: 5楼 ]
-            ● 位置: 未知位置
-              - 未知代码 (): 1 次
-          [ 楼层: 9楼 ]
-            ● 位置: 未知位置
-              - 排水: 1 次
-        ==================================================
-        '''
+    [ 按天内时段分布 ]
+      - 深夜 (00:00-06:59): 0 次 (0.0%)
+      - 上午 (07:00-11:59): 3 次 (27.3%)
+      - 午间 (12:00-13:59): 2 次 (18.2%)
+      - 下午 (14:00-17:59): 3 次 (27.3%)
+      - 夜间 (18:00-23:59): 3 次 (27.3%)
+
+    ==================================================
+    --- 服务工单分布情况详细报告 ---
+
+    [ 栋座: A栋 ]
+      [ 楼层: 12楼 ]
+        ● 位置: 未知位置
+          - 未知代码 (): 1 次
+      [ 楼层: 2楼 ]
+        ● 位置: 客厅
+          - 家具: 1 次
+      [ 楼层: 3楼 ]
+        ● 位置: 未知位置
+          - 排水: 1 次
+      [ 楼层: 5楼 ]
+        ● 位置: 未知位置
+          - 未知代码 (): 1 次
+      [ 楼层: 6楼 ]
+        ● 位置: 客厅
+          - 其他: 1 次
+        ● 位置: 未知位置
+          - 未知代码 (): 1 次
+      [ 楼层: 8楼 ]
+        ● 位置: 客厅
+          - 龙头: 2 次
+
+    [ 栋座: B栋 ]
+      [ 楼层: 12楼 ]
+        ● 位置: 客厅
+          - 其他: 1 次
+      [ 楼层: 5楼 ]
+        ● 位置: 未知位置
+          - 未知代码 (): 1 次
+      [ 楼层: 9楼 ]
+        ● 位置: 未知位置
+          - 排水: 1 次
+    ==================================================
+    '''
     """
     XML_FILE_PATH = 'demo/lease_service_order.xml'
-    SERVICE_CODE_MAP = {
+    target_service_code = {
         'A01': '更换布草', 'A02': '家具保洁', 'A03': '地面保洁', 'A04': '家电保洁',
         'A05': '洁具保洁', 'A06': '客用品更换', 'A07': '杀虫', 'B1001': '电梯',
         'B101': '冰箱', 'B102': '微波炉', 'B103': '烘干机', 'B104': '电视',
@@ -918,14 +952,14 @@ def query_distribution_report(
         'B706': '花洒', 'B707': '马桶', 'B708': '台盆', 'B801': '其他',
         'B901': '网络设备'
     }
-    LOCATION_CODE_MAP = {
+    target_location_code = {
         '002': '卧室', '004': '厨房', '008': '卫生间', '009': '客厅',
         '001': '公寓外围', '003': '工区走道', '005': '后场区域', '006': '前场区域',
         '011': '电梯厅-后', '010': '电梯厅-前', '007': '停车场', '012': '消防楼梯',
     }
 
-    ALL_ORDERS_DATA = parse_service_orders(XML_FILE_PATH)
-    if ALL_ORDERS_DATA is None:
+    all_orders = parse_service_orders(XML_FILE_PATH)
+    if all_orders is None:
         return "未能加载工单数据。"
 
     # --- 处理和验证输入 ---
@@ -935,16 +969,22 @@ def query_distribution_report(
     except ValueError:
         return "输入错误：日期格式不正确，请使用 'YYYY-MM-DD' 格式。"
 
-    found_orders = search_orders_advanced(ALL_ORDERS_DATA, start_date, end_date, None, None)
+    # 1. 筛选出符合条件的工单
+    found_orders = search_orders_advanced(all_orders, start_date, end_date, None, None)
+
+    service_counts, location_counts, floor_counts, building_counts = calculate_summaries(found_orders)
+    summary_report = format_summary_report(len(found_orders), None, None, floor_counts,
+                                           building_counts)
 
     distribution_data = analyze_distribution(found_orders)
     distribution_report = format_distribution_report(distribution_data)
 
-    service_counts, location_counts, floor_counts, building_counts = calculate_summaries(found_orders)
-    summary_report = format_summary_report(len(found_orders), service_counts, location_counts, floor_counts,
-                                           building_counts)
+    # 修改：更新变量名以匹配新的返回值
+    yearly, monthly, weekly, daily, segments = analyze_temporal_distribution(found_orders)
+    # 修改：传入新的分段数据
+    temporal_report = format_temporal_report(len(found_orders), yearly, monthly, weekly, daily, segments)
 
-    return summary_report+distribution_report
+    return summary_report + temporal_report + distribution_report
 
 
 @mcp.tool()
@@ -969,17 +1009,19 @@ def get_statistical_summary(
         max_rent: Optional[float] = None,
         start_arr_date: Optional[Any] = None,
         end_arr_date: Optional[Any] = None,
-        remark_keyword: Optional[str] = None
+        remark_keyword: Optional[str] = None,
+        room_type: Optional[Union[str, List[str]]] = None
 ) -> Dict[str, Any]:
     """
     根据筛选条件对住客入住数据进行统计分析
 
-    例如可以使用这个工具获取到公寓目前的在住住客的统计信息
+    例如可以使用这个工具获取到公寓目前的在住住客的统计信息，包括租金分布情况、年龄、性别、国籍、房型的统计数据
 
     Args:
         name (Optional[str]): 按住客姓名进行模糊搜索。
         room_number (Optional[str]): 按房号进行精确匹配。
-        gender: (Optional[str]) = None: 按性别进行筛选
+        room_type (Optional[Union[str, List[str]]]): 按房型精准匹配，可选: 一房豪华式公寓, 一房行政豪华式公寓, 两房行政公寓, 三房公寓, 豪华单间公寓, 行政单间公寓, 豪华行政单间
+        gender: (Optional[str]): 按性别进行筛选 ('男' 或 '女')
         status (Union[str, List[str]]):
             按住客状态进行精确筛选 ('I'(In-House, 在住), 'R'(Reservation, 预订), 'O'(Checked-Out, 已离店), 'X'(Cancelled, 已取消), '实际当前在住')。
             可多选，如status=['I', 'O']
@@ -1011,6 +1053,7 @@ def get_statistical_summary(
     查询在2025年9月新入住的住客的统计数据：get_statistical_summary(status=['I','O','R'], start_arr_date='2025-09-01', end_arr_date='2025-09-30')
     查询当前男性住客中有宠物住客的统计数据：get_statistical_summary(gender='男', status='实际当前在住', remark_keyword='宠物')
     查询男性住客的统计数据，包括年龄国籍等维度的人数分布：get_statistical_summary(gender='男', status='实际当前在住')
+    查询所有目前行政单间公寓住客的统计数据：get_statistical_summary(room_type='行政单间公寓',status='实际当前在住')
     """
     guest_df = load_data_from_xml('demo/master_guest.xml')
     # 加载状态和租金数据
@@ -1030,6 +1073,12 @@ def get_statistical_summary(
         merged_df = guest_df
         print("\n未加载状态/租金数据，将仅使用主数据进行操作。")
 
+    if 'rmtype' in merged_df.columns:
+        print("正在将房间类型代码映射到中文名称...")
+        # 使用 .map() 应用字典映射。对于不在字典中的 rmtype，使用 .fillna() 保留其原始值。
+        merged_df['rmtype_name'] = merged_df['rmtype'].map(RMTYPE_MAPPING).fillna(merged_df['rmtype'])
+        print("映射完成。")
+
     stats_result = get_guest_statistics(
         merged_df,
         name = name,
@@ -1044,6 +1093,7 @@ def get_statistical_summary(
         start_arr_date = start_arr_date,
         end_arr_date = end_arr_date,
         remark_keyword = remark_keyword,
+        room_type= room_type
     )
 
     return stats_result
@@ -1062,16 +1112,16 @@ def get_filtered_details(
         max_rent: Optional[float] = None,
         start_arr_date: Optional[Any] = None,
         end_arr_date: Optional[Any] = None,
-        remark_keyword: Optional[str] = None
+        remark_keyword: Optional[str] = None,
+        room_type: Optional[Union[str, List[str]]] = None
 ) -> str:
     """
     根据筛选条件获取详细的住客个人信息列表
 
-    例如，您可以使用此函数获取所有月租金超过10000元的在住客人的完整名单
-
     Args:
         name (Optional[str]): 按住客姓名进行模糊搜索。
         room_number (Optional[str]): 按房号进行精确匹配。
+        room_type (Optional[Union[str, List[str]]]): 按房型精准匹配，可选: 一房豪华式公寓, 一房行政豪华式公寓, 两房行政公寓, 三房公寓, 豪华单间公寓, 行政单间公寓, 豪华行政单间
         gender (Optional[str]): 按性别进行筛选 ('男' 或 '女')。
         status (Union[str, List[str]]):
             按住客状态进行精确筛选 ('I'(In-House, 在住), 'R'(Reservation, 预订), 'O'(Checked-Out, 已离店), 'X'(Cancelled, 已取消), '实际当前在住')。
@@ -1098,6 +1148,7 @@ def get_filtered_details(
     查询当前所有备注中包含'宠物'的在住客人的详细列表：get_filtered_details(status='实际当前在住', remark_keyword='宠物')
     查询所有月租金高于10000元的住客名单：get_filtered_details(min_rent=10000.01,status='实际当前在住')
     查询所有国籍为'USA'的住客详细信息：get_filtered_details(nation='USA',status='实际当前在住')
+    查询所有目前豪华行政单间公寓住客的详细信息：get_filtered_details(room_type='豪华行政单间',status='实际当前在住')
     """
     guest_df = load_data_from_xml('demo/master_guest.xml')
     # 加载状态和租金数据
@@ -1117,6 +1168,12 @@ def get_filtered_details(
         merged_df = guest_df
         print("\n未加载状态/租金数据，将仅使用主数据进行操作。")
 
+    if 'rmtype' in merged_df.columns:
+        print("正在将房间类型代码映射到中文名称...")
+        # 使用 .map() 应用字典映射。对于不在字典中的 rmtype，使用 .fillna() 保留其原始值。
+        merged_df['rmtype_name'] = merged_df['rmtype'].map(RMTYPE_MAPPING).fillna(merged_df['rmtype'])
+        print("映射完成。")
+
     details_string_result = get_filtered_details_as_string(
         merged_df,
         name = name,
@@ -1131,6 +1188,7 @@ def get_filtered_details(
         start_arr_date = start_arr_date,
         end_arr_date = end_arr_date,
         remark_keyword = remark_keyword,
+        room_type= room_type
     )
 
     return details_string_result
@@ -1139,7 +1197,7 @@ def get_filtered_details(
 @mcp.tool()
 def nearby_report(room: Optional[str]):
     """
-    功能描述 (description): 一个用于获取指定房间号的周围房间的入住情况，可获得的具体字段有：入住日期、离店日期、房号、房型、租金、用户ID、备注、交班信息
+    功能描述 (description): 一个用于获取指定房间与其周围房间的入住情况，可获得的具体字段有：入住日期、离店日期、房号、房型、租金、用户ID、备注、交班信息
 
     输入参数 (parameters):
     room (Optional[str]): 需要查询的房间号。
@@ -1150,7 +1208,13 @@ def nearby_report(room: Optional[str]):
     print(nearby_report("A1608"))
     返回：
     '
-    --- 房间 A1608 周边入住状态查询 (2025-10-21) ---
+    --- 房间 A1608 及其周边入住状态查询 (2025-11-04) ---
+
+      - 房间 A1608: [有人居住 (I)]
+        住客ID:    3605
+        在住时段:    2025-09-09 至 2026-01-15
+        房型:      STE
+        租金:      7500.0
 
       - 房间 A1607: [有人居住 (I)]
         住客ID:    3804
@@ -1187,12 +1251,72 @@ def nearby_report(room: Optional[str]):
 
     return nearby_report
 
+@mcp.tool()
+def find_apartments(
+        room_number: Optional[str] = None,
+        building: Optional[List[str]] = None,
+        room_type: Optional[List[str]] = None,
+        orientation: Optional[List[str]] = None,
+        floor_range: Optional[List[int]] = None,
+        area_range: Optional[List[float]] = None,
+        price_range: Optional[List[float]] = None,
+        lease_term: str = '12个月及以上',
+        sort_by: str = 'price',
+        sort_order: str = 'asc',
+        aggregation: Optional[str] = None,
+        limit: int = 10,
+        return_fields: Optional[List[str]] = None
+) -> dict:
+    """
+    查询公寓房间基本相信息关数据，可获取房间面积、朝向、房型、参考租金以及符合对应查询条件的房间信息
+
+    Args:
+        room_number (str, optional): 精确查询的房号 (例如 'A1001')。
+        building (list[str], optional): 楼栋 ('A', 'B')。输入会忽略大小写和首尾空格。
+        room_type (list[str], optional): 房型 (例如 ['行政单间', '一房豪华式公寓'])。支持模糊匹配。
+        orientation (list[str], optional): 朝向 (例如 ['南', '东 南'])。
+        floor_range (list[int], optional): 楼层范围 (min_floor, max_floor)。
+        area_range (list[float], optional): 面积范围 (min_area, max_area)。
+        price_range (list[float], optional): 参考价格范围 (min_price, max_price)。
+        lease_term (str, optional): 查询参考价格对应的租期。默认为 '12个月及以上'。可选值: '12个月', '6-11个月', '2-5个月', '1个月'。
+        sort_by (str, optional): 排序依据。默认为 'price'。可选值: 'price', 'area', 'floor'。
+        sort_order (str, optional): 排序顺序。默认为 'asc' (升序)。可选值: 'asc', 'desc'。
+        aggregation (str, optional): 聚合操作。如果为 'count'，则只返回数量。
+        limit (int, optional): 返回结果的最大数量。默认为 10。
+        return_fields (list[str], optional): 指定要返回的字段列表。
+            如果为 None，则返回所有默认字段。
+            可选字段: '房号', '楼栋', '楼层', '房型', '面积(平方米)', '朝向', '参考租金', '租金说明'。
+
+    Returns:
+        dict: 包含查询结果的字典。
+              - aggregation='count'时: {'count': X}
+              - 成功时: {'total_found': Y, 'displaying': Z, 'apartments': [房源列表]}
+              - 失败时: {'error': '具体的错误信息'}
+
+    调用示例：
+    查询参考价格最低的5个朝南行政单间：find_apartments(room_type=['行政单间'],orientation=['南', '东南', '西南'],sort_by='price',sort_order='asc',limit=5)
+    查询A栋、15层以上、朝南、年租金2万5以内、面积最大的'一房'公寓，并且只需要房间后、参考租金、面积、朝向信息：find_apartments(building=['A'],floor_range=(15, 100),orientation=['南'],room_type=['一房'],price_range=(0, 25000),lease_term='12个月及以上',sort_by='area',sort_order='desc',return_fields = ['房号', '面积(平方米)', '参考租金', '朝向'])
+    """
+    if TOOL.df.empty:
+        return {"error": "查询工具未能成功初始化，请检查CSV文件路径或内容。"}
+
+    query_params = locals()
+
+    print(f"--- 正在执行查询 (参数: {query_params}) ---")
+
+    # 将打包好的参数字典传递给查询工具
+    results = TOOL.query(**query_params)
+
+    return results
+
 
 if __name__ == "__main__":
-
     app_instance = mcp.sse_app
 
-    print(get_statistical_summary(gender='男', status='实际当前在住'))
+    #print(get_statistical_summary(gender='男', status='实际当前在住'))
+    #print(find_apartments(building=['A'],floor_range=(15, 100),orientation=['南'],room_type=['一房'],price_range=(0, 25000),lease_term='12个月及以上',sort_by='area',sort_order='desc',return_fields = ['房号', '面积(平方米)', '参考租金', '朝向']))
+    #print(advanced_query_service(start_date_str='2025-07-01', service_code='B701'))
+    #print(query_distribution_report(start_date_str='2025-07-01', end_date_str='2025-07-02'))
 
     # 定义使用的主机和端口
     host = "127.0.0.1"

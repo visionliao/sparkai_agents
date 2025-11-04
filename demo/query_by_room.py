@@ -149,7 +149,7 @@ def query_nearby_rooms_status(file_path: str, target_room: str):
     next_upward_str = f"{prefix}{room_num + 101}"
     prev_under_str = f"{prefix}{room_num - 101}"
     next_under_str = f"{prefix}{room_num - 99}"
-    nearby_rooms_list = [prev_str, next_str, upward_str, under_str, prev_under_str, next_under_str, prev_upward_str, next_upward_str, prev_upward_str]
+    nearby_rooms_list = [target_room, prev_str, next_str, upward_str, under_str, prev_under_str, next_under_str, prev_upward_str, next_upward_str, prev_upward_str]
 
     # 3. 在DataFrame中筛选出这些相邻房间的所有历史记录
     nearby_records_df = df[df['rmno'].str.upper().isin(nearby_rooms_list)].copy()
@@ -233,7 +233,7 @@ def format_nearby_status(query_result, target_room: str) -> str:
         return "查询失败，无法生成报告。"
 
     report_lines = []
-    report_lines.append(f"--- 房间 {target_room} 周边入住状态查询 ({datetime.now().strftime('%Y-%m-%d')}) ---")
+    report_lines.append(f"--- 房间 {target_room} 及其周边入住状态查询 ({datetime.now().strftime('%Y-%m-%d')}) ---")
 
     for room in nearby_rooms_list:
         # 查找该房间是否在“当前入住者”的DataFrame中
@@ -292,7 +292,7 @@ if __name__ == "__main__":
 
     print("\n" + "=" * 80)
     print("功能2: 查询指定房间附近的入住状态")
-    target_room_for_nearby_check = 'A1606'
+    target_room_for_nearby_check = 'A1608'
 
     # 调用查询函数
     nearby_query_result = query_nearby_rooms_status(FILE_PATH, target_room_for_nearby_check)

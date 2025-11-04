@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 import os
 import datetime
 import re
-from collections import Counter  # 引入Counter，更方便地进行计数
+from collections import Counter
 
 # --- 配置与数据字典 (无变化) ---
 XML_FILE_PATH = 'lease_service_order.xml'
@@ -31,7 +31,7 @@ LOCATION_CODE_MAP = {
 }
 
 
-# --- 辅助、数据加载、高级筛选、结果格式化函数 (部分新增和修改) ---
+# --- 辅助函数 (部分新增) ---
 def get_service_name(code):
     return SERVICE_CODE_MAP.get(code, f"未知代码 ({code})")
 
@@ -66,6 +66,22 @@ def parse_room_info(rmno):
     return {'building': building, 'floor': floor}
 
 
+# --- 新增: 定义时间分段的辅助函数 ---
+def get_time_segment(hour):
+    """根据小时返回对应的时间段描述。"""
+    if 0 <= hour < 7:
+        return "深夜 (00:00-06:59)"
+    elif 7 <= hour < 12:
+        return "上午 (07:00-11:59)"
+    elif 12 <= hour < 14:
+        return "午间 (12:00-13:59)"
+    elif 14 <= hour < 18:
+        return "下午 (14:00-17:59)"
+    else:  # 18 到 23
+        return "夜间 (18:00-23:59)"
+
+
+# --- 数据加载与筛选 (无变化) ---
 def parse_service_orders(xml_file):
     print(f"正在从 '{xml_file}' 加载数据...")
     if not os.path.exists(xml_file):
@@ -113,7 +129,6 @@ def search_orders_advanced(orders, start_date=None, end_date=None, service_code=
     return results
 
 
-# ... format_to_string 和 sanitize_for_display 函数无变化 ...
 def sanitize_for_display(text):
     if not isinstance(text, str): return text
     control_char_regex = re.compile(r'[\x00-\x1F\x7F-\x9F\u2028\u2029]')
@@ -166,7 +181,7 @@ def analyze_distribution(orders):
 
 
 def format_distribution_report(distribution_data):
-    if not distribution_data: return ""  # 如果没有数据，返回空字符串
+    if not distribution_data: return ""
     report_parts = ["\n" + "=" * 50]
     report_parts.append("--- 服务工单分布情况详细报告 ---")
     for building in sorted(distribution_data.keys()):
@@ -183,9 +198,7 @@ def format_distribution_report(distribution_data):
     return "\n".join(report_parts)
 
 
-# --- 新增: 总体数据总结分析函数 ---
 def calculate_summaries(orders):
-    """遍历工单，计算各个维度的总体数量。"""
     if not orders:
         return {}, {}, {}, {}
 
@@ -205,9 +218,7 @@ def calculate_summaries(orders):
     return service_counts, location_counts, floor_counts, building_counts
 
 
-# --- 新增: 格式化总结报告的函数 ---
 def format_summary_report(total_orders, service_counts, location_counts, floor_counts, building_counts):
-    """将统计数据格式化为Top 3的总结报告。"""
     if not total_orders:
         return "没有可用于生成总结报告的数据。"
 
@@ -215,14 +226,11 @@ def format_summary_report(total_orders, service_counts, location_counts, floor_c
     report_parts.append("--- 总体数据总结 ---")
     report_parts.append(f"查询范围内总工单数: {total_orders} 条\n")
 
-    # 一个辅助函数，用于生成Top 3列表
     def get_top_three_string(title, counter):
         lines = [f"--- Top 3 {title} ---"]
         if not counter:
             lines.append("  无数据")
             return "\n".join(lines)
-
-        # counter.most_common(3) 直接返回前三的 (项目, 次数) 列表
         for i, (item, count) in enumerate(counter.most_common(3)):
             percentage = (count / total_orders) * 100
             lines.append(f"  {i + 1}. {item}: {count} 次 ({percentage:.1f}%)")
@@ -237,14 +245,96 @@ def format_summary_report(total_orders, service_counts, location_counts, floor_c
     return "\n\n".join(report_parts)
 
 
+# --- 时间维度分析函数 (已修改) ---
+def analyze_temporal_distribution(orders):
+    """分析工单的时间分布情况，按分段统计小时。"""
+    if not orders:
+        return {}, {}, {}, {}, {}
+
+    yearly_counts = Counter()
+    monthly_counts = Counter()
+    weekly_counts = Counter()
+    day_of_week_counts = Counter()
+    segment_counts = Counter()  # 修改：不再使用hourly_counts
+
+    for order in orders:
+        dt_obj = convert_excel_to_datetime_obj(order.get('create_datetime'))
+        if dt_obj:
+            yearly_counts[dt_obj.year] += 1
+            monthly_counts[dt_obj.strftime('%Y-%m')] += 1
+            weekly_counts[dt_obj.strftime('%Y-W%W')] += 1
+            day_of_week_counts[dt_obj.strftime('%A')] += 1
+            # 修改：调用新函数，按时间段计数
+            segment = get_time_segment(dt_obj.hour)
+            segment_counts[segment] += 1
+
+    return yearly_counts, monthly_counts, weekly_counts, day_of_week_counts, segment_counts
+
+
+# --- 时间分布报告函数 (已修改) ---
+def format_temporal_report(total_orders, yearly_counts, monthly_counts, weekly_counts, day_of_week_counts,
+                           segment_counts):
+    """将时间分布统计数据格式化为带百分比的可读报告。"""
+    if not total_orders:
+        return "没有可用于生成时间分布报告的数据。"
+
+    report_parts = ["\n" + "=" * 50]
+    report_parts.append("--- 工单创建时间分布报告 ---")
+    report_parts.append("=" * 50)
+
+    # 年、月、周、日的分布报告 (无变化)
+    report_parts.append("\n[ 按年份分布 ]")
+    for year, count in sorted(yearly_counts.items()):
+        percentage = (count / total_orders) * 100
+        report_parts.append(f"  - {year} 年: {count} 次 ({percentage:.1f}%)")
+
+    report_parts.append("\n[ 按月份分布 ]")
+    for month, count in sorted(monthly_counts.items()):
+        percentage = (count / total_orders) * 100
+        report_parts.append(f"  - {month} 月: {count} 次 ({percentage:.1f}%)")
+
+    report_parts.append("\n[ 按周数分布 ]")
+    for week, count in sorted(weekly_counts.items()):
+        percentage = (count / total_orders) * 100
+        report_parts.append(f"  - {week}: {count} 次 ({percentage:.1f}%)")
+
+    report_parts.append("\n[ 按星期内的日分布 (周一至周日) ]")
+    day_map = {
+        "Monday": "周一", "Tuesday": "周二", "Wednesday": "周三",
+        "Thursday": "周四", "Friday": "周五", "Saturday": "周六", "Sunday": "周日"
+    }
+    for day_en, day_cn in day_map.items():
+        count = day_of_week_counts.get(day_en, 0)
+        percentage = (count / total_orders) * 100
+        report_parts.append(f"  - {day_cn}: {count} 次 ({percentage:.1f}%)")
+
+    # 修改：按天内时段分布
+    report_parts.append("\n[ 按天内时段分布 ]")
+    # 定义一个列表以保证输出的顺序是按时间先后的
+    time_segments_order = [
+        "深夜 (00:00-06:59)",
+        "上午 (07:00-11:59)",
+        "午间 (12:00-13:59)",
+        "下午 (14:00-17:59)",
+        "夜间 (18:00-23:59)"
+    ]
+    for segment in time_segments_order:
+        count = segment_counts.get(segment, 0)
+        percentage = (count / total_orders) * 100
+        report_parts.append(f"  - {segment}: {count} 次 ({percentage:.1f}%)")
+
+    report_parts.append("\n" + "=" * 50 + "\n")
+    return "\n".join(report_parts)
+
+
 # --- 主程序 (已修改) ---
 def main():
     all_orders = parse_service_orders(XML_FILE_PATH)
     if not all_orders:
         return
 
-    start_date_str = '2025-07-01'
-    end_date_str = None
+    start_date_str = '2025-09-01'
+    end_date_str = '2025-09-30'
     target_service_code = None
     target_location_code = None
 
@@ -254,28 +344,20 @@ def main():
     # 1. 筛选出符合条件的工单
     found_orders = search_orders_advanced(all_orders, start_date, end_date, target_service_code, target_location_code)
 
-    # (可选) 打印详细的工单列表
-    criteria_desc = (
-        f"时间范围: [{start_date or '不限'} 至 {end_date or '不限'}], "
-        f"服务项目: [{SERVICE_CODE_MAP.get(target_service_code, '不限')}], "
-        f"具体位置: [{LOCATION_CODE_MAP.get(target_location_code, '不限')}]"
-    )
-    # result_string = format_to_string(found_orders, criteria_desc)
-    # print("\n" + "=" * 50)
-    # print("--- 详细工单列表 ---")
-    # print(result_string)
-    # print("=" * 50 + "\n")
-
-    # 2. 生成并打印总体数据总结报告
     service_counts, location_counts, floor_counts, building_counts = calculate_summaries(found_orders)
     summary_report = format_summary_report(len(found_orders), service_counts, location_counts, floor_counts,
                                            building_counts)
     print(summary_report)
 
-    # 3. 生成并打印详细分布报告
     distribution_data = analyze_distribution(found_orders)
     distribution_report = format_distribution_report(distribution_data)
     print(distribution_report)
+
+    # 修改：更新变量名以匹配新的返回值
+    yearly, monthly, weekly, daily, segments = analyze_temporal_distribution(found_orders)
+    # 修改：传入新的分段数据
+    temporal_report = format_temporal_report(len(found_orders), yearly, monthly, weekly, daily, segments)
+    print(temporal_report)
 
 
 if __name__ == "__main__":

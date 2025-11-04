@@ -131,10 +131,6 @@ MIXC	福建北路100号
 No.100, North Fujian Road	6697 7100	全天All Day
 10:00-22:00	1.2KM
 大型超市
-Supermarket	盒马鲜生
-FRESHIPO	芷江西路404号
-No.404, West Zhijiang Road	9510 217	全天All Day
-9:00-22:00	1.6KM
 	奥乐齐（苏河湾万象天地）
 ALDI （MIXC world  B2）	福建北路100号
 No.100, North Fujian Road	4008 2019 73	全天All Day
@@ -161,11 +157,11 @@ No.918, Middle Huaihai Rd	1368 1653 751	全天All Day
 	甬府（北外滩）	东大名路1089号
 No.1089, Dongdaming Rd	6686 7777	全天All Day
 11:00-13:30
-17:00-21:00	3.2KM
+17:00-21:00	1.2KM
 西餐
 Western cuisine	LOKAL（万象天地）	福建北路100号
 No.100, North Fujian Rd	1912 1523 291	全天All Day
-10:00-22:00	3.2KM
+10:00-22:00	1.2KM
 	Mr&Mrs Bund by Paul Pairet	中山东一路18号
 No.18, Zhongshandongyi Rd	6323 9898	全天All Day
 11:30-14:30
@@ -173,7 +169,7 @@ No.18, Zhongshandongyi Rd	6323 9898	全天All Day
 酒吧
 Bar	PLUTO（万象天地）	福建北路139号
 No.139, North Fujian Rd	1846 6986 725	全天All Day
-18:30-02:00	3.2KM
+18:30-02:00	1.2KM
 	COA	复兴中路580号
 No.580， Middle Fuxing Rd	1304 4107 216	18:30-01:00周二至周四及周日（Tue-Thu,Sun）
 18:30-02:00周五至周六

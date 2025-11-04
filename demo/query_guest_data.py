@@ -8,15 +8,26 @@ from typing import Optional, Dict, Any, List, Union
 XML_FILE_PATH = 'master_guest.xml'
 XML_STATUS_RENT_PATH = 'master_base.xml'
 
-# 在精确查询中重点显示的字段
+RMTYPE_MAPPING = {
+    '1BD': "一房豪华式公寓",
+    '1BP': "一房行政豪华式公寓",
+    '2BD': "两房行政公寓",
+    '3BR': "三房公寓",
+    'STD': "豪华单间公寓",
+    'STE': "行政单间公寓",
+    'STP': "豪华行政单间"
+}
+
+
+# 在精确查询中重点显示的字段 (将 rmtype 替换为 rmtype_name)
 IMPORTANT_FIELDS = [
     'id', 'profile_id', 'name', 'sex_like', 'birth', 'language',
     'mobile', 'email', 'nation', 'country', 'state', 'street',
     'id_code', 'id_no', 'hotel_id', 'profile_type', 'times_in', 'remark_y',
     'create_user', 'create_datetime', 'modify_user', 'modify_datetime',
-    'sta', 'rmno', 'full_rate_long', 'arr', 'dep'
+    'sta', 'rmno', 'rmtype_name', 'full_rate_long', 'arr', 'dep'
 ]
-# 字段名的中文映射
+# 字段名的中文映射 (将 rmtype 替换为 rmtype_name)
 FIELD_NAME_MAPPING = {
     'id': '主键ID', 'profile_id': '客户档案ID', 'name': '姓名',
     'sex_like': '推断性别', 'birth': '出生日期', 'language': '语言代码',
@@ -26,7 +37,8 @@ FIELD_NAME_MAPPING = {
     'profile_type': '客户档案类型', 'times_in': '入住次数', 'remark_y': '备注',
     'create_user': '创建用户', 'create_datetime': '创建时间',
     'modify_user': '修改用户', 'modify_datetime': '修改时间',
-    'sta': '在住状态', 'rmno': '房间号', 'full_rate_long': '月租金', 'arr': '到达日期', 'dep': '离开日期'
+    'sta': '在住状态', 'rmno': '房间号', 'full_rate_long': '月租金', 'arr': '到达日期', 'dep': '离开日期',
+    'rmtype_name': '房间类型' # 更新为新的字段名和对应的中文
 }
 
 
@@ -104,7 +116,8 @@ def load_status_rent_data_from_xml(file_path: str) -> pd.DataFrame:
                 df[col] = converted_dates.fillna(pd.to_datetime(df[col], format='mixed', errors='coerce'))
 
         print(f"成功从 '{file_path}' 加载了 {len(df)} 条状态/租金记录。")
-        return df[['id', 'sta', 'full_rate_long', 'dep', 'arr', 'rmno', 'remark']]
+        # 确保返回的列包含原始的 rmtype
+        return df[['id', 'sta', 'full_rate_long', 'dep', 'arr', 'rmno', 'remark', 'rmtype']]
     except Exception as e:
         print(f"加载或处理 '{file_path}' 时发生错误: {e}")
         return None
@@ -155,13 +168,9 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
                          max_age: Optional[int] = None, min_rent: Optional[float] = None,
                          max_rent: Optional[float] = None, remark_keyword: Optional[str] = None,
                          gender: Optional[str] = None, start_arr_date: Optional[Any] = None,
-                         end_arr_date: Optional[Any] = None) -> Dict[str, Any]:
+                         end_arr_date: Optional[Any] = None, room_type: Optional[Union[str, List[str]]] = None) -> Dict[str, Any]:
     """
     根据多种筛选条件对客户数据进行统计分析。
-    【最终逻辑】:
-    1. 每一条记录视为一个独立单元进行统计，不过滤任何行。
-    2. 在年龄分布中，为无法解析的出生日期创建“年龄未知”类别。
-    3. 保留租金为0的记录，当且仅当它是其所在房间的唯一记录时。
     """
     filtered_df = df.copy()
 
@@ -184,12 +193,10 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
         if 'sta' not in filtered_df.columns:
             print("警告：数据中不存在 'sta' 列，无法按状态筛选。")
         else:
-            # 如果 status 是一个列表 (e.g., ['O', 'R'])，则使用 .isin() 进行多选
             if isinstance(status, list):
                 filtered_df = filtered_df[filtered_df['sta'].isin(status)]
-            # 如果 status 仍然是单个字符串，则保持原有的逻辑
             elif isinstance(status, str):
-                if status == '实际当前在住':  # 'I' (在住) 有特殊的日期检查逻辑
+                if status == '实际当前在住':
                     if 'dep' in filtered_df.columns:
                         filtered_df = filtered_df[filtered_df['sta'] == 'I'].copy()
                         dep_dates = pd.to_datetime(filtered_df['dep'], errors='coerce')
@@ -197,44 +204,36 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
                         filtered_df = filtered_df[dep_dates > today]
                     else:
                         print("警告：缺少 'dep' 列，无法准确筛选在住客人。")
-                        # 作为备用方案，只按 'sta' == 'I' 筛选
                         filtered_df = filtered_df[filtered_df['sta'] == 'I']
-                else:  # 其他单个状态，如 'O', 'R' 等，直接精确匹配
+                else:
                     filtered_df = filtered_df[filtered_df['sta'] == status]
     if nation: apply_filter('nation', nation)
     if remark_keyword: apply_filter('remark_y', remark_keyword)
     if start_arr_date or end_arr_date:
         if 'arr' in filtered_df.columns:
-            # 确保 'arr' 列是日期时间类型，以便比较
             filtered_df['arr'] = pd.to_datetime(filtered_df['arr'], errors='coerce')
 
             if start_arr_date:
                 try:
                     start_date_dt = pd.to_datetime(start_arr_date)
-                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() >= start_date_dt]
+                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() >= start_date_dt.normalize()]
                 except Exception as e:
                     print(f"警告：无法解析开始日期 '{start_arr_date}'，该条件已忽略。错误: {e}")
 
             if end_arr_date:
                 try:
                     end_date_dt = pd.to_datetime(end_arr_date)
-                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() <= end_arr_date]
+                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() <= end_date_dt.normalize()]
                 except Exception as e:
                     print(f"警告：无法解析结束日期 '{end_arr_date}'，该条件已忽略。错误: {e}")
         else:
             print("警告：数据中不存在 'arr' 列，无法按入住时间筛选。")
 
-    # --- 不过滤，只计算和筛选 ---
-    # 步骤1: 只要 'birth' 列存在，就尝试计算年龄，并保存在新列'age'中
     if 'birth' in filtered_df.columns:
         birth_dates = pd.to_datetime(filtered_df['birth'], errors='coerce')
-        # 创建一个临时年龄列，无效日期计算结果为 NaT
         temp_age = (pd.to_datetime('today') - birth_dates).dt.days / 365.25
-        # 将计算出的年龄（可能包含NaN）赋值给 'age' 列
         filtered_df['age'] = temp_age
 
-    # 步骤2: 如果传入了年龄筛选参数，则在已生成的 'age' 列上进行筛选
-    # 注意: 年龄筛选会自然地过滤掉 'age' 为 NaN 的记录
     if min_age is not None:
         if 'age' in filtered_df.columns:
             filtered_df = filtered_df[filtered_df['age'] >= min_age]
@@ -246,9 +245,19 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
             filtered_df = filtered_df[filtered_df['age'] <= max_age]
         else:
             print("警告: 'birth'列不存在或无法解析，无法按最大年龄筛选。")
-    # --- 新年龄逻辑结束 ---
 
-    # 租金筛选逻辑 (保持不变)
+    # 按房间类型筛选
+    if room_type:
+        if 'rmtype_name' not in filtered_df.columns:
+            print("警告：数据中不存在 'rmtype_name' 列，无法按房间类型筛选。")
+        else:
+            # 如果 room_type 是一个列表 (e.g., ["一房豪华式公寓", "两房行政公寓"])，则使用 .isin()
+            if isinstance(room_type, list):
+                filtered_df = filtered_df[filtered_df['rmtype_name'].isin(room_type)]
+            # 如果是单个字符串，则直接精确匹配
+            elif isinstance(room_type, str):
+                filtered_df = filtered_df[filtered_df['rmtype_name'] == room_type]
+
     if min_rent is not None or max_rent is not None:
         if 'full_rate_long' in filtered_df.columns:
             filtered_df['full_rate_long'] = pd.to_numeric(filtered_df['full_rate_long'], errors='coerce')
@@ -258,14 +267,12 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
         else:
             print(f"警告：数据中不存在 'full_rate_long' 列，租金筛选已忽略。")
 
-    # 总租金计算 (保持不变)
     overall_total_rent = 0
     if 'full_rate_long' in filtered_df.columns:
         rent_data_overall = pd.to_numeric(filtered_df['full_rate_long'], errors='coerce').dropna()
         if not rent_data_overall.empty:
             overall_total_rent = rent_data_overall.sum()
 
-    # 性别筛选 (保持不变)
     if gender:
         gender_map_internal = {'男': '>', '女': '?'}
         internal_gender_code = gender_map_internal.get(gender)
@@ -274,21 +281,14 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
         else:
             print(f"警告：无效的性别输入 '{gender}' 或缺少 'sex_like' 列，该筛选条件已忽略。")
 
-    # 最终记录数
     record_count = len(filtered_df)
     if record_count == 0: return {"count": 0, "analysis": None}
 
-    age_dist, nat_dist, gen_dist = [], [], []
+    age_dist, nat_dist, gen_dist, room_type_dist = [], [], [], []
 
-    # --- 【新年龄分布统计】 ---
     if 'age' in filtered_df.columns:
-        # 1. 筛选出年龄有效的记录
         age_data = filtered_df['age'].dropna().astype(int)
-
-        # 2. 计算年龄无效的记录数
         unknown_age_count = record_count - len(age_data)
-
-        # 3. 对有效年龄进行分段统计
         if not age_data.empty:
             bins, labels = [0, 18, 30, 45, 60, 150], ['18岁以下', '18-30岁', '31-45岁', '46-60岁', '60岁以上']
             age_groups = pd.cut(age_data, bins=bins, labels=labels, right=False)
@@ -296,14 +296,11 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
             for group, count in age_counts.items():
                 age_dist.append(
                     {"group": group, "count": int(count), "percentage": f"{(count / record_count) * 100:.2f}%"})
-
-        # 4. 如果存在未知年龄的记录，将其作为一个单独的类别添加
         if unknown_age_count > 0:
             age_dist.append(
                 {"group": "年龄未知", "count": int(unknown_age_count),
                  "percentage": f"{(unknown_age_count / record_count) * 100:.2f}%"})
 
-    # 国籍和性别分布 (保持不变, 分母为 record_count)
     if 'nation' in filtered_df.columns:
         nation_counts = filtered_df['nation'].value_counts()
         top_nations = nation_counts.nlargest(9)
@@ -322,7 +319,18 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
             gen_dist.append(
                 {"gender": gender_val, "count": int(count), "percentage": f"{(count / record_count) * 100:.2f}%"})
 
-    # 租金分析 (保持不变)
+    # --- 房间类型 (rmtype_name) 统计 ---
+    if 'rmtype_name' in filtered_df.columns:
+        room_type_counts = filtered_df['rmtype_name'].value_counts()
+        for room_type_name, count in room_type_counts.items():
+            room_type_dist.append({
+                "room_type": room_type_name,
+                "count": int(count),
+                "percentage": f"{(count / record_count) * 100:.2f}%"
+            })
+    else:
+        print("警告：数据中不存在 'rmtype_name' 列，无法进行房间类型统计。")
+
     rent_analysis = None
     if 'full_rate_long' in filtered_df.columns and 'rmno' in filtered_df.columns:
         rent_df = filtered_df[['rmno', 'full_rate_long']].copy()
@@ -331,12 +339,10 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
         room_counts = rent_df.groupby('rmno')['rmno'].transform('size')
         keep_positive_rent = rent_df['full_rate_long'] > 0
         keep_special_zero_rent = (rent_df['full_rate_long'] == 0) & (room_counts == 1)
-        keep_mask = keep_positive_rent | keep_special_zero_rent
-        final_rent_df = rent_df[keep_mask]
+        final_rent_df = rent_df[keep_positive_rent | keep_special_zero_rent]
         rent_data = final_rent_df['full_rate_long']
 
         if not rent_data.empty:
-            # (租金分析的其余部分代码与之前版本相同, 为简洁省略)
             based_on_rent_count = len(rent_data)
             rent_dist = []
             bins = [-float('inf'), 3000, 5000, 7000, 10000, float('inf')]
@@ -373,11 +379,29 @@ def get_guest_statistics(df: pd.DataFrame, name: Optional[str] = None, room_numb
     else:
         print("警告: 租金分析需要 'full_rate_long' 和 'rmno' 两列数据。")
 
+    summary_stats = {}
+    if 'age' in filtered_df.columns:
+        valid_ages = filtered_df['age'].dropna()
+        if not valid_ages.empty:
+            summary_stats['average_age'] = f"{valid_ages.mean():.1f} 岁"
+    if 'times_in' in filtered_df.columns:
+        times_in_numeric = pd.to_numeric(filtered_df['times_in'], errors='coerce').dropna()
+        if not times_in_numeric.empty:
+            summary_stats['average_times_in'] = f"{times_in_numeric.mean():.1f} 次"
+    if 'arr' in filtered_df.columns and 'dep' in filtered_df.columns:
+        arr_dates = pd.to_datetime(filtered_df['arr'], errors='coerce')
+        dep_dates = pd.to_datetime(filtered_df['dep'], errors='coerce')
+        valid_durations = (dep_dates - arr_dates).dt.days.dropna()
+        if not valid_durations.empty:
+            summary_stats['average_stay_duration'] = f"{valid_durations.mean():.1f} 天"
+
     return {"count": record_count,
             "analysis": {"based_on": f"基于 {record_count} 条符合条件的入住记录的分析",
+                         "summary_statistics": summary_stats,
                          "age_distribution": age_dist,
                          "nationality_distribution": nat_dist,
                          "gender_distribution": gen_dist,
+                         "room_type_distribution": room_type_dist,
                          "rent_analysis": rent_analysis}}
 
 def get_filtered_guest_details(df: pd.DataFrame, name: Optional[str] = None, room_number: Optional[str] = None,
@@ -385,19 +409,15 @@ def get_filtered_guest_details(df: pd.DataFrame, name: Optional[str] = None, roo
                                max_age: Optional[int] = None, min_rent: Optional[float] = None,
                                max_rent: Optional[float] = None, remark_keyword: Optional[str] = None,
                                gender: Optional[str] = None, start_arr_date: Optional[Any] = None,
-                               end_arr_date: Optional[Any] = None) -> pd.DataFrame:
+                               end_arr_date: Optional[Any] = None, room_type: Optional[Union[str, List[str]]] = None) -> pd.DataFrame:
     """
     根据多种筛选条件获取住客的详细信息。
-    此函数复用了 get_guest_statistics 中的筛选逻辑，但返回的是一个包含所有符合条件记录的DataFrame。
-
-    :return: 一个包含筛选结果的 pandas DataFrame。如果无结果，则返回一个空的 DataFrame。
     """
     filtered_df = df.copy()
 
     def apply_filter(column, value, exact=False):
         nonlocal filtered_df
-        if column not in filtered_df.columns:
-            return
+        if column not in filtered_df.columns: return
         if pd.isna(value): return
         filtered_df.dropna(subset=[column], inplace=True)
         if exact:
@@ -405,7 +425,6 @@ def get_filtered_guest_details(df: pd.DataFrame, name: Optional[str] = None, roo
         else:
             filtered_df = filtered_df[filtered_df[column].astype(str).str.contains(value, case=False, na=False)]
 
-    # --- 筛选逻辑 (与 get_guest_statistics 完全相同) ---
     if name: apply_filter('name', name)
     if room_number: apply_filter('rmno', room_number, exact=True)
     if status:
@@ -432,13 +451,19 @@ def get_filtered_guest_details(df: pd.DataFrame, name: Optional[str] = None, roo
             if start_arr_date:
                 try:
                     start_date_dt = pd.to_datetime(start_arr_date)
-                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() >= start_date_dt]
+                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() >= start_date_dt.normalize()]
                 except Exception: pass
             if end_arr_date:
                 try:
                     end_date_dt = pd.to_datetime(end_arr_date)
-                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() <= end_date_dt]
+                    filtered_df = filtered_df[filtered_df['arr'].dt.normalize() <= end_date_dt.normalize()]
                 except Exception: pass
+    if room_type:
+        if 'rmtype_name' in filtered_df.columns:
+            if isinstance(room_type, list):
+                filtered_df = filtered_df[filtered_df['rmtype_name'].isin(room_type)]
+            elif isinstance(room_type, str):
+                filtered_df = filtered_df[filtered_df['rmtype_name'] == room_type]
     if 'birth' in filtered_df.columns:
         birth_dates = pd.to_datetime(filtered_df['birth'], errors='coerce')
         temp_age = (pd.to_datetime('today') - birth_dates).dt.days / 365.25
@@ -461,45 +486,32 @@ def get_filtered_guest_details(df: pd.DataFrame, name: Optional[str] = None, roo
 
     return filtered_df
 
-
 def get_filtered_details_as_string(df: pd.DataFrame, name: Optional[str] = None, room_number: Optional[str] = None,
                                    status: Union[str, List[str]] = None, nation: Optional[str] = None,
                                    min_age: Optional[int] = None,
                                    max_age: Optional[int] = None, min_rent: Optional[float] = None,
                                    max_rent: Optional[float] = None, remark_keyword: Optional[str] = None,
                                    gender: Optional[str] = None, start_arr_date: Optional[Any] = None,
-                                   end_arr_date: Optional[Any] = None) -> str:
+                                   end_arr_date: Optional[Any] = None, room_type: Optional[Union[str, List[str]]] = None) -> str:
     """
     根据多种筛选条件查询住客信息，并将所有结果整合成一个格式化的字符串。
-
-    :return: 一个包含所有符合条件住客详细信息的、格式化好的单一字符串。
     """
-    # 步骤 1: 复用筛选函数，获取符合条件的住客DataFrame
     filtered_guests_df = get_filtered_guest_details(df, name=name, room_number=room_number,
                                                     status=status, nation=nation, min_age=min_age,
                                                     max_age=max_age, min_rent=min_rent,
                                                     max_rent=max_rent, remark_keyword=remark_keyword,
                                                     gender=gender, start_arr_date=start_arr_date,
-                                                    end_arr_date=end_arr_date)
-
-    # 步骤 2: 处理查询结果
+                                                    end_arr_date=end_arr_date, room_type=room_type)
     if filtered_guests_df.empty:
         return f"--- 未找到符合条件的住客记录 ---"
 
     all_results = []
-    # 定义一个清晰的分隔符，用于区分不同的客人信息
     separator = "\n" + "=" * 50 + "\n"
-
-    # 步骤 3: 遍历结果，并复用格式化函数生成每个客人的信息字符串
     for guest_id in filtered_guests_df['id']:
-        # 注意：这里我们向格式化函数传入原始的 df，以确保能找到所有字段
         all_results.append(get_query_result_as_string(df, guest_id))
 
-    # 步骤 4: 将所有客人的信息字符串用分隔符连接成一个最终的大字符串
-    # 同时在开头和结尾添加总数统计
     header = f"--- 查询到 {len(all_results)} 条符合条件的记录 ---"
     footer = f"--- 查询结束 ---"
-
     return header + separator + separator.join(all_results) + separator + footer
 
 def print_stats_results(title: str, stats_result: Dict):
@@ -509,6 +521,14 @@ def print_stats_results(title: str, stats_result: Dict):
     if stats_result.get('analysis'):
         analysis = stats_result['analysis']
         print(f"统计概要: {analysis['based_on']}")
+
+        if analysis.get('summary_statistics'):
+            summary = analysis['summary_statistics']
+            if summary:
+                print("\n核心平均值:")
+                if 'average_age' in summary: print(f"  - 平均年龄: {summary['average_age']}")
+                if 'average_times_in' in summary: print(f"  - 平均入住次数: {summary['average_times_in']}")
+                if 'average_stay_duration' in summary: print(f"  - 平均居住天数: {summary['average_stay_duration']}")
 
         if analysis.get('age_distribution'):
             print("\n年龄分布:")
@@ -525,6 +545,11 @@ def print_stats_results(title: str, stats_result: Dict):
             for item in analysis['gender_distribution']: print(
                 f"  - {item['gender']:<10}: {item['count']}人 ({item['percentage']})")
 
+        if analysis.get('room_type_distribution'):
+            print("\n房间类型分布:")
+            for item in analysis['room_type_distribution']: print(
+                f"  - {item['room_type']:<20}: {item['count']}间 ({item['percentage']})")
+
         if analysis.get('rent_analysis'):
             rent_info = analysis['rent_analysis']
             print(f"\n租金分析 (基于 {rent_info['based_on_count']} 名有租金记录的住客):")
@@ -535,17 +560,14 @@ def print_stats_results(title: str, stats_result: Dict):
                 print("  - 租金分段:")
                 for item in rent_info['distribution']: print(
                     f"    - {item['range']:<12}: {item['count']}人 ({item['percentage']})")
-
             if rent_info.get('gender_breakdown'):
                 print("  - 付费人数男女占比:")
                 for item in rent_info['gender_breakdown']:
                     print(f"    - {item['gender']:<12}: {item['count']}人 ({item['percentage']})")
-
             if rent_info.get('gender_contribution_to_total_rent'):
                 print("  - 租金总额贡献占比:")
                 for item in rent_info['gender_contribution_to_total_rent']:
                     print(f"    - {item['gender']:<12}: 贡献总额 {item['total_rent']} ({item['percentage']})")
-
     else:
         print("没有符合条件的住客可以进行分析。")
     print("=" * (42 + len(title)))
@@ -558,11 +580,10 @@ if __name__ == "__main__":
         status_rent_df = load_status_rent_data_from_xml(XML_STATUS_RENT_PATH)
 
         if status_rent_df is not None:
-            guest_df['id'] = pd.to_numeric(guest_df['id'], errors='coerce')
-            status_rent_df['id'] = pd.to_numeric(status_rent_df['id'], errors='coerce')
-
+            guest_df['id'] = pd.to_numeric(guest_df['id'], errors='coerce').astype('Int64')
+            status_rent_df['id'] = pd.to_numeric(status_rent_df['id'], errors='coerce').astype('Int64')
             print(f"\n正在合并数据...")
-            merged_df = pd.merge(guest_df, status_rent_df, on='id', how='left')
+            merged_df = pd.merge(guest_df.dropna(subset=['id']), status_rent_df.dropna(subset=['id']), on='id', how='left')
             print("数据合并完成。")
         else:
             merged_df = guest_df
@@ -570,8 +591,12 @@ if __name__ == "__main__":
 
         df = pd.DataFrame(merged_df)
 
-        column_names = df.columns
-        print(column_names)
+        # 应用房间类型映射
+        if 'rmtype' in df.columns:
+            print("正在将房间类型代码映射到中文名称...")
+            # 使用 .map() 应用字典映射。对于不在字典中的 rmtype，使用 .fillna() 保留其原始值。
+            df['rmtype_name'] = df['rmtype'].map(RMTYPE_MAPPING).fillna(df['rmtype'])
+            print("映射完成。")
 
         print("\n\n--- 将ID 3699 的查询结果存入变量并打印 ---")
         result_variable = get_query_result_as_string(merged_df, 3699)
@@ -579,21 +604,24 @@ if __name__ == "__main__":
         print(result_variable)
 
         stats_result_1 = get_guest_statistics(
-            merged_df, status='实际当前在住'
+            df, status='实际当前在住' ,room_type= '行政单间公寓'
         )
-        print_stats_results("示例：所有在住客人统计", stats_result_1)
+        print_stats_results("示例：所有在住客人统计 (使用中文房间类型)", stats_result_1)
 
         stats_result_2 = get_guest_statistics(
-            merged_df, gender='女', status='实际当前在住'
+            df, gender='女', status=['I', 'R', 'X'] ,room_type= '行政单间公寓'
         )
-        print_stats_results("", stats_result_2)
+        #print(stats_result_2)
+        print_stats_results("示例：所有在住、预离和已结账的女性客人统计", stats_result_2)
 
         details_string_result = get_filtered_details_as_string(
-            merged_df,
+            df,
             status='实际当前在住',
-            remark_keyword='宠物'
+            remark_keyword='宠物',
+            nation = 'usa',
+            room_type= '行政单间公寓'
         )
-
+        print("\n--- 30岁及以下的在住客人详细列表 ---")
         print(details_string_result)
 
     else:
