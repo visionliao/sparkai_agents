@@ -10,7 +10,7 @@ PRICE_FILE = '房间价格.txt'
 LAYOUT_FILE = '公寓详细房间分布表.txt'
 AREA_ASPECT_FILE = 'SPARK_579间房间+房间对应面积朝向.txt'
 GROUP_FILE = '面积分组房号表_含房型.txt'
-OUTPUT_CSV = '公寓信息汇总.csv'
+OUTPUT_CSV = 'room_base.csv'
 
 # 定义最终CSV文件的表头
 CSV_HEADERS = [

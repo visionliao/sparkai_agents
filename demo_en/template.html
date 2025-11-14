@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartment Operations Data Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{
+            --sidebar-bg: #1a253c;
+            --sidebar-text: #aab8c5;
+            --sidebar-active-bg: rgba(74, 144, 226, 0.15);
+            --sidebar-active-text: #ffffff;
+            --bg-color: #f4f7fa;
+            --card-bg-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --primary-color: #4A90E2;
+            --green-color: #34D399;
+            --yellow-color: #FBBF24;
+            --red-color: #F87171;
+            --blue-info-color: #17a2b8;
+            --border-color: #e2e8f0;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+        }}
+
+        * {{
+            box-sizing: border-box;
+        }}
+
+        html {{
+            scroll-behavior: smooth;
+        }}
+
+        body {{
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+        }}
+
+        .sidebar {{
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+        }}
+
+        .sidebar-header {{
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--sidebar-active-text);
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }}
+
+        .sidebar-nav a {{
+            display: block;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+            border-left: 3px solid transparent;
+        }}
+
+        .sidebar-nav a.active,
+        .sidebar-nav a:hover {{
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            border-left: 3px solid var(--primary-color);
+        }}
+
+        .main-content {{
+            margin-left: 240px;
+            width: calc(100% - 240px);
+            padding: 30px;
+        }}
+
+        .main-header {{
+            margin-bottom: 30px;
+        }}
+
+        .main-header h1 {{
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }}
+
+        .main-header p {{
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }}
+
+        .report-meta {{
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            margin-top: 10px !important;
+        }}
+
+        .report-meta strong {{
+            font-weight: 500;
+            margin-right: 6px;
+            color: var(--text-primary);
+        }}
+
+        .dashboard-grid {{
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }}
+
+        .section-anchor {{
+            padding-top: 30px;
+        }}
+
+        .card {{
+            background: var(--card-bg-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }}
+
+        .card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+        }}
+
+        .card-title {{
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+        }}
+
+        .card-title svg {{
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            fill: var(--text-secondary);
+        }}
+
+        /* --- Grid Span Definitions --- */
+        .grid-col-3 {{ grid-column: span 3; }}
+        .grid-col-4 {{ grid-column: span 4; }}
+        .grid-col-5 {{ grid-column: span 5; }}
+        .grid-col-6 {{ grid-column: span 6; }}
+        .grid-col-7 {{ grid-column: span 7; }}
+        .grid-col-8 {{ grid-column: span 8; }}
+        .grid-col-12 {{ grid-column: span 12; }}
+
+        /* --- Specific Card Styles --- */
+        .overview-card {{
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }}
+        .overview-card .icon {{
+            font-size: 24px;
+            background-color: var(--sidebar-active-bg);
+            color: var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .overview-card .stat-value {{
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }}
+        .overview-card .stat-label {{
+            font-size: 14px;
+            color: var(--text-secondary);
+        }}
+
+        .chart-container {{
+            height: 280px;
+        }}
+
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }}
+        th, td {{
+            text-align: left;
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }}
+        thead th {{
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+        }}
+        tbody tr:nth-child(even) {{
+             background-color: #f9fafb;
+        }}
+        tbody tr:last-child td {{
+            border-bottom: none;
+        }}
+
+        .highlight-green {{ font-weight: 700; color: var(--green-color); }}
+        .highlight-blue {{ font-weight: 700; color: var(--primary-color); }}
+        .highlight-red {{ font-weight: 700; color: var(--red-color); }}
+        .highlight-info {{ font-weight: 700; color: var(--blue-info-color); }}
+
+        /* Responsive */
+        @media (max-width: 1200px) {{
+            .sidebar {{ display: none; }}
+            .main-content {{ margin-left: 0; width: 100%; }}
+            .grid-col-3 {{ grid-column: span 6; }}
+            .grid-col-4, .grid-col-5, .grid-col-7, .grid-col-8 {{ grid-column: span 12; }}
+        }}
+        @media (max-width: 768px) {{
+            .main-content {{ padding: 15px; }}
+            .dashboard-grid {{ grid-template-columns: 1fr; }}
+            .card {{ grid-column: span 1 !important; }}
+        }}
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">Data Dashboard</div>
+        <nav class="sidebar-nav">
+            <a href="#overview" class="active">🏢 Operations Overview</a>
+            <a href="#room_analysis">🏠 Room Type Analysis</a>
+            <a href="#building_analysis">🏢 Building Analysis</a>
+            <a href="#rent_analysis">💰 Rent Analysis</a>
+            <a href="#channel_analysis">🧮 Channels & Markets</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="main-header">
+            <h1>Apartment Operations Data Insights</h1>
+            <p class="report-meta">
+                <span><strong>Report Date:</strong> {report_date}</span>
+                <span><strong>Data Period:</strong> {data_period} (Based on the last 30 days)</span>
+            </p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Operations Overview -->
+            <section id="overview" class="section-anchor grid-col-12">
+                <div class="dashboard-grid">
+                    <div class="card overview-card grid-col-3">
+                        <div class="icon">🏢</div><div><div class="stat-value">{total_rooms}</div><div class="stat-label">Total Rooms</div></div>
+                    </div>
+                    <div class="card overview-card grid-col-3">
+                         <div class="icon">📈</div><div><div class="stat-value">{rented_rooms}</div><div class="stat-label">Rented Rooms</div></div>
+                    </div>
+                    <div class="card overview-card grid-col-3">
+                         <div class="icon">📊</div><div><div class="stat-value">{occupancy_rate}%</div><div class="stat-label">Final Occupancy Rate</div></div>
+                    </div>
+                    <div class="card overview-card grid-col-3">
+                         <div class="icon">💾</div><div><div class="stat-value">{data_coverage_rate}%</div><div class="stat-label">Data Coverage Rate</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="card grid-col-4">
+                <h2 class="card-title">🧾 Room Status Distribution</h2>
+                <div class="chart-container" style="height:200px;">
+                    <canvas id="roomStatusChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card grid-col-8">
+                <h2 class="card-title">📉 Rent Record Accuracy & Income Estimation</h2>
+                <table>
+                    <thead><tr><th>Item</th><th>Value</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td>Rooms with Rent Record</td><td>{rooms_with_rent_record} rooms</td><td>Includes all statuses</td></tr>
+                        <tr><td>Currently Rented with Rent Record</td><td class="highlight-info">{rented_with_rent_record} rooms</td><td>Includes occupied and reserved; the most effective financial base</td></tr>
+                        <tr><td>Currently Rented but No Rent Record</td><td class="highlight-red">{rented_without_rent_record} rooms</td><td>Missing data, affects accurate income calculation</td></tr>
+                        <tr><td><strong>Reasonable Monthly Income Estimate</strong></td><td class="highlight-green"><strong>¥{estimated_monthly_income}</strong></td><td>Estimated based on the average of {rented_rooms} rented rooms</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Room Type Analysis -->
+            <section id="room_analysis" class="section-anchor grid-col-12">
+                <div class="card">
+                    <h2 class="card-title">🏠 Analysis by Room Type</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Room Type</th><th>Occupancy</th><th>Avg. Rent (CNY)</th><th>Rent Efficiency (CNY/㎡/Month)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Studio Deluxe</td><td><span>{sd_occupancy}%</span></td><td>{sd_avg_rent}</td><td><span>{sd_efficiency}</span></td></tr>
+                            <tr><td>One Bedroom Deluxe</td><td>{obd_occupancy}%</td><td>{obd_avg_rent}</td><td>{obd_efficiency}</td></tr>
+                            <tr><td>Studio Executive (B)</td><td>{seb_occupancy}%</td><td>{seb_avg_rent}</td><td>{seb_efficiency}</td></tr>
+                            <tr><td>One Bedroom Premier</td><td>{obp_occupancy}%</td><td>{obp_avg_rent}</td><td>{obp_efficiency}</td></tr>
+                            <tr><td>Studio Executive (A)</td><td>{sea_occupancy}%</td><td>{sea_avg_rent}</td><td>{sea_efficiency}</td></tr>
+                            <tr><td>Two Bedroom Deluxe</td><td>{tbd_occupancy}%</td><td><span>{tbd_avg_rent}</span></td><td>{tbd_efficiency}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Building Analysis -->
+            <section id="building_analysis" class="section-anchor grid-col-12">
+                 <div class="card">
+                    <h2 class="card-title">🏢 Analysis by Building</h2>
+                    <table>
+                        <thead><tr><th>Building</th><th>Total Rooms</th><th>Rented</th><th>Occupancy</th><th>Avg. Rent</th><th>Median Rent</th></tr></thead>
+                        <tbody>
+                            <tr><td>Building A</td><td>{building_a_total}</td><td>{building_a_rented}</td><td>{building_a_occupancy}%</td><td>¥{building_a_avg_rent}</td><td>¥{building_a_median_rent}</td></tr>
+                            <tr><td>Building B</td><td>{building_b_total}</td><td>{building_b_rented}</td><td>{building_b_occupancy}%</td><td>¥{building_b_avg_rent}</td><td>¥{building_b_median_rent}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Rent Analysis -->
+            <section id="rent_analysis" class="section-anchor grid-col-12">
+                <div class="dashboard-grid">
+                    <div class="card grid-col-5">
+                        <h2 class="card-title">💰 Overall Rent Metrics</h2>
+                        <table>
+                            <tbody>
+                                <tr><td>Average Rent</td><td class="highlight-blue">¥{rent_avg}</td></tr>
+                                <tr><td>Median Rent</td><td class="highlight-blue">¥{rent_median}</td></tr>
+                                <tr><td>Minimum Rent</td><td>¥{rent_min}</td></tr>
+                                <tr><td>Maximum Rent</td><td>¥{rent_max}</td></tr>
+                                <tr><td>Average Rent per Sqm</td><td>¥{rent_sqm_avg}/㎡/Month</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card grid-col-7">
+                        <h2 class="card-title">📊 Rent Distribution Range</h2>
+                        <div class="chart-container" style="height:250px;">
+                            <canvas id="rentDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Channels & Markets -->
+            <section id="channel_analysis" class="section-anchor grid-col-12">
+                 <div class="card">
+                    <h2 class="card-title">🧮 Analysis by Channel & Market Segment</h2>
+                    <div class="dashboard-grid">
+                        <div class="grid-col-6">
+                            <h3 style="text-align:center; font-weight:500;">Channel Segment</h3>
+                             <table>
+                                <thead><tr><th>Channel</th><th>Leases</th><th>Total Revenue</th><th>Ratio</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Agent</td><td>{channel_AGT_count}</td><td>¥{channel_AGT_income}</td><td>{channel_AGT_ratio}%</td></tr>
+                                    <tr><td>Market Channel</td><td>{channel_MKC_count}</td><td>¥{channel_MKC_income}</td><td>{channel_MKC_ratio}%</td></tr>
+                                    <tr><td>WeChat Mini Program</td><td>{channel_MPM_count}</td><td>¥{channel_MPM_income}</td><td>{channel_MPM_ratio}%</td></tr>
+                                    <tr><td>Walk-in</td><td>{channel_WI_count}</td><td>¥{channel_WI_income}</td><td>{channel_WI_ratio}%</td></tr>
+                                    <tr><td>Loyalty Program</td><td>{channel_LAT_count}</td><td>¥{channel_LAT_income}</td><td>{channel_LAT_ratio}%</td></tr>
+                                    <tr><td>Cross-Selling</td><td>{channel_CRS_count}</td><td>¥{channel_CRS_income}</td><td>{channel_CRS_ratio}%</td></tr>
+                                    <tr><td>Referral</td><td>{channel_REF_count}</td><td>¥{channel_REF_income}</td><td>{channel_REF_ratio}%</td></tr>
+                                    <tr><td>Online Travel Agency (OTA)</td><td>{channel_OTA_count}</td><td>¥{channel_OTA_income}</td><td>{channel_OTA_ratio}%</td></tr>
+                                    <tr><td>Corporate Sourcing</td><td>{channel_ORC_count}</td><td>¥{channel_ORC_income}</td><td>{channel_ORC_ratio}%</td></tr>
+                                    <tr><td>Website Booking</td><td>{channel_WEB_count}</td><td>¥{channel_WEB_income}</td><td>{channel_WEB_ratio}%</td></tr>
+                                    <tr><td>Sales Channel</td><td>{channel_LES_count}</td><td>¥{channel_LES_income}</td><td>{channel_LES_ratio}%</td></tr>
+                                    <tr><td>Staff Booking</td><td>{channel_STF_count}</td><td>¥{channel_STF_income}</td><td>{channel_STF_ratio}%</td></tr>
+                                </tbody>
+                             </table>
+                        </div>
+                        <div class="grid-col-6">
+                            <h3 style="text-align:center; font-weight:500;">Market Segment</h3>
+                             <table>
+                                <thead><tr><th>Market Segment</th><th>Leases</th><th>Total Revenue</th><th>Ratio</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Individual</td><td>{market_IND_count}</td><td>¥{market_IND_income}</td><td>{market_IND_ratio}%</td></tr>
+                                    <tr><td>Local Corporate</td><td>{market_LOC_count}</td><td>¥{market_LOC_income}</td><td>{market_LOC_ratio}%</td></tr>
+                                    <tr><td>Domestic Corporate</td><td>{market_DOC_count}</td><td>¥{market_DOC_income}</td><td>{market_DOC_ratio}%</td></tr>
+                                    <tr><td>International Corporate</td><td>{market_ITC_count}</td><td>¥{market_ITC_income}</td><td>{market_ITC_ratio}%</td></tr>
+                                    <tr><td>Global Distribution System (GDS)</td><td>{market_GDS_count}</td><td>¥{market_GDS_income}</td><td>{market_GDS_ratio}%</td></tr>
+                                    <tr><td>Online Travel Agency (OTA)</td><td>{market_OTA_count}</td><td>¥{market_OTA_income}</td><td>{market_OTA_ratio}%</td></tr>
+                                    <tr><td>Brand Website</td><td>{market_WEB_count}</td><td>¥{market_WEB_income}</td><td>{market_WEB_ratio}%</td></tr>
+                                    <tr><td>WeChat</td><td>{market_WX_count}</td><td>¥{market_WX_income}</td><td>{market_WX_ratio}%</td></tr>
+                                    <tr><td>Sales Channel</td><td>{market_LES_count}</td><td>¥{market_LES_income}</td><td>{market_LES_ratio}%</td></tr>
+                                </tbody>
+                             </table>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {{
+            const chartOptions = {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{
+                        position: 'bottom',
+                        labels: {{ font: {{ family: "'Noto Sans SC', sans-serif" }}, padding: 15 }}
+                    }}
+                }}
+            }};
+
+            // Chart 1: Room Status
+            new Chart(document.getElementById('roomStatusChart').getContext('2d'), {{
+                type: 'doughnut',
+                data: {{
+                    labels: ['Occupied', 'Reserved', 'Checked-out', 'Cancelled', 'Vacant'],
+                    datasets: [{{
+                        label: 'Number of Rooms',
+                        data: [{chart_status_i}, {chart_status_r}, {chart_status_o}, {chart_status_x}, {chart_status_remainder}],
+                        backgroundColor: ['#34D399', '#FBBF24', '#4A90E2', '#F87171', '#f9fafb'],
+                        borderColor: 'var(--card-bg-color)',
+                        borderWidth: 4
+                    }}]
+                }},
+                options: chartOptions
+            }});
+
+            // Chart 2: Rent Distribution
+            new Chart(document.getElementById('rentDistributionChart').getContext('2d'), {{
+                type: 'bar',
+                data: {{
+                    labels: ['5k-10k', '10k-15k', '15k-20k', '20k-30k'],
+                    datasets: [{{
+                        label: 'Number of Rooms',
+                        data: [{chart_rent_dist_1}, {chart_rent_dist_2}, {chart_rent_dist_3}, {chart_rent_dist_4}],
+                        backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                        borderColor: 'rgba(74, 144, 226, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }}]
+                }},
+                options: {{ ...chartOptions, plugins: {{ legend: {{ display: false }} }} }}
+            }});
+
+            // --- Sidebar scroll listener and click functionality ---
+            const sections = document.querySelectorAll('.section-anchor');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+            const observer = new IntersectionObserver((entries) => {{
+                entries.forEach(entry => {{
+                    if (entry.isIntersecting) {{
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        const id = entry.target.getAttribute('id');
+                        const activeLink = document.querySelector('.sidebar-nav a[href="#' + id + '"]');
+                        if (activeLink) {{
+                            activeLink.classList.add('active');
+                        }}
+                    }}
+                }});
+            }}, {{
+                rootMargin: '-30% 0px -70% 0px'
+            }});
+
+            sections.forEach(section => {{
+                observer.observe(section);
+            }});
+
+            // Fix for the last nav link not highlighting at the very bottom
+            const lastNavLink = navLinks[navLinks.length - 1];
+            window.addEventListener('scroll', () => {{
+                const isAtBottom = (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 2;
+                if (isAtBottom) {{
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    lastNavLink.classList.add('active');
+                }}
+            }});
+        }});
+    </script>
+
+</body>
+</html>

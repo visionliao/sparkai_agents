@@ -22,7 +22,7 @@ from demo.apartment_query import ApartmentQueryTool
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("公寓数据查询")
-TOOL = ApartmentQueryTool(filepath='demo/公寓信息汇总.csv')
+TOOL = ApartmentQueryTool(filepath='demo/room_base.csv')
 
 RMTYPE_MAPPING = {
     '1BD': "一房豪华式公寓",
@@ -1316,7 +1316,7 @@ if __name__ == "__main__":
     #print(get_statistical_summary(gender='男', status='实际当前在住'))
     #print(find_apartments(building=['A'],floor_range=(15, 100),orientation=['南'],room_type=['一房'],price_range=(0, 25000),lease_term='12个月及以上',sort_by='area',sort_order='desc',return_fields = ['房号', '面积(平方米)', '参考租金', '朝向']))
     #print(advanced_query_service(start_date_str='2025-07-01', service_code='B701'))
-    #print(query_distribution_report(start_date_str='2025-07-01', end_date_str='2025-07-02'))
+    print(get_filtered_details(room_type='豪华行政单间',status='实际当前在住'))
 
     # 定义使用的主机和端口
     host = "127.0.0.1"
