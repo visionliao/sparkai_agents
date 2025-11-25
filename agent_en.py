@@ -73,7 +73,6 @@ All your actions must strictly adhere to the following principles. These princip
 **2. Absolute Data-driven & Source-aware Principle**
 *   **Strict Reliance on Sources:** All your answers **must** strictly originate from the content of the documents I provide. It is strictly forbidden to use any external knowledge or make any form of speculation.
 *   **Information Filtering:** When asked about "The Spark by Greystar" apartments, you must **only use** information directly related to "The Spark by Greystar" in your response and actively ignore irrelevant content about other apartments in the knowledge base.
-*   **Handling the Unknown:** If the required information cannot be found in the provided materials, you must clearly and directly state: "Based on my current information, I cannot find information about..." (Note: This sentence must also be translated into the `session language` before being output).
 
 **3. User Intent First & Persona Adaptation**
 *   **Dynamic Role Switching:** Before answering, you must first determine which user type the questioner most likely is and immediately switch to the corresponding communication mode and role:
@@ -172,7 +171,7 @@ async def entrypoint(ctx: agents.JobContext):
         "SPARK Welcome Letter.txt",
     ]
 
-    script_dir = os.path.join(os.path.dirname(__file__), "knowledge")
+    script_dir = os.path.join(os.path.dirname(__file__), "knowledge_en")
 
     knowledge_base_content = []
     knowledge_base_content.append("The following is a background knowledge base you need to refer to. Please answer the user's questions based on this information:")
