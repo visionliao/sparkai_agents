@@ -1,0 +1,462 @@
+Detailed Layout Analysis of S-39 Room Type
+1. Foyer (门厅)
+Room Layout & Furnishings:
+To the left of the entrance, there is a floor-to-ceiling shoe cabinet (labeled "SHOES"), providing ample storage space.
+The flooring material may differ from other areas (as indicated by the grid pattern on the floor in the diagram), serving as a dust control zone.
+Functional and Layout Analysis:
+As the first space upon entering the home, the foyer's function is for changing shoes, placing items, and transitioning one's mood.
+The layout here is very direct with a clear circulation path. After entering, one can go directly to the bathroom or into the main living and dining area. The shoe cabinet is practical and meets daily storage needs.
+2. Bathroom (卫生间) & Utility Area
+Room Layout & Furnishings:
+The design of this area is a major highlight of the unit, featuring a highly efficient "three-part separation" layout.
+Vanity Area (External): Separate from the wet area, it features a washbasin. Adjacent to it, space is reserved for a washing machine (labeled "WM") and a vacuum cleaner (labeled "vacuum cleaner"), forming a compact utility corner.
+Toilet Area: Inside, there is a separate toilet room (labeled "TOILET").
+Shower Area: There is an independent shower room (labeled "SHOWER"), separated from the outside by a glass door.
+Functional and Layout Analysis:
+"Three-Part Separation" Design: This is a very modern and user-friendly design. The three functions—washing up, using the toilet, and showering—can be performed simultaneously without interfering with each other. This greatly enhances efficiency, especially during peak morning and evening hours, making it very suitable for households with two or more people.
+Wet/Dry Separation: The layout achieves a complete separation of wet and dry areas. The steam from the shower is fully contained, keeping the external vanity and utility areas dry and clean. This facilitates cleaning and prevents electrical appliances from being damaged by moisture.
+3. Kitchen (K) & Dining Area (用餐区)
+Room Layout & Furnishings:
+Kitchen: It features a single-wall (I-shaped) open layout, including a sink (labeled "水" - water), a countertop for food preparation, and a stove (labeled "火" - fire). The cabinets provide basic storage.
+Dining Area: Located next to the kitchen, it is furnished with a round dining table and two chairs.
+Functional and Layout Analysis:
+Integrated LDK: The Living, Dining, and Kitchen areas are combined into one, a typical design technique in small apartments to create a sense of spaciousness. This open layout reduces physical walls, making the entire public area appear more open and bright.
+Smooth Circulation: The kitchen workflow of "washing, cutting, and cooking" is clear. After cooking, food can be served directly to the table, making the dining circulation short and efficient. The dining area acts as a natural transition between the kitchen and the living room.
+4. Living Room (客厅)
+Room Layout & Furnishings:
+A three-seater sofa.
+Two small, round coffee tables that can be flexibly arranged.
+The opposite wall has a designated space for a TV or projector.
+Functional and Layout Analysis:
+As the core activity area of the home, the living room has a simple and open layout. The choice of furniture (small-volume coffee tables) prevents the space from feeling cluttered.
+The sofa is not placed against a wall, leaving a corridor behind it that leads to the bedroom. This creates a circular circulation path, making the space more flexible.
+5. Bedroom (卧室)
+Room Layout & Furnishings:
+A double bed measuring 1800×2000mm.
+Two nightstands.
+A full-wall closet (labeled "CLOSET"), providing substantial storage capacity.
+The bedroom connects to a balcony or bay window area.
+Functional and Layout Analysis:
+The bedroom's functional zones are clear: a sleeping area (bed) and a storage area (closet).
+The bed is well-placed, with sufficient passage space on both sides. Facing the balcony, it ensures good lighting and ventilation.
+The full-wall closet is a classic method for maximizing storage in a small unit, meeting the owner's clothing storage needs.
+Part Two: Overall Layout Summary and Analysis
+After understanding the details of each room, let's examine the overall design of the unit.
+
+1. Overall Layout and Circulation Evaluation
+Zoning of Active and Quiet Areas: The unit has a very clear and reasonable separation of "active and quiet zones."
+Quiet Zone: The bedroom, as the only private resting space, is cleverly placed in the innermost part of the unit. It is separated by the living room and is far from the entrance and major activity noise, ensuring privacy and tranquility.
+Active Zone: Public activity areas such as the foyer, living room, dining room, kitchen, and bathroom are integrated into the front half of the unit, forming an open and coherent whole.
+Internal Circulation: The overall circulation design is efficient and smooth, with almost no wasted space.
+Main Occupant/Guest Flow: Upon entering from the foyer, one arrives directly at the core living and dining area, which is convenient for hosting guests and for daily activities.
+Housework Flow: The kitchen, dining room, bathroom, and utility area are centrally located, shortening the distance required for household chores.
+Living Flow: The path from the public area to the bedroom is also natural, without any intersections or detours.
+Summary Table of Whole-House Electrical Points for S-39 Room Type (For Maintenance)
+The whole-house electrical points have been categorized and summarized for five areas: Foyer, Kitchen, Bathroom, Living/Dining Room, and Bedroom, retaining all key technical details as follows:
+
+Foyer:
+On the wall next to the entrance door, there is a main power switch for the floor at a height of 1300mm, a video intercom at 1500mm, a two-way switch for the living room downlights at 1300mm (for convenient control from the entrance), and a two-way switch for the foyer downlight/shoe cabinet light strip at 1300mm. A power supply for the shoe cabinet light strip is reserved on the wall above the cabinet at 1200mm, controlled by the foyer's two-way switch. The wall in the shoe cabinet area is also equipped with an electric heater socket at 1200mm. The low-voltage distribution box is located inside the foyer cabinet; its position is indicated on the drawing, but the height is not specified.
+Kitchen:
+Electrical points include a refrigerator socket at 350mm high on the wall behind the fridge, featuring 24-hour uninterrupted power and an independent switch. A socket for a washer-dryer combo is located at 1050mm on the wall at the washing machine position. A range hood socket is installed at 2100mm on the wall directly above the stove, and an induction cooktop socket is at 650mm on the wall below the stove. The microwave socket is located inside a cabinet or on the wall below the countertop at a height of 650mm. One spare socket is provided on the wall above the kitchen countertop at 450mm, and two additional spare sockets are set at 350mm on a kitchen wall.
+Bathroom:
+A waterproof socket for a smart toilet is located on the wall behind the toilet at 350mm. A shaver socket and a switch for the mirror light are installed at 1300mm on the wall next to the washbasin. A switch for the heater/exhaust fan is also located at 1300mm on the wall by the bathroom door. Junction boxes for the mirror light and anti-fog mirror are reserved on the wall behind the mirror at a height of 1800mm.
+Living Room / Dining Area:
+Electrical points are planned as follows: a spare socket is located on the dining area wall at 350mm. The TV background wall is equipped with a TV signal socket (one-in-three-out) at 750mm and three spare sockets at 750mm, one of which is labeled "table lamp socket." On the wall next to the sofa, there is a two-way switch for the living room downlights and a switch for the living room light strip, both at 1300mm. On the wall next to the sofa (opposite the TV wall), there are two spare five-hole sockets at 350mm, an HDMI output socket at 350mm, and a fiber optic access panel. Behind the sofa's half-wall, a power socket for a projector and a double-sided reserved HDMI signal output socket are provided, with no specific heights indicated. A power supply for a cabinet light strip is reserved on top of the half-wall behind the sofa. Additionally, a junction box for a light dimmer is located within the living room's suspended ceiling.
+Bedroom:
+Electrical points are concentrated on the walls on both sides of the headboard. The left wall has a combination switch for bedroom lights (controlling downlights and a light strip) at 750mm, a single-control switch for a wall sconce at 750mm, a USB charging panel at 750mm, and a spare socket at 750mm. The right wall of the headboard also has a single-control switch for a wall sconce at 750mm and two spare sockets at 750mm, one labeled "tandem socket for table lamp." Additionally, two spare five-hole sockets are installed at 1050mm on the wall opposite the bed.
+Analysis Summary:
+The design is well-considered. Switch heights are primarily set at 1300mm, which is ergonomic. Standard socket heights are mostly 350mm, while special locations like the headboard and TV wall are adjusted to 750mm or higher based on furniture and usage scenarios, demonstrating strong functionality. The plan includes various modern outlets, such as USB charging ports, HDMI sockets, and power for a smart toilet and projector. Furthermore, user-friendly considerations are integrated, such as two-way switches at the foyer and living room entrances for controlling main lighting from different locations. The refrigerator is designed with 24-hour uninterrupted power, and the bathroom features a waterproof socket next to the toilet, ensuring a high level of overall safety.
+Floor Material Distribution Plan for S-39 Room Type (For Maintenance)
+Foyer:
+Material: ST 01 Stone.
+This area is paved with stone. Stone is typically chosen to enhance the durability and premium feel of the entrance area.
+Bathroom:
+Material: CT 01 Tiles.
+As a wet area, the bathroom floor is tiled to ensure it is waterproof, slip-resistant, and easy to clean.
+Living & Dining Room and Bedroom:
+Material: WF 01 LVT (Luxury Vinyl Tile) Finish.
+These two main living and resting areas are uniformly paved with LVT flooring. This material provides a comfortable underfoot feel and a consistent visual effect, making the space appear more spacious and coherent.
+Kitchen Area:
+Material: Cement Mortar Leveling.
+The floor in the open kitchen area is marked for cement mortar leveling. This may indicate that a seamless flooring process, such as micro-cement or PANDOMO®, will be used to create a modern or industrial-style floor.
+Balcony:
+Material: Cement Mortar Leveling.
+Similar to the kitchen, the balcony floor also uses cement mortar leveling, which is a common, sturdy, and durable treatment for balconies.
+Step to Balcony:
+Material: Bamboo Wood Flooring.
+The transitional step leading from the living room to the balcony is specially made of bamboo wood flooring, serving as a warm and natural connection between the indoor and outdoor spaces.
+Comprehensive Analysis Report of Ceiling Design for S-39 Room Type (For Maintenance)
+This report is based on a comparative analysis of the floor plan and the reflected ceiling plan, detailing the ceiling design for each room.
+
+1. Foyer:
+Ceiling Height & Finish: Ceiling Height (CH) 2400mm, Finish (PT 03) White Emulsion Paint.
+Lighting Design:
+Main Lighting: 2 x R05 (Recessed Light Strips) provide uniform base illumination.
+Other Equipment:
+HVAC: 1 x Supply Air Grille and 1 x Return Air Grille.
+Fire Safety: 1 x Ceiling-mounted Sprinkler.
+2. Bathroom/Utility:
+Ceiling Height & Finish: CH 2350mm, Finish (PT 04) Waterproof Emulsion Paint.
+Lighting Design:
+Vanity Area: 1 x R01 (Recessed Adjustable Downlight).
+Shower Area: 1 x R02 (Recessed Waterproof Downlight).
+Toilet Area: 1 x R03 (Note: This symbol is not defined in the legend, but based on its location and ceiling finish, it is presumed to be a recessed waterproof downlight).
+Other Equipment:
+HVAC: 1 x Exhaust Grille, located above the toilet.
+Fire Safety: 1 x Ceiling-mounted Sprinkler.
+Other: 1 x Access Panel, located in the toilet room.
+3. Kitchen/Dining:
+Ceiling Height & Finish: CH 2400mm, Finish (PT 03) White Emulsion Paint.
+Lighting Design:
+Kitchen Work Area: 1 x R05 (Recessed Light Strip) provides shadow-free task lighting for the countertop.
+Dining Area: 1 x Decorative Pendant Light centered over the dining table, supplemented by 2 x R01 (Recessed Adjustable Downlights) for additional lighting.
+Other Equipment:
+Fire Safety: 1 x Ceiling-mounted Sprinkler and 1 x Smoke Detector.
+4. Living Room:
+Ceiling Height & Finish: Main area CH 2600mm, Finish (PT 03) White Emulsion Paint. There is a decorative dropped ceiling (bulkhead) along the exterior wall and the partition wall with the bedroom.
+Lighting Design:
+Main Lighting: 4 x R01 (Recessed Adjustable Downlights) distributed in the central area.
+Ambient Lighting: 2 x R04 (Recessed Waterproof Light Strips) are installed along the sofa's background wall for wall washing (Note: The use of "waterproof" strips here might be a typo or a specific product choice).
+Indirect Lighting: CLS (Concealed Linear Strips) are hidden within the decorative drop ceiling to create a floating effect and soft ambient light.
+Other Equipment:
+HVAC: 1 x Supply Air Grille (S/A), located on the dropped ceiling.
+Fire Safety: 2 x Ceiling-mounted Sprinklers.
+Structural: A Curtain Box is installed along the exterior wall.
+Other: 1 x Access Panel.
+5. Bedroom:
+Ceiling Height & Finish: CH 2600mm, Finish (PT 03) White Emulsion Paint. There is a decorative dropped ceiling along the exterior wall.
+Lighting Design:
+Bedside Lighting: 2 x LDWL (Surface-mounted Wall Sconces), located on each side of the headboard.
+Main Lighting: 2 x R01 (Recessed Adjustable Downlights) provide base illumination.
+Closet Area: 2 x R02 (Recessed Waterproof Downlights) provide task lighting (Note: The use of "waterproof" downlights in a dry bedroom area is uncommon and may be a drafting error or a special design requirement).
+Indirect Lighting: CLS (Concealed Linear Strips) hidden within the decorative drop ceiling.
+Other Equipment:
+HVAC: 1 x Supply Air Grille (S/A) and 1 x Return Air Grille, both located on the dropped ceiling.
+Fire Safety: 2 x Ceiling-mounted Sprinklers.
+Structural: A Curtain Box is installed along the exterior wall.
+Room Lighting Fixture Distribution Diagram for S-39 Room Type (For Maintenance)
+1. Foyer
+Fixture & Equipment Layout (What's there?):
+Fixtures: 1 x R01 Recessed Adjustable Downlight in the center of the foyer; 1 x R05 Surface-mounted Wall Sconce on the right wall of the entrance.
+Equipment: On the right wall of the entrance, there is a 3-gang single-control switch and a video intercom. On the ceiling, there is 1 x S (Speaker) and 1 x return air grille.
+Control Logic & Path (How it works?):
+Homecoming Scene: When you open the door, the 3-gang switch on your right is the first control you interact with, performing the core "welcome home" function.
+First button: Controls the central R01 downlight, instantly illuminating the area underfoot and for changing shoes.
+Second button: Controls the R05 wall sconce at the entrance, providing soft, guiding light to create a warm atmosphere.
+Third button: Directly turns on the 2 x R02 adjustable downlights in the living room area. This is a clever design that allows you to light up the path ahead with one press, avoiding the need to enter the living room in the dark and greatly enhancing convenience and safety.
+2. Bathroom
+Fixture & Equipment Layout (What's there?):
+Fixtures: 1 x R02 Recessed Waterproof Downlight above the toilet area; 1 x R01 Recessed Adjustable Downlight above the vanity area; 1 x R06 Concealed Light Strip located within the mirror cabinet or a ceiling feature.
+Equipment: On the wall to the right outside the door, there is a 2-gang single-control switch. Inside, the ceiling is equipped with 1 x heater and 1 x exhaust fan.
+Control Logic & Path (How it works?):
+Daily Use: Before entering the bathroom, use the 2-gang switch outside the door.
+One button: Controls the R02 waterproof downlight and the R01 adjustable downlight, providing bright, sufficient base lighting for the entire space to meet functional needs.
+Another button: Controls the R06 concealed light strip. This offers an alternative lighting mode: when using the toilet at night or wanting a relaxing bath, you can turn on only the strip light for soft, non-glaring ambient light, avoiding disruption to your sleepiness.
+The control switch for the heater should be integrated into the unit itself or on a separate panel, which is not clearly indicated but is usually located on the wall inside the door.
+3. Living & Dining Room
+Fixture & Equipment Layout (What's there?):
+Fixtures:
+Living Area: 2 x R01 Recessed Adjustable Downlights above the sofa area; 2 x R02 Recessed Adjustable Downlights near the foyer side.
+Dining Area: 2 x R02 Recessed Adjustable Downlights above the dining table.
+Overall: R04 Recessed Finished Lights and R06 Concealed Linear Strips are installed along walls or ceiling edges to form a general background light.
+Equipment: On the wall next to the sofa, there is a 2-gang single-control switch. Distributed on the ceiling are 1 x S (Speaker), 1 x smoke detector, and multiple air conditioning supply/return vents.
+Control Logic & Path (How it works?):
+Linked Control: The living room's lighting control is split between two areas, achieving seamless connectivity along the circulation path.
+Entrance 3-gang switch: As mentioned before, one of its buttons controls the 2 x R02 downlights near the foyer, acting as "guiding lights."
+Sofa-side 2-gang switch: This is the core control point for the living room.
+First button: Controls the 2 x R01 downlights directly above the sofa, used for task lighting during reading or social gatherings.
+Second button: Controls the 2 x R02 downlights above the dining table, precisely illuminating the dining area.
+4. Bedroom
+Fixture & Equipment Layout (What's there?):
+Fixtures: 2 x R01 Recessed Adjustable Downlights located above both sides of the headboard; 2 x LDWL Concealed Light Strips, located on the headboard's background wall and in the curtain box; additionally, R05 Surface-mounted Wall Sconces provide ambient lighting.
+Equipment: On the wall inside the bedroom entrance, there is a 3-gang single-control switch. The ceiling is equipped with 1 x S (Speaker) and air conditioning units.
+Control Logic & Path (How it works?):
+Centralized Entrance Control: All lights are centrally controlled by the 3-gang switch at the door, ensuring logical clarity.
+First button: Controls the 2 x R01 downlights, which can be used as reading lights before sleep or as main lighting when getting up at night. Their adjustable feature allows for precise focusing to avoid disturbing a partner.
+Second button: Controls the LDWL light strip on the headboard's background wall, creating a peaceful and soothing sleep atmosphere.
+Third button: Controls the LDWL light strip in the curtain box and the R05 wall sconces, further enhancing the space's layering and warmth.
+This concludes the lighting fixture distribution diagram for maintenance purposes.
+
+Analysis of Plumbing System for S-39 Room Type (For Maintenance)
+Plumbing System Overview:
+1. Drainage System:
+This is a pressurized (or gravity-fed) drainage system. Its main function is to collect wastewater from floor drains and various fixtures and effectively discharge it through pipes.
+Pipe Specifications: "De" is used to indicate the outer diameter of the pipe in millimeters. De110 is typically used for the main drainage stack of the building, while De75 is used for horizontal branches connecting multiple fixtures.
+Key Components & Symbols:
+P-Trap: The symbol resembles a funnel with a "U"-shaped bend underneath. It is a critical component of the drainage pipeline. The water stored in the U-bend forms a "water seal," effectively preventing sewer gases and pests from entering the room.
+System Numbering: Includes B-WL-8, B-FL-8, B-CFL-8. Here, 'B' may represent the building, and '8' may represent the floor (e.g., 8th floor). 'WL' refers to Waste Line, 'FL' refers to Floor Drain Line, and 'CFL' refers to Ceiling Floor Drain Line.
+2. Water Supply System (Shown at the bottom of the diagram):
+This system is responsible for distributing and supplying water to different points within the building.
+Pipe Specifications: "DN" is used to indicate the nominal diameter of the pipe. Specific sizes include DN25, DN32, DN40, and DN50.
+Installation Elevation:
+FF+2.75: Indicates that the installation height of this pipe is 2.75 meters above the Finished Floor.
+EL+2.55: Indicates its absolute elevation is +2.55 meters.
+Key Components & Symbols:
+Ground Symbol: Represented by a downward arrow connected to three horizontal lines, this symbol indicates the termination point of a pipe or its connection to the system's source.
+Elevation Distribution Diagrams for S-39 Room Type (For Decoration and Maintenance)
+Elevation 1
+Left and Center (Cabinet System):
+Upper Section (Wall Cabinets): Labeled WD 01 Light Gray Laminate, providing storage space at the top.
+Middle Section (Work Area): This is the core functional area of the kitchen, including:
+Countertop: Labeled ST 02 Artificial Stone, the main platform for food preparation.
+Sink: The outline of an undermount sink is precisely drawn.
+Backsplash/Wall: Labeled CT 05 Tiles, protecting the wall from grease and water splashes while also serving as an important decorative element.
+Lower Section (Base Cabinets): Also using WD 01 Light Gray Laminate, this is the main storage space for kitchen utensils, pots, and pans.
+Right Side (Tall Cabinet/Decorative Panel):
+A tall cabinet or decorative wall panel labeled WD 01 Light Gray Laminate. Its vertical wood grain adds a sense of vertical stretch to the space and may conceal built-in appliances (like a refrigerator) or large storage compartments.
+Structure and Finishing:
+Top: A wall surface labeled PT 03 White Emulsion Paint and an MT 02 L-shaped Metal Trim Strip. The metal strip provides a refined and clean finish to the top of the wall cabinets.
+Bottom: Labeled WD 05 Finished Skirting Board, which protects the wall base and completes the transition between the floor and the wall.
+Elevation 2
+Left Side - Wood Veneer and Hidden Door:
+The area on the left of the elevation with a vertical wood grain corresponds to the exterior wall of the Bathroom (D03) on the floor plan.
+The door, which is almost seamlessly integrated into the wall, is the Bathroom Door (D03) from the floor plan. This "hidden door" or "concealed door" design, where the door is completely blended into the decorative wall, is a common technique in modern minimalism. The faint outlines of the toilet and washbasin inside also confirm this.
+Right Side - Diamond Pattern Wall:
+The large area on the right of the elevation with a geometric diamond pattern corresponds to a functional wall in the Master Bedroom/Living Area on the floor plan, adjacent to the bathroom.
+This section is not a glass partition but a set of large custom closets or storage cabinets. The cabinet doors also use WD 01 Light Gray Laminate and feature a decorative diamond pattern created with V-grooves or lines, combining storage functionality with aesthetic value.
+Middle - Black Metal Strip:
+The thin black line (MT 01) located between the wood veneer and the diamond-patterned cabinets marks the junction between the bathroom wall and the master bedroom wall on the floor plan. It serves as a clear visual separator.
+Top and Bottom:
+The light gray emulsion paint wall (PT 01) at the top and the wooden skirting board (WD 05) at the bottom run across the entire elevation, creating a unified top and base that harmonizes the different functional modules.
+Elevation 3
+Central Double Glass Doors:
+This is a detailed design development from the previous floor plan information. Although the earlier plan only used symbols for walls and curtains, this detailed drawing clearly specifies that the core of the wall is a grand 2500mm wide double door.
+Its transparent glass design indicates that the door's function is to establish a visual connection between two spaces (e.g., living room and study, or master bedroom and living area), serving to divide the space without obstructing the line of sight.
+Curtains on Both Sides:
+This perfectly corresponds to the curtain symbols drawn along the wall in the master plan. The detailed drawing shows the specific hanging method: they are symmetrically distributed on both sides of the door and elegantly tied back with straps, suggesting their functional opening and closing capabilities.
+The curtains hang from a top recess (a concealed curtain box) and extend down to the floor, a design that enhances the vertical sense of the space.
+Top and Bottom Structure:
+The soffit/bulkhead above the door corresponds to the wall structure in the floor plan. Its main purpose is to hide the curtain track, making the overall visual appearance cleaner and more complete.
+The finished skirting board (WD 05) at the bottom corresponds to the finishing treatment at the base of the wall.
+Elevation 4
+This wall's design is a symphony of materials, colors, and light, with various elements working together to form a rich yet unified whole.
+
+Unified Tone:
+PT 01 Light Gray Emulsion Paint: Serving as the main background color across all three zones, this neutral and soft gray seamlessly connects the spaces with different functions, creating visual continuity and a sense of unity.
+Differentiated Zonal Design:
+Bedroom Zone: The base under the bed uses MT 01 Black Matte Metal, creating a light, "floating" effect that is modern and sleek. The skirting boards on the sides are WD 05 Finished Skirting Boards.
+Living Room Zone: The wall base in the sofa area uses ST 01 Artificial Stone. The use of this material subtly defines the living room area visually and enhances its sense of stability and quality.
+Storage Cabinet Zone: This is the area with the richest mix of materials, a carefully designed "material collage."
+Detailed Layout Analysis of S-35 Room Type
+1. Foyer
+Room Layout & Furnishings:
+To the left of the entrance, there is a shoe cabinet (SHOES CABINET), with dimensions noted as W=820mm, providing basic entry storage.
+Functional and Layout Analysis:
+As a transitional area upon entry, the foyer's design is simple and clear. Though not large, the shoe cabinet meets the core need. The circulation path leads directly to the interior kitchen and living spaces, creating a clear flow.
+2. Kitchen (厨房)
+Room Layout & Furnishings:
+Single-wall Kitchen Cabinet (KITCHEN CABINET): Arranged along the wall, it integrates storage, food preparation, and cooking functions. Although the stove is not explicitly drawn, its position is typically within the prep area.
+Sink: Located in the middle of the cabinet run.
+Closet: A closet is integrated next to the kitchen area. This is an unconventional but space-efficient approach that increases overall storage capacity.
+Functional and Layout Analysis:
+This is a typical open-plan kitchen, fully connected to the living and dining areas (which are combined), forming an expansive public activity zone (LDK - Living, Dining, Kitchen).
+Advantage: It significantly enhances the sense of space in a small unit.
+Disadvantage: Cooking fumes and noise may affect the entire living room and bedroom.
+3. Living Room (客厅)
+Room Layout & Furnishings:
+Two-seater Sofa (SOFA / 沙发): The core piece of furniture in this area, defining its function for socializing and relaxation.
+Refrigerator (Fridge) and Washer-Dryer Combo: These two appliances are cleverly recessed into a niche between the kitchen and the bathroom, creating an appliance zone.
+Functional and Layout Analysis:
+The living room serves as the central hub of the entire unit, connecting the circulation paths to the kitchen, bedroom, and bathroom.
+The layout is very compact, without a separate TV console or coffee table, suggesting a space that may prioritize social interaction or a minimalist lifestyle.
+Placing the refrigerator and washing machine outside the main kitchen work area is a strategy to save countertop space in the kitchen and centralize appliances.
+4. Bedroom (寝室)
+Room Layout & Furnishings:
+Double Bed (BED / ベッド): Dimensions are noted as 1500x2000mm, a standard double bed size.
+Nightstand (NIGHTSTAND / 小さな机): One on each side of the bed, measuring 450x450mm, providing convenient storage.
+Closet: Located at the far end of the bedroom area, it works with the closet next to the kitchen to form the main clothing storage system.
+Functional and Layout Analysis:
+There is no physical wall or door separating the bedroom from the living room, creating a layout similar to a "studio" or "open-plan" apartment.
+This design maximizes the sense of openness and natural light but sacrifices the bedroom's privacy and sound insulation. The bed is positioned facing the public area without any screening.
+5. Bathroom System (Bathroom Area)
+Room Layout & Furnishings:
+The design of this area is a highlight, featuring an efficient, multi-part separated layout.
+Vanity (VANITY / 化粧台): Set up independently in the "dry area," it is convenient for daily washing without affecting the use of the "wet area."
+Independent Bathroom (BATHROOM / 浴室): This "wet area" contains the Toilet (TOILET / 便器) and Shower (SHOWER / 浴室).
+Functional and Layout Analysis:
+This design is a typical "wet/dry separation" layout. The vanity is placed outside, while the toilet and shower are combined inside.
+Key Advantages:
+Improved Efficiency: One person can use the vanity while another uses the toilet or shower, resolving usage conflicts during peak morning and evening hours.
+Maintains Dryness and Hygiene: Steam is contained within the innermost shower area, keeping the external vanity and floor dry, which reduces bacterial growth and the risk of slipping.
+Part Two: Overall Layout Summary and Analysis
+1. Overall Layout and Circulation Evaluation
+Zoning of Active and Quiet Areas: The separation between "active" and "quiet" zones in this unit is relatively blurred. The active zone (kitchen, living room) and the quiet zone (bedroom) are not strictly physically separated but are integrated. The bathroom, which requires the most privacy, is properly placed in a corner of the unit, out of the direct line of sight from the main resting area. This layout sacrifices traditional "quietness" in exchange for a sense of space and flexibility.
+Internal Circulation: The circulation is smooth but has some intersections.
+Upon entering from the foyer, two main circulation paths are formed:
+Living Path: Foyer → Kitchen → Living Room → Bedroom.
+Functional Path: Foyer → Appliance Zone (Fridge/Washer) → Bathroom.
+The circulation design is efficient, with no wasted corridor space. However, getting from the kitchen to the refrigerator requires crossing a small part of the living space, which might slightly disturb someone resting on the sofa.
+2. Outstanding Design Merits
+Extreme Space Integration and Storage Planning: Within the limited space, the designer has maximized storage potential by creating a recessed appliance zone and incorporating multiple closets and cabinets. In particular, integrating appliances along a circulation path, while sacrificing some convenience, frees up valuable internal space in the kitchen and bathroom.
+Sense of Space from an Open Layout: By opening up the kitchen, living room, and bedroom, the design creates a feeling of spaciousness and transparency that far exceeds the unit's actual square footage. For a single person or a couple, this openness and interactivity can significantly enhance the living experience.
+Analysis Report of Whole-House Electrical Points for S-35 Room Type
+Foyer / Kitchen Area:
+A video intercom will be installed on the wall next to the entrance door and on the side of the kitchen cabinet at a height of 1300mm.
+Adjacent to the intercom, a one-key master switch will be placed at the same height (1300mm) for centralized control of lights or power.
+Next to this switch, a light switch for the living/dining/kitchen area will be installed, also at 1300mm, to control downlights and socket-powered lamps in multiple zones.
+Below this switch panel, a progress adjustment panel may be reserved (height not specified), potentially serving as a smart home scene panel.
+For lighting power, the foyer cabinet light strip power will be reserved at the top of the foyer cabinet, while the kitchen cabinet light strip power will be reserved underneath the kitchen wall cabinets, both from the ceiling.
+Kitchen Appliance Sockets:
+The range hood socket will be located inside the wall or wall cabinet above the stove at a height of 2100mm.
+The kitchen countertop wall will have three spare five-hole sockets at 1050mm and one rice cooker socket at 1200mm.
+Inside the base cabinets, a socket for a built-in dishwasher will be installed under the sink at 550mm. Additionally, a socket for an induction cooktop will be reserved inside a base cabinet at 600mm.
+Living Room / Multi-function Area:
+Inside the FMJ0620 multi-function cabinet, a refrigerator power socket will be installed at 350mm, featuring 24-hour uninterrupted power and an independent switch.
+Above the multi-function cabinet's countertop, a socket for an all-in-one water bar will be placed at 1050mm.
+On the wall next to the FMJ0620 cabinet, a cabinet light strip switch will be installed at 1300mm to control light strips in the foyer, closet, and bookcase areas.
+Adjacent to this switch, a one-key-off switch at the same 1300mm height will function as a smart control panel.
+A floor socket will be installed next to the sofa, under a side table.
+TV Wall Area:
+One spare five-hole power socket at 350mm.
+One HDMI signal socket, also at 350mm.
+One network panel (DATA, for fiber optic access) at 350mm.
+An emergency alarm button will also be installed in the TV wall area at a height of 900mm.
+Bedroom Area:
+The right wall of the headboard will have a five-hole socket for a table lamp/charging and a spare five-hole socket, both at a height of 750mm.
+The left wall of the headboard, also at 750mm, will have the bedroom light switch (controlling bedroom downlights and ambient lights), a two-way switch for the living/dining room lights (allowing control from the bedroom), and a USB charging socket.
+For projection equipment, a five-hole power socket for a projector and an HDMI signal output point will be installed on the wall opposite the bed, 400mm from the ceiling.
+Finally, the power for the projection screen will be reserved inside the ceiling on the side of the bed.
+Bathroom Area:
+A waterproof socket for a smart toilet (Washlet) will be installed on the wall behind and to the side of the toilet at a height of 350mm.
+The wall next to the washbasin will have two sockets: a shaver power socket at 1300mm (usually with a dedicated symbol) and a dedicated five-hole socket for a hairdryer, also at 1300mm.
+Design Analysis Report of Whole-House Floor Materials for S-35 Room Type
+The floor material distribution is as follows:
+
+Foyer: The floor area and the base of the wall/column on the left side of the entrance are paved with ST 04 Stone.
+Bathroom: The entire floor, including the shower and toilet areas, is finished with CT 01 Ceramic Tile.
+Living Room, Dining Area, Bedroom, and Kitchen: The main living and circulation areas are uniformly laid with SP 01 LVT (Luxury Vinyl Tile) Wood-grain Flooring. LVT is a luxury vinyl flooring with a wood grain effect on the surface.
+Window Edge: The narrow area along the far-right window is finished with ST 05 Stone.
+Ceiling Design Analysis Report for S-35 Room Type
+This analysis is based on a comparison of the floor plan and the reflected ceiling plan. Below is a detailed description of the ceiling design, broken down by functional area:
+
+1. Foyer / Kitchen:
+Ceiling Height & Finish: The overall ceiling height is CH 2400, and the finish is PT 03 (White Emulsion Paint).
+Other Equipment:
+Fire Safety: Equipped with one fire sprinkler head.
+Structural Features: There is a decorative dropped ceiling (bulkhead) above the kitchen cabinets.
+2. Bathroom / Shower Area:
+Ceiling Height & Finish:
+The main area has a ceiling height of CH 2390, with a PT 04 (Waterproof Emulsion Paint) finish.
+The separate toilet room has a ceiling height of CH 2540, also with a PT 04 (Waterproof Emulsion Paint) finish.
+HVAC Equipment: Equipped with one T01 model exhaust fan.
+Access Panel: One access panel is included for maintenance of concealed equipment.
+Fire Safety: Equipped with one fire sprinkler head.
+3. Living Room:
+Ceiling Height & Finish:
+The main area has a ceiling height of CH 2600, with a PT 03 (White Emulsion Paint) finish.
+The ceiling height at the curtain box area near the window is CH 2180.
+HVAC Equipment: Equipped with one concealed ducted air conditioning unit (located in the ceiling between the living room and bathroom), which supplies air through one S/A (Supply Air) grille.
+Fire Safety: Equipped with three fire sprinkler heads.
+Structural Features: A full-length curtain box is installed along the window side.
+4. Bedroom:
+Ceiling Height & Finish:
+The ceiling height is CH 2600, with a PT 03 (White Emulsion Paint) finish.
+The ceiling height at the curtain box area near the window is CH 2180.
+Other Equipment:
+Fire Safety: Equipped with two fire sprinkler heads.
+Structural Features: A curtain box is installed along the window side, continuous with the one in the living room.
+Analysis Report of Whole-House Lighting Fixture Points for S-35 Room Type
+List of Whole-House Lighting Fixtures:
+
+Foyer:
+2 x R02 Recessed Waterproof Downlights are installed in the ceiling of the main passage.
+1 x R06 Concealed Linear Light Strip is installed at the top or bottom of the entrance shoe cabinet for indirect lighting.
+All fixtures are controlled by the wall switch panel at the entrance.
+The foyer ceiling is also equipped with 1 x Smoke Detector (④).
+Kitchen:
+2 x R02 Recessed Waterproof Downlights are installed in the ceiling of the walkway between the work area and the foyer.
+1 x R05 Concealed Linear Light Strip is installed under the kitchen wall cabinets to provide task lighting for the countertop.
+All kitchen fixtures are controlled by the wall switch panel at the entrance.
+Living Room:
+2 x R01 Recessed Adjustable Downlights are installed near the kitchen side for adjustable accent lighting.
+2 x R04 Recessed Finished Lights are installed in the central area of the living room to provide main ambient light.
+These fixtures are controlled by the S/A switch at the entrance.
+The living room ceiling is also equipped with 1 x Speaker (S).
+Bedroom:
+1 x R04 Recessed Finished Light is installed in the central area.
+1 x R05 Concealed Linear Light Strip is set within the ceiling cove near the window to create ambiance. These two sets of lights are controlled by the wall switch at the bedroom entrance.
+Specifically, 2 x R01 Recessed Adjustable Downlights are installed directly above the headboard as reading lights. They are controlled by a separate bedside switch, offering the convenience of not having to get out of bed to turn off the lights.
+Bathroom:
+3 x R01 Recessed Adjustable Downlights are installed in the dry area (above the vanity and toilet).
+1 x R03 Recessed Waterproof Downlight is installed inside the shower for safety.
+1 x R05 Concealed Linear Light Strip is set above or below the mirror cabinet to provide facial illumination.
+All bathroom fixtures are controlled by the wall switch outside the door.
+The area is also equipped with 1 x Heater Fan.
+Lighting Control Circuit Design Functional Description:
+
+The whole-house lighting is controlled by wall switches with carefully planned circuits to enhance convenience, comfort, and safety.
+Central Control Hub: The main control panel at the entrance (Foyer/Kitchen area) serves as the primary hub upon entering. It centralizes the circuits for the foyer, kitchen walkway, and kitchen counter lights, and includes an S/A switch. This switch may be a two-way or multi-way design, allowing users to light up the public areas upon entry and conveniently turn them off when leaving.
+Bedside Convenience: The bedroom features independent bedside control. The two R01 adjustable downlights above the headboard are on a separate circuit from the main light, allowing users to turn off the overhead lights directly from the bed, creating a hotel-like comfortable experience and providing ideal lighting for reading at night.
+Zoned Lighting Strategy: The entire house adopts a functional zoned lighting strategy, using a combination and grouped control of downlights, spotlights, and strip lights instead of a single main light. This achieves multiple functions:
+Accent Lighting: Provided by the R01 adjustable downlights in the living room and bedroom to create visual focal points.
+Task Lighting: Provided by the R05 light strip under the kitchen cabinets to ensure shadow-free food preparation.
+Ambient Lighting: The soft, indirect light from the R05 strip light by the bedroom window and the R06 strip in the foyer cabinet enhances the spatial layering.
+Safety Lighting: The dedicated R03 waterproof downlight in the wet shower area ensures electrical safety in a humid environment.
+Plumbing System Design Analysis Report for S-35 Room Type
+Fire Protection and Plumbing System Diagram
+
+Water Supply System:
+The system includes a Cold Water System (A-J3L-4) and a Hot Water System (A-R1L-4).
+Pipe Specifications: Main and larger branch pipes are De32 (32mm outer diameter), smaller branches are De25 (25mm outer diameter), and terminal branches are De20 (20mm outer diameter).
+The system primarily supplies water to the shower, washbasin, and other fixtures.
+Key Components: Valves are installed at the beginning of the main pipe and some branches, and flexible joints (RJ) are used at multiple connection points.
+Drainage System:
+The system consists of a Soil Stack (A-WL-4), a Waste Stack (A-FL-4), and a Kitchen Waste Stack (A-CFL-4).
+Pipe Specifications: The main stack is De110 (110mm outer diameter), larger horizontal branches are De75 (75mm outer diameter), and branches connecting to fixtures are De50 (50mm outer diameter).
+Design Requirements:
+A P-trap is installed below each drainage point (floor drain) for a water seal to prevent odors.
+A cleanout is provided at the lowest point on this floor for pipe inspection and maintenance.
+A vent pipe is installed at the highest point of the system and is specified to extend to the roof to balance air pressure and ensure smooth drainage.
+Fire Sprinkler System:
+This is an automatic fire sprinkler system with its water source drawn from the fire hydrant system.
+Pipe Specifications: The initial main pipe is DN50 (50mm nominal diameter), branch pipes are DN40 (40mm nominal diameter) and DN32 (32mm nominal diameter), and terminal branches are DN25 (25mm nominal diameter).
+Installation Height: The centerline of the DN50 pipe is 2.35 meters above the Finished Floor Level (F.F.L) of this floor. The centerline of the DN40/DN32 pipes is 2.75 meters above the F.F.L.
+Core Component: The automatic sprinkler heads installed at the end of each branch pipe.
+Whole-House Elevation Design Analysis Report for S-35 Room Type
+"Elevation One" Detail Drawing
+This elevation shows the complete wall surface as seen when standing in the kitchen/foyer area and looking towards the living room sofa and bedroom. It directly corresponds to the long wall between Axis 7 and Axis 8 on the master floor plan, which the sofa, nightstands, and bed are placed against.
+
+Right Side - Folding Door:
+Elevation View: On the right side of the drawing, the large element with a vertical texture, labeled LAMINATE FINISH and folding door.
+Floor Plan View: This corresponds to the entrance/partition of the BEDROOM. On the floor plan, there is no traditional door in this location, but rather an open interface, which confirms the designer's intention to use a flexible folding door for space division. When the door is open, the living room and bedroom are integrated; when closed, they form separate, private spaces.
+Center - Sofa & Background Wall:
+Elevation View: The sofa in the center, the "art" (area for hanging artwork) above it, and the PT 01 Light Gray Emulsion Paint wall behind it.
+Floor Plan View: This precisely corresponds to the LIVING ROOM area, where the sofa is positioned on the floor plan.
+Left Side - Decorative Combination Zone:
+Elevation View: The composite area on the left of the drawing, consisting of light gray laminate panels, a mirror, a low cabinet below, and a light gray emulsion paint wall.
+Floor Plan View: This area corresponds to the wall space to the left of the sofa on the floor plan, near the exterior wall of the bathroom. Floor plans typically do not show movable or custom furniture, whereas the elevation drawing details the custom design of this wall section, serving as an extension of the living room's function and providing visual balance.
+Elevation Three Detail Drawing
+This elevation shows a wall space with a width of 4060mm and a clear height of 2550mm (total height 2600mm). From left to right, it can be broken down into three main vertical zones:
+
+Left Side - Vanity Area (Width 600mm):
+Base Cabinet: A 600mm wide, 875mm high cabinet, made of WD Ø1 Light Gray Laminate.
+Basin: An undermount or vessel sink is installed on top of the cabinet.
+Faucet: A wall-mounted faucet extends from the wall.
+Mirror/Opening: Above the basin is an 800mm high area, which could be a mirror or an opening to the space behind, aligned at the top with a horizontal structural beam.
+Wall: The background wall in this area is PT Ø3 White Emulsion Paint.
+Center - Feature Wall (Width 1760mm + 700mm):
+This is the visual core, divided by a 700mm wide vertical wood-grain panel.
+Main Wall: A 1760mm wide wall surface, finished with PT Ø1 Light Gray Emulsion Paint.
+Vertical Panel: A 700mm wide vertical element, made of WD Ø1 Light Gray Laminate, the same material as the left cabinet but creating a different visual effect through the vertical orientation of the wood grain.
+Right Side - Open/Low Platform Area (Width 1000mm):
+Wall: The wall here is also PT Ø1 Light Gray Emulsion Paint.
+Platform/Base: There is a low structure on the floor, possibly a platform or part of a piece of furniture, with its height not detailed.
+Unifying Elements:
+Skirting: The entire base of the wall is unified by a WD Ø5 Finished Wood Skirting, 50mm in height.
+Elevation Two Detail Drawing
+Core Information Summary:
+
+Location: Main background wall of the Living Room, also serving as the partition between the living room and the Bathroom.
+Main Materials:
+Frame: Black Matte Metal.
+Partition: Patterned Glass + Clear Glass.
+Wall: Light Gray Paint.
+Side Cabinet: Light Gray Laminate.
+Countertop: Man-made Stone.
+Skirting: Finished Wood Skirting.
+Key Dimensions:
+Overall Width: 4060 mm.
+Overall Height: 2600 mm.
+Glass Partition Width: 3460 mm.
+Right Side Cabinet Width: 600 mm.
+Side Cabinet Height: 870 mm.

@@ -1,0 +1,111 @@
+Project Overview
+
+This project is the second phase of Xingya Plaza, a Class 1 high-rise residential building. The building information is as follows:
+
+Building Height: 78 meters.
+Number of Floors: 21 floors above ground, 2 floors underground. (Note: The number of floors mentioned here is the actual number of constructed floors. Unlucky numbers such as 4 or 14 will be omitted in the final operational floor numbering, so the constructed floor count will differ from the operational floor numbering).
+Total Construction Area: 51,593.86 m², with 38,997.66 m² above ground and 12,596.20 m² underground.
+Water Supply System
+
+(A) Domestic Water Supply System
+
+Water Source: The water is supplied from two DN300 municipal water mains on Yongxing Road to the north and Longjiang Road to the south. The municipal water pressure is 0.16 MPa.
+Water Consumption: The maximum daily water consumption is 284.9 m³/day, and the maximum hourly water consumption is 38.6 m³/hour.
+Supply Method: A combined system of direct municipal supply and zoned variable frequency pressurized supply is used.
+The south tower's residential units and supporting facilities are supplied by water tanks, variable frequency pumps (1 in use, 1 standby), and a pneumatic tank.
+The north tower's commercial and office facilities use a tankless pressure boosting system (mains-superimposed), with pumps configured as 1 in use and 1 standby.
+All water supply pumps shall be high-efficiency products that meet the energy-saving evaluation value standards.
+The domestic water pump room is located on the B1 level.
+Supply Zoning:
+South Tower (Residential): Low Zone: -2F to 6F; Mid Zone: 7F to 17F; High Zone: 18F to 21F.
+North Tower (Commercial/Office): Mid Zone: 2F to 12F; High Zone: 13F to 16F.
+Pressure Control:
+To ensure that the static water pressure at consumption points does not exceed 0.20 MPa, adjustable pressure reducing valves are installed on branch pipes on certain floors.
+Pressure reducing valves are installed on the branch pipes of the 2F-4F, 8F-10F, and 13F-14F of the north tower, and the 2F-3F, 7F-10F, 13F-15F, and 18F of the south tower, with the post-valve pressure controlled at 0.18 MPa.
+Water Quality Assurance:
+The domestic water tank is made of 304 stainless steel.
+An ultraviolet (UV) sterilizer is installed inside the water tank.
+Water quality monitoring sampling points are provided for the domestic and direct drinking water systems, and an online monitoring system is planned.
+(B) Domestic Hot Water System
+
+Supply Method:
+Residential bathrooms use centralized gas-fired wall-hung boilers to produce hot water at a supply temperature of 60°C.
+The system employs a full-time mechanical circulation system with two circulation pumps (mutually standby).
+Hot Water Consumption:
+Residential: Maximum daily hot water consumption is 27.1 m³/day; maximum hourly consumption is 5.36 m³/hour.
+Commercial: Maximum daily hot water consumption is 65.7 m³/day; maximum hourly consumption is 12.28 m³/hour.
+Circulation Control: The circulation pumps are automatically controlled by a contact-point thermometer on the return pipe, starting at 50°C and stopping at 55°C.
+Heating Equipment: The outlet water temperature of the central hot water system's heating equipment shall not exceed 70°C, and the hot water outlet temperature at distribution points shall not be lower than 46°C.
+Drainage System
+
+(A) Sewage and Wastewater System
+
+Discharge Method: Indoor sewage and wastewater are discharged separately. Wastewater from areas above the ±0.00 elevation is discharged by gravity into the outdoor pipe network. Sewage and wastewater from areas below the ±0.00 elevation are lifted by submersible sewage pumps before being discharged into the outdoor network.
+Discharge Volume: The maximum daily drainage is 256.26 m³/day, and the maximum hourly drainage is 32.56 m³/hour.
+Network Connection: The final discharge is into the DN300 municipal combined sewage main on Longjiang Road to the south.
+Special Treatment: Wastewater from the underground garage is collected in drainage channels and flows into a collection pit (with grease and sand trapping functions) before being lifted and discharged by submersible pumps. Kitchen wastewater is treated by a grease trap before being discharged into the municipal sewage pipeline.
+(B) Rainwater System
+
+Design Standard: Outdoor rainwater is designed for a 5-year return period, while indoor roof rainwater is designed for a 10-year return period.
+Collection and Discharge: Roof rainwater is drained using a gravity-flow system with siphonic roof drains (Type 87).
+Rainwater Utilization: A portion of the outdoor rainwater, after first-flush diversion, is collected in a rainwater recycling tank in the basement. After treatment processes such as filtration and disinfection, it is used for landscape irrigation and road washing on the site.
+Fire Protection System
+
+Fire Water Source: Municipal tap water is used as the fire water source, with a pressure of 0.16 MPa. The system does not have a fire water storage tank and uses fire pumps that boost pressure from the municipal network.
+System Overview:
+System Name	Design Flow Rate	Duration	Water Supply Method	Total Water Volume per Fire
+Outdoor Fire Hydrant	40 L/s	2 h	Direct Municipal Supply	288 m³
+Indoor Fire Hydrant (Above Ground)	40 L/s	2 h	Municipal Mains-Boosted	288 m³
+Automatic Sprinkler System	50 L/s	1 h	Municipal Mains-Boosted	180 m³
+(A) Indoor Fire Hydrant System
+
+System Type: A temporary high-pressure fire hydrant system is used.
+Fire Hydrant Pumps: Located in the B1 level pump room, with parameters Q=40 L/s, H=110m, N=90kW, one in use and one standby.
+Roof Tank: A 36 m³ fire water tank is located on the roof of the south tower for initial fire-fighting use.
+Pressure Control: The outlet pressure at the hydrant valve shall not exceed 0.50 MPa. If it does, pressure-reducing and stabilizing hydrants will be used.
+System Zoning:
+South Tower: High Zone: 7F-21F; Low Zone: -2F-6F.
+North Tower: High Zone: 7F-17F.
+(B) Automatic Sprinkler System
+
+Hazard Classification: The fire hazard for the above-ground residential, commercial, office areas, and the underground garage is designed as "Ordinary Hazard Group I".
+Sprinkler Pumps: Located in the B1 level pump room, with parameters Q=50 L/s, H=120m, N=110kW, one in use and one standby.
+Sprinkler Head Selection:
+General Areas: Pendent or concealed sprinklers with a 68°C activation temperature and K=80 are used in most areas with suspended ceilings. Upright sprinklers with 68°C activation temperature and K=80 are used in areas without suspended ceilings.
+Underground Garage: DN15 upright, quick-response sprinklers with a 68°C activation temperature and K=80 are used.
+Kitchen Stoves: DN15 upright sprinklers with a 93°C activation temperature and K=80 are used.
+Pressure Control: Measures must be taken to eliminate pressures exceeding 0.4 MPa at the inlet of any zone's distribution piping.
+(C) Other Fire-fighting Facilities
+
+Gas Fire Extinguishing System: A heptafluoropropane (HFC-227ea) gas fire extinguishing system is installed in areas such as transformer rooms and critical equipment rooms. The detailed secondary design will be carried out by a specialized company.
+Fire Extinguisher Configuration:
+Above Ground (Ordinary Hazard): Two MF/ABC4 portable dry chemical fire extinguishers are placed in locations such as the lower part of fire hydrant cabinets, with a maximum protection distance of 20 meters.
+Underground Garage (Severe Hazard): Two MF/ABC5 portable dry chemical fire extinguishers are provided, with a maximum protection distance of 15 meters.
+Electrical/ELV Shafts, Fire Control Room (Severe Hazard): Two MF/ABC5 portable dry chemical fire extinguishers are provided in each location, with a maximum protection distance of 15 meters.
+Main Pipes and Equipment
+
+Domestic Water Supply Piping:
+Mains are made of thin-walled stainless steel pipe (Type 304). Compression fittings are used for DN≤100mm, and flanged connections for DN>100mm.
+Household branch pipes are PP-R, connected by heat fusion.
+Drainage Piping:
+Indoor bathroom sewage/wastewater pipes, vent pipes, and kitchen drain pipes are made of HDPE silent pipe, connected by heat fusion.
+Rainwater and condensate drain pipes are UPVC plastic.
+Pressure drainage pipes for submersible sewage pumps are hot-dip galvanized steel.
+Fire Protection Piping: Primarily uses hot-dip galvanized steel pipe (internal and external walls).
+Noise and Vibration Reduction:
+Low-noise pumps are used and installed on vibration-damping foundations.
+Flexible rubber joints are installed on the pump inlet and outlet pipes.
+Silent or slow-closing check valves are used on the pump outlet pipes.
+Installation and Special Requirements
+
+Pipe Insulation:
+Anti-freeze insulation is required for water supply and fire protection pipes in areas susceptible to freezing, such as underground entrances and rooftops.
+Thermal insulation is required for all hot water and hot water return pipes.
+Anti-condensation insulation is required for condensate drain pipes and water supply pipes in humid areas.
+The insulation material shall be high-quality closed-cell material, with thickness varying from 20mm to 40mm depending on the pipe diameter.
+Pipe Slope: Gravity drainage horizontal pipes must be laid with the specified slope, e.g., a slope of 0.012 for a De110 diameter pipe.
+Seismic Design:
+Seismic bracing and supports are required for all water supply, drainage, and fire protection piping systems with a diameter of DN65 or greater.
+The principle for setting seismic supports is: a maximum transverse spacing of 12 meters and a maximum longitudinal spacing of 24 meters for rigid pipes; spacing is halved for flexible pipes.
+The detailed design will be completed by a professional seismic support manufacturer.
+Pipe Pressure Testing: Each piping system has specific test pressure requirements. For example, the test pressure for the indoor fire hydrant system is 1.88 MPa, and for the automatic sprinkler system, it is 2.00 MPa.

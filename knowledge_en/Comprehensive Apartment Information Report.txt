@@ -1,0 +1,40 @@
+1. Room Type Overview and Distribution
+
+This project has a total of 579 apartment units. Among them, the Studio Deluxe, with a gross floor area of 42-48 square meters, totals 22 units, all located on floors B2 to 16 of Building B. The Studio Executive, with a gross floor area of 50-69 square meters, has a total of 360 units, distributed between Building A (344 units, floors A2-25) and Building B (16 units, floors B8-18). The Studio Premier, with a gross floor area of 67 square meters, totals 12 units, all located on floors A8-21 of Building A. The One Bedroom Deluxe, with a gross floor area of 58-88 square meters, has 150 units, distributed between Building A (46 units, floors A8-25) and Building B (104 units, floors B2-19). The One Bedroom Premier, with a gross floor area of 77-99 square meters, has 19 units, with 1 unit on floor A2 of Building A and the remaining 18 units on floors B3-19 of Building B. The Two Bedrooms Executive, with a gross floor area of 108 square meters, totals 15 units, all located on floors A8-25 of Building A. The Three-bedroom apartment, with a gross floor area of 134 square meters, is a single unit located on floor B19 of Building B.
+
+2. Detailed Building Layout
+
+Building A: The 1st floor features Lobby 1, a coffee bar, 2 retail shops, and 3 offices. The 2nd floor has 18 units, with A201-A218 being Studio Executives and A219 being a One-Bedroom Premier. The 3rd and 5th floors each have 33 units; A335 and A533 are Two-Bedroom Deluxe apartments, and the rest are Studio Executives. The 6th floor has 32 units; A635 is a Two-Bedroom Deluxe, and the rest are Studio Executives. The 7th floor is a public area. The open-air connection between Buildings A and B contains a swimming pool, jacuzzi, etc. The public area on the 7th floor of Building A includes a lounge, barbecue area, meeting rooms, a live-streaming room, and an office area. The public area on the 7th floor of Building B includes a bar and a karaoke area. From the 8th to the 21st floor of Building A, each floor has 21 units, where units Axx02, Axx11, and Axx23 are One-Bedroom Deluxe apartments, Axx15 is a Studio Premier, Axx22 is a Two-Bedroom Deluxe, and the rest are Studio Executives. The 22nd floor has 18 units; A2202 and A2220 are One-Bedroom Deluxe apartments, A2219 is a Two-Bedroom Deluxe, and the rest are Studio Executives. The 23rd and 25th floors each have 16 units; A2302, A2320, A2502, and A2520 are One-Bedroom Deluxe apartments, A2319 and A2519 are Two-Bedroom Deluxe apartments, and the rest are Studio Executives.
+
+Building B: The 1st floor features a lobby. The 2nd floor has 7 units; B208, B209, B210, B211, B212, and B215 are One-Bedroom Deluxe apartments, and B213 is a Studio Deluxe. The 3rd, 5th, and 6th floors each have 13 units, where B301, B315, B501, B515, B601, and B615 are One-Bedroom Premier apartments; B302, B308, B313, B502, B508, B513, B602, B608, B609, and B613 are Studio Deluxe apartments; and the rest are One-Bedroom Deluxe apartments. The 7th floor has 9 units; B706, B708, and B709 are Studio Deluxe apartments, and the rest are One-Bedroom Deluxe apartments. From the 8th to the 12th floors, as well as the 15th and 16th floors of Building B, each floor has 12 units, where Bxx12 is a One-Bedroom Premier, Bxx07 is a Studio Deluxe, Bxx08 and Bxx13 are Studio Executives, and the rest are One-Bedroom Deluxe apartments. The 17th and 18th floors each have 9 units; B1707, B1709, B1807, and B1809 are One-Bedroom Premier apartments; B1710 and B1810 are Studio Executives, and the rest are One-Bedroom Deluxe apartments. The 19th floor has 4 units and an equipment room; B1907 and B1908 are One-Bedroom Deluxe apartments, B1909 is a One-Bedroom Premier, and B1910 is the Three-Bedroom apartment.
+
+3. In-Room Facilities and Item Checklist
+
+Studio Apartments (Studio Deluxe, Studio Executive, Studio Premier): The standard configuration in the kitchen and dining area includes: 1 Whirlpool refrigerator, 1 Whirlpool range hood, 1 Whirlpool microwave, 1 Whirlpool washer-dryer combo, 1 Whirlpool induction cooktop (in some units), 1 Panasonic electric kettle, 2 sets of tableware/glassware/cutlery, 1 dining table, 2 dining chairs, 1 pot, 1 spatula, 1 set of Zhang Xiao Quan knives, 1 shoe cabinet, and 1 trash bin. The living area has: 1 projector with remote and 1 projection screen (in some units), 1 storage cabinet, 1 sofa, 1 coffee table, 1 router, and 1 set-top box with remote. The bedroom is furnished with: 1 1.5-meter or 1.6-meter bed frame, 1 mattress, 1-2 bedside tables, 1 bedside lamp, 1 set of curtains, 1 safe, 6 clothes hangers, and 1 set of bedding. The bathroom is equipped with 2 bath towels, 2 face towels, 1 trash bin, 1 hair dryer, and a washlet (in some units). Other configurations include 1 full-length mirror, a Trane air conditioning system, and Legrand switches and sockets.
+
+One-Bedroom Deluxe Apartments: The configuration is largely similar to the studio types but with differences in space and some furniture. The living room adds 1 Sharp TV with remote, 1 TV cabinet, 1 two-seater sofa, 1 ottoman, 1 round coffee table, and 1 set of curtains; the router and set-top box with remote are the same. The master bedroom bed frame is upgraded to 1.8 meters, with 2 bedside tables, 1 bedside lamp, and 1 chest of drawers; other furnishings are the same. The kitchen, dining, and bathroom configurations are similar to the studio types.
+
+Two/Three-Bedroom Apartments: These build upon the one-bedroom layout with additional bedroom and bathroom configurations. The second bedroom is equipped with 1 1.5-meter bed frame, 1 mattress, 1 bedside table, 6 clothes hangers, 1 set of bedding, and 1 chest of drawers. The second bathroom is equipped with 2 bath towels, 2 face towels, 1 trash bin, and 1 washlet. The number of dining chairs is increased to 4. The three-bedroom apartment adds another bedroom configuration on top of the two-bedroom layout.
+
+4. Public Utilities and Services
+
+Utilities: Cold water is priced at 6 RMB per cubic meter, subject to fluctuations based on the monthly standard of the water supply bureau. Hot water is 45 RMB per cubic meter. Residential electricity is 1.2 RMB per kilowatt-hour, subject to fluctuations based on the monthly standard of the power supply bureau. Air conditioning electricity is 0.7 RMB per kilowatt-hour.
+
+Services: The project provides a once-a-week housekeeping service for all apartments.
+
+5. Other Public Facilities and Equipment
+
+Elevators: Both Building A and Building B are equipped with 3 passenger elevators and 1 service/fire elevator each. Additionally, Building A has 2 scenic elevators.
+
+6. Other Information
+
+Swimming Pool: The tentative opening hours for the swimming pool are from July 1st to August 31st, daily from 8:00 to 18:00. Available time slots for booking are 8:00-10:00, 10:00-12:00, 12:00-14:00, 14:00-16:00, and 16:00-18:00.
+
+Parking: An underground garage is located on the B1 and B2 levels. The parking fee is 10 RMB per hour, with a daily maximum of 80 RMB. A monthly parking pass is 1000 RMB, for a non-fixed parking space. The total number of parking spaces is 293, with 158 on the B1 level and 135 on the B2 level. For prospective clients visiting the property, parking is free for the first hour via an online voucher; any time exceeding one hour will be charged.
+
+7. Reference for Rental Prices:
+
+Studio: 15,655
+One-Bedroom: 21,799
+Two-Bedroom: 36,000
+Three-Bedroom: 38,000

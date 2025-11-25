@@ -1,0 +1,73 @@
+I. Power Supply and Distribution System
+Load Classification and Categorization
+Tier 1 Load: Fire-fighting equipment (e.g., fire pumps, smoke extraction fans, fire elevators), fire control room, security systems, passenger elevators, public lighting, domestic water pumps, etc.
+Tier 2 Load: Electric vehicle charging stations and other general power loads.
+Tier 3 Load: Other general electrical loads.
+Power Supply
+High-Voltage Power: Two 10kV power lines are introduced from the municipal grid. They operate in parallel, with each serving as a backup for the other.
+Total Power Capacity: 4000KVA.
+Low-Voltage System: The voltage is 220/380V at 50Hz, utilizing a TN-S grounding system.
+Substation
+Location: A main substation is located on the first basement level.
+Transformers: Two SCB12 type energy-efficient dry-type transformers are installed, each with a capacity of 2000KVA and a YNd11 connection group.
+Distribution Method: A combination of trunk and radial distribution methods is used.
+Power Load Index
+Residential: Type A units are designed for 8KW/unit; Type B units are designed for 12KW/unit.
+Commercial: Designed for 120W/m².
+Office: Designed for 120W/m².
+Metering: A main meter is installed at the 10kV power inlet. Sub-metering is implemented for commercial, residential, air conditioning, power, and lighting loads.
+II. Cable Laying and Selection
+Power Supply for Fire-fighting Equipment:
+The main power lines for critical fire-fighting loads such as fire pumps, the fire control room, and smoke extraction equipment shall use fire-resistant cables capable of maintaining power supply for 180 minutes at 950°C.
+Fire linkage control circuits, fire alarm bus lines, and evacuation lighting shall use fire-resistant cables capable of maintaining power supply for at least 90 minutes at 750°C.
+Laying Method:
+Main trunk cables are laid in cable trays.
+Lighting branch circuits in the basement are laid in SC20/JDG20 steel conduits, while JDG20 conduits are used in other areas.
+When high-voltage and low-voltage cables are laid in the same tray, a metal partition must be installed for separation.
+Fireproof Blocking: Cable trays and conduits must be sealed with fireproof materials (such as fireproof mastic or pillows) where they pass through different fire compartments, floors, and walls.
+III. Lighting System
+Light Source: LED is the primary light source used throughout the project.
+Luminaire Parameters:
+The light source color temperature is controlled between 3300K and 5300K.
+The color rendering index (Ra) is not less than 80.
+The power factor of the luminaires is not less than 0.9.
+Control Method:
+Residential lighting is controlled by a smart home system.
+Public areas (lobbies, corridors, etc.) use an intelligent lighting system that allows for centralized, remote, or integrated control with the Building Automation (BA) system.
+Stairwells and vestibules use sound and light-activated time-delay switches.
+Offices, restrooms, etc., use local rocker switches.
+Emergency Lighting:
+A centralized power and control system for fire emergency lighting and evacuation signage is adopted.
+The detailed design of this system will be commissioned to a specialized manufacturer by Party A.
+IV. Lightning Protection, Grounding, and Safety
+Lightning Protection Level: The building is designed and protected as a Class III lightning protection structure.
+Air Terminal: A grid of 10mm galvanized steel rods is laid on the rooftop parapet, forming an air terminal network with a mesh size not exceeding 20m×20m or 24m×16m.
+Down Conductor: Two diagonal main reinforcing bars (Φ16 or larger) within the building's structural columns are used as down conductors, with a spacing of no more than 25m.
+Grounding System:
+The rebar mesh of the building's foundation slab is used as the grounding electrode.
+A common grounding system is used throughout the building, connecting lightning protection grounding, equipment protective grounding, and low-voltage system grounding. The combined grounding resistance is required to be no more than 1.0Ω.
+Equipotential Bonding:
+A Main Equipotential Bonding (MEB) terminal box is installed in the substation on the first basement level.
+Local Equipotential Bonding (LEB) is implemented in restrooms.
+Surge Protection Device (SPD):
+Level 1: A Type 1 SPD is installed on the low-voltage busbar in the substation.
+Level 2: A Type 2 SPD is installed in the floor distribution boxes.
+Level 3: A Type 3 SPD is installed in the final distribution boxes for critical equipment.
+V. Intelligent and Monitoring Systems
+Fire Alarm System: The fire control center is located on the first basement level.
+Leakage Fire Monitoring: A leakage fire monitoring system is installed to monitor the residual current in circuits. It will trigger an audible and visual alarm and transmit a signal to the fire control room in case of an anomaly.
+Fire-fighting Equipment Power Monitoring: A power monitoring system for fire-fighting equipment is installed, with information transmitted to a dedicated display in the fire control room.
+Conduit Reservation: Conduits are reserved in the first basement level for the introduction of civil air defense services, including telephone, cable TV, and surveillance lines.
+VI. Electrical Energy Saving Measures
+High-efficiency Equipment: Use of energy-efficient LED luminaires, SCB12 or higher grade energy-saving transformers, and high-efficiency electric motors.
+Circuit Optimization: The substation is located as close as possible to the load center. Voltage drop is strictly controlled to be no more than 2% for main lines and 5% for branch lines.
+Sub-metering: Separate metering for different types of loads such as power, air conditioning, lighting, and socket outlets, integrated into the power operation monitoring system.
+Intelligent Control:
+Elevators use high-efficiency motors and energy-saving control technology. Escalators are equipped with variable frequency and energy-saving control devices.
+Group control energy-saving mode is used for two or more passenger elevators.
+VII. Explosion-proof Design
+Scope of Application: This design applies to hazardous areas with explosion risks within the project.
+Equipment Selection: All lighting fixtures, switches, junction boxes, and control boxes are explosion-proof certified products.
+Cable Laying: Thick-walled steel conduits (SC pipes) with a wall thickness of no less than 2.0mm are used for wiring.
+Fire Separation: Isolation and sealing measures must be implemented where conduits pass through walls or floors separating areas with different hazard classifications.
+Grounding: The metal enclosures of all electrical equipment in hazardous areas must be reliably grounded.
